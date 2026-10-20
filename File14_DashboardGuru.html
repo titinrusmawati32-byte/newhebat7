@@ -1,0 +1,589 @@
+<!-- File14_DashboardGuru.html -->
+<div id="view-dashboard-guru" class="view-section hidden max-w-6xl mx-auto p-4 sm:p-6 pb-24">
+  <!-- Top Greeting Card -->
+  <div class="relative overflow-hidden bg-gradient-to-r from-teal-700 via-emerald-700 to-green-700 rounded-3xl p-6 sm:p-8 text-white shadow-xl mb-6">
+    <div class="relative z-10 flex flex-col md:flex-row md:items-center justify-between gap-4">
+      <div>
+        <div class="inline-flex items-center gap-2 bg-white/20 backdrop-blur-md px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wider mb-2">
+          <i class="fa-solid fa-chalkboard-user"></i>
+          <span>Panel Wali Kelas / Guru</span>
+        </div>
+        <h1 class="text-2xl sm:text-3xl font-black tracking-tight">
+          Monitoring Jurnal: <span id="guru-nama-display">Bapak/Ibu Guru</span>
+        </h1>
+        <p class="text-emerald-100 text-xs sm:text-sm font-medium mt-1">
+          Pantau kepatuhan pembiasaan 7 karakter hebat siswa kelas Anda secara real-time.
+        </p>
+      </div>
+
+      <!-- Quick Action Buttons -->
+      <div class="flex flex-wrap items-center gap-2">
+        <button onclick="bukaModalMateriKuis()" class="px-4 py-2.5 bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl text-xs font-bold shadow-md active:scale-95 transition flex items-center gap-1.5">
+          <i class="fa-solid fa-film"></i> Kelola Materi & Kuis
+        </button>
+        <button onclick="window.print()" class="px-4 py-2.5 bg-white text-slate-800 rounded-xl text-xs font-bold shadow-md hover:bg-slate-100 active:scale-95 transition flex items-center gap-1.5">
+          <i class="fa-solid fa-print"></i> Cetak Rekap
+        </button>
+        <button onclick="muatMonitoringGuru(true)" class="px-4 py-2.5 bg-emerald-500 hover:bg-emerald-400 text-white rounded-xl text-xs font-bold shadow-md active:scale-95 transition flex items-center gap-1.5">
+          <i class="fa-solid fa-arrows-rotate"></i> Segarkan
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Filter Controls & Class Stats Bar -->
+  <div class="bg-white rounded-3xl p-5 shadow-sm border border-slate-200/80 mb-6 flex flex-col md:flex-row items-center justify-between gap-4">
+    <div class="flex flex-wrap items-center gap-3 w-full md:w-auto">
+      <div>
+        <label class="block text-[11px] font-bold text-slate-500 uppercase tracking-wider mb-1">Pilih Kelas</label>
+        <select 
+          id="guru-filter-kelas" 
+          onchange="muatMonitoringGuru(true)" 
+          class="px-3.5 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs font-bold text-slate-800 focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 transition"
+        >
+          <option value="Kelas 5A">Kelas 5A</option>
+          <option value="Kelas 5B">Kelas 5B</option>
+          <option value="Kelas 1">Kelas 1</option>
+          <option value="Kelas 2">Kelas 2</option>
+          <option value="Kelas 3">Kelas 3</option>
+          <option value="Kelas 4">Kelas 4</option>
+          <option value="Kelas 6">Kelas 6</option>
+        </select>
+      </div>
+
+      <div>
+        <label class="block text-[11px] font-bold text-slate-500 uppercase tracking-wider mb-1">Tanggal Jurnal</label>
+        <input 
+          type="date" 
+          id="guru-filter-tanggal" 
+          onchange="muatMonitoringGuru(true)" 
+          class="px-3.5 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs font-bold text-slate-800 focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 transition"
+        />
+      </div>
+    </div>
+
+    <!-- Quick Class Summary Badges -->
+    <div class="flex items-center gap-3 w-full md:w-auto justify-end">
+      <div class="text-center px-4 py-2 bg-slate-50 rounded-2xl border border-slate-100 min-w-[90px]">
+        <span id="stat-total-siswa" class="text-base font-black text-slate-800 block">0</span>
+        <span class="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Total Siswa</span>
+      </div>
+      <div class="text-center px-4 py-2 bg-emerald-50 rounded-2xl border border-emerald-100 min-w-[90px]">
+        <span id="stat-siswa-lengkap" class="text-base font-black text-emerald-700 block">0</span>
+        <span class="text-[10px] font-bold text-emerald-600 uppercase tracking-wider">7 Misi Lengkap</span>
+      </div>
+      <div class="text-center px-4 py-2 bg-amber-50 rounded-2xl border border-amber-100 min-w-[90px]">
+        <span id="stat-rata-persen" class="text-base font-black text-amber-700 block">0%</span>
+        <span class="text-[10px] font-bold text-amber-600 uppercase tracking-wider">Rata Kepatuhan</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Monitoring Table -->
+  <div class="bg-white rounded-3xl shadow-sm border border-slate-200/80 overflow-hidden">
+    <div class="overflow-x-auto">
+      <table class="w-full text-left border-collapse">
+        <thead>
+          <tr class="bg-slate-50/80 border-b border-slate-100 text-[11px] font-bold text-slate-500 uppercase tracking-wider text-center">
+            <th class="py-3.5 px-4 text-left">No</th>
+            <th class="py-3.5 px-4 text-left">Nama Siswa</th>
+            <th class="py-3.5 px-2" title="Misi 1: Bangun Pagi">H1</th>
+            <th class="py-3.5 px-2" title="Misi 2: Beribadah">H2</th>
+            <th class="py-3.5 px-2" title="Misi 3: Berolahraga">H3</th>
+            <th class="py-3.5 px-2" title="Misi 4: Gemar Belajar">H4</th>
+            <th class="py-3.5 px-2" title="Misi 5: Makan Sehat">H5</th>
+            <th class="py-3.5 px-2" title="Misi 6: Membantu Orang Tua">H6</th>
+            <th class="py-3.5 px-2" title="Misi 7: Tidur Tepat Waktu">H7</th>
+            <th class="py-3.5 px-4">Progres</th>
+          </tr>
+        </thead>
+        <tbody id="tabel-monitoring-guru-body" class="divide-y divide-slate-100 text-xs">
+          <tr>
+            <td colspan="10" class="text-center py-8 text-slate-400">
+              <i class="fa-solid fa-spinner fa-spin mr-1"></i> Memuat data jurnal siswa...
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+<!-- Modal Verifikasi Jurnal Guru -->
+<div id="modal-verifikasi-guru" class="hidden fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-sm flex items-center justify-center p-4">
+  <div class="bg-white rounded-3xl max-w-md w-full p-6 shadow-2xl border border-slate-100 relative">
+    <button onclick="tutupModalVerifikasi()" class="absolute top-4 right-4 w-8 h-8 rounded-full bg-slate-100 text-slate-500 hover:text-slate-800 flex items-center justify-center font-bold">
+      &times;
+    </button>
+    <div class="flex items-center gap-2 mb-3">
+      <div class="w-10 h-10 rounded-xl bg-emerald-100 text-emerald-600 flex items-center justify-center text-lg">
+        <i class="fa-solid fa-signature"></i>
+      </div>
+      <div>
+        <h3 id="verif-habit-title" class="text-sm font-bold text-slate-800">Verifikasi Kebiasaan</h3>
+        <p id="verif-siswa-info" class="text-xs text-slate-500">Nama Siswa (Kelas 5A)</p>
+      </div>
+    </div>
+
+    <!-- Student Detail Submitted -->
+    <div class="p-3.5 bg-slate-50 rounded-2xl border border-slate-200 mb-4">
+      <span class="block text-[11px] font-bold text-slate-500 uppercase tracking-wider mb-1">Catatan Siswa:</span>
+      <p id="verif-detail-text" class="text-xs font-semibold text-slate-800 mb-2"></p>
+      <div id="verif-foto-container" class="hidden">
+        <a id="verif-foto-link" href="#" target="_blank" class="inline-flex items-center gap-1.5 text-xs text-emerald-600 hover:underline font-bold">
+          <i class="fa-solid fa-image"></i> Lihat Foto Bukti Kegiatan
+        </a>
+      </div>
+    </div>
+
+    <form onsubmit="simpanVerifikasiSubmit(event)" class="space-y-3.5">
+      <input type="hidden" id="verif-habit-num" />
+      <input type="hidden" id="verif-row-id" />
+
+      <div>
+        <label class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1">Status Validasi</label>
+        <select 
+          id="verif-status-val" 
+          class="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs font-bold text-slate-800 focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 transition"
+        >
+          <option value="Disetujui">✅ Disetujui (Hebat & Sesuai)</option>
+          <option value="Perlu Perbaikan">⚠️ Perlu Perbaikan / Ulangi</option>
+        </select>
+      </div>
+
+      <div>
+        <label class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1">Catatan Apresiasi / Bimbingan Guru</label>
+        <textarea 
+          id="verif-catatan-guru" 
+          rows="2" 
+          placeholder="Bagus sekali Farhan! Pertahankan kebiasaan bangun pagi..." 
+          class="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs font-medium text-slate-800 focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 transition resize-none"
+        ></textarea>
+      </div>
+
+      <div class="pt-2 flex gap-2">
+        <button type="button" onclick="tutupModalVerifikasi()" class="flex-1 py-2.5 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-xl text-xs font-bold transition">
+          Batal
+        </button>
+        <button type="submit" id="btn-save-verif" class="flex-1 py-2.5 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl text-xs font-bold shadow-md shadow-emerald-600/20 active:scale-95 transition">
+          Simpan Validasi
+        </button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<!-- Modal Kelola Materi Video & Kuis Misi Guru -->
+<div id="modal-materi-kuis" class="hidden fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-sm flex items-center justify-center p-4 overflow-y-auto">
+  <div class="bg-white rounded-3xl max-w-2xl w-full p-6 shadow-2xl border border-slate-100 relative my-6">
+    <button onclick="tutupModalMateriKuis()" class="absolute top-4 right-4 w-8 h-8 rounded-full bg-slate-100 text-slate-500 hover:text-slate-800 flex items-center justify-center font-bold">
+      &times;
+    </button>
+    
+    <div class="flex items-center gap-2.5 mb-4">
+      <div class="w-10 h-10 rounded-xl bg-indigo-100 text-indigo-600 flex items-center justify-center text-lg">
+        <i class="fa-solid fa-graduation-cap"></i>
+      </div>
+      <div>
+        <h3 class="text-base font-bold text-slate-800">Kelola Materi Video & Kuis Misi Siswa</h3>
+        <p class="text-xs text-slate-500">Tentukan tautan video YouTube dan kuis interaktif yang langsung tampil pada menu siswa.</p>
+      </div>
+    </div>
+
+    <!-- Quick Tab Buttons for 7 Habits -->
+    <div class="flex items-center gap-1.5 overflow-x-auto pb-2 mb-4 scrollbar-none" id="mk-habit-tabs">
+      <button type="button" onclick="pilihTabHabitMK(1)" id="mk-tab-1" class="mk-tab-btn px-3 py-1.5 rounded-xl text-xs font-bold transition whitespace-nowrap bg-indigo-600 text-white shadow-sm">Misi 1: Bangun Pagi</button>
+      <button type="button" onclick="pilihTabHabitMK(2)" id="mk-tab-2" class="mk-tab-btn px-3 py-1.5 rounded-xl text-xs font-bold transition whitespace-nowrap bg-slate-100 text-slate-600 hover:bg-slate-200">Misi 2: Beribadah</button>
+      <button type="button" onclick="pilihTabHabitMK(3)" id="mk-tab-3" class="mk-tab-btn px-3 py-1.5 rounded-xl text-xs font-bold transition whitespace-nowrap bg-slate-100 text-slate-600 hover:bg-slate-200">Misi 3: Berolahraga</button>
+      <button type="button" onclick="pilihTabHabitMK(4)" id="mk-tab-4" class="mk-tab-btn px-3 py-1.5 rounded-xl text-xs font-bold transition whitespace-nowrap bg-slate-100 text-slate-600 hover:bg-slate-200">Misi 4: Gemar Belajar</button>
+      <button type="button" onclick="pilihTabHabitMK(5)" id="mk-tab-5" class="mk-tab-btn px-3 py-1.5 rounded-xl text-xs font-bold transition whitespace-nowrap bg-slate-100 text-slate-600 hover:bg-slate-200">Misi 5: Makan Sehat</button>
+      <button type="button" onclick="pilihTabHabitMK(6)" id="mk-tab-6" class="mk-tab-btn px-3 py-1.5 rounded-xl text-xs font-bold transition whitespace-nowrap bg-slate-100 text-slate-600 hover:bg-slate-200">Misi 6: Membantu Ortu</button>
+      <button type="button" onclick="pilihTabHabitMK(7)" id="mk-tab-7" class="mk-tab-btn px-3 py-1.5 rounded-xl text-xs font-bold transition whitespace-nowrap bg-slate-100 text-slate-600 hover:bg-slate-200">Misi 7: Tidur Tepat</button>
+    </div>
+
+    <form onsubmit="simpanMateriKuisSubmit(event)" class="space-y-4">
+      <input type="hidden" id="mk-select-habit" value="1" />
+
+      <!-- Bagian 1: Video YouTube Materi -->
+      <div class="p-4 rounded-2xl bg-indigo-50/50 border border-indigo-100 space-y-3">
+        <h4 class="text-xs font-black uppercase tracking-wider text-indigo-900 flex items-center gap-1.5">
+          <i class="fa-brands fa-youtube text-red-600"></i> Konten Video YouTube (Materi Siswa)
+        </h4>
+        <div>
+          <label class="block text-[11px] font-bold text-slate-600 mb-1">Judul Materi Video</label>
+          <input type="text" id="mk-input-judul" required placeholder="Contoh: Manfaat Bangun Pagi untuk Kesehatan" class="w-full px-3 py-2 bg-white border border-slate-200 rounded-xl text-xs font-semibold text-slate-800 focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 transition" />
+        </div>
+        <div>
+          <label class="block text-[11px] font-bold text-slate-600 mb-1">Deskripsi Singkat Materi</label>
+          <textarea id="mk-input-desc" required rows="2" placeholder="Bangun pagi membuat tubuh lebih sehat, pikiran fokus..." class="w-full px-3 py-2 bg-white border border-slate-200 rounded-xl text-xs font-medium text-slate-800 focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 transition resize-none"></textarea>
+        </div>
+        <div>
+          <label class="block text-[11px] font-bold text-slate-600 mb-1">URL Video YouTube</label>
+          <input type="url" id="mk-input-url" oninput="updatePreviewVideoGuru()" required placeholder="https://www.youtube.com/watch?v=..." class="w-full px-3 py-2 bg-white border border-slate-200 rounded-xl text-xs font-semibold text-slate-800 focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 transition" />
+        </div>
+
+        <!-- Live Thumbnail Preview Box -->
+        <div id="mk-video-preview-box" class="flex items-center gap-3 p-2 bg-white rounded-xl border border-indigo-100">
+          <img id="mk-preview-thumb" src="https://images.unsplash.com/photo-1506126613408-eca07ce68773?auto=format&fit=crop&w=300&q=80" alt="Preview" class="w-20 h-12 object-cover rounded-lg bg-slate-900 shrink-0" />
+          <div class="min-w-0 flex-1">
+            <span class="text-[10px] font-bold text-red-600 uppercase flex items-center gap-1"><i class="fa-brands fa-youtube"></i> Preview Thumbnail YouTube</span>
+            <p id="mk-preview-title" class="text-xs font-bold text-slate-800 truncate">Judul video materi...</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Bagian 2: Soal Kuis Singkat -->
+      <div class="p-4 rounded-2xl bg-slate-50 border border-slate-200 space-y-3">
+        <h4 class="text-xs font-black uppercase tracking-wider text-slate-800 flex items-center gap-1.5">
+          <i class="fa-solid fa-circle-question text-emerald-600"></i> Pertanyaan Kuis Singkat
+        </h4>
+        <div>
+          <label class="block text-[11px] font-bold text-slate-600 mb-1">Teks Pertanyaan</label>
+          <input type="text" id="mk-input-pertanyaan" required placeholder="Contoh: Apa manfaat utama dari bangun pagi?" class="w-full px-3 py-2 bg-white border border-slate-200 rounded-xl text-xs font-semibold text-slate-800 focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 transition" />
+        </div>
+
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
+          <div>
+            <label class="block text-[10px] font-bold text-slate-500 mb-0.5">Pilihan A</label>
+            <input type="text" id="mk-input-opsia" required placeholder="Pilihan A..." class="w-full px-3 py-1.5 bg-white border border-slate-200 rounded-xl text-xs font-medium text-slate-800" />
+          </div>
+          <div>
+            <label class="block text-[10px] font-bold text-slate-500 mb-0.5">Pilihan B</label>
+            <input type="text" id="mk-input-opsib" required placeholder="Pilihan B..." class="w-full px-3 py-1.5 bg-white border border-slate-200 rounded-xl text-xs font-medium text-slate-800" />
+          </div>
+          <div>
+            <label class="block text-[10px] font-bold text-slate-500 mb-0.5">Pilihan C</label>
+            <input type="text" id="mk-input-opsic" required placeholder="Pilihan C..." class="w-full px-3 py-1.5 bg-white border border-slate-200 rounded-xl text-xs font-medium text-slate-800" />
+          </div>
+          <div>
+            <label class="block text-[10px] font-bold text-slate-500 mb-0.5">Pilihan D</label>
+            <input type="text" id="mk-input-opsid" required placeholder="Pilihan D..." class="w-full px-3 py-1.5 bg-white border border-slate-200 rounded-xl text-xs font-medium text-slate-800" />
+          </div>
+        </div>
+
+        <div class="grid grid-cols-1 sm:grid-cols-3 gap-3 pt-1">
+          <div>
+            <label class="block text-[11px] font-bold text-emerald-700 mb-1">Kunci Jawaban Benar</label>
+            <select id="mk-select-kunci" class="w-full px-3 py-2 bg-white border border-emerald-300 rounded-xl text-xs font-bold text-emerald-800 focus:outline-none focus:ring-2 focus:ring-emerald-500">
+              <option value="A">Opsi A</option>
+              <option value="B" selected>Opsi B</option>
+              <option value="C">Opsi C</option>
+              <option value="D">Opsi D</option>
+            </select>
+          </div>
+          <div class="sm:col-span-2">
+            <label class="block text-[11px] font-bold text-slate-600 mb-1">Penjelasan Jawaban</label>
+            <input type="text" id="mk-input-penjelasan" required placeholder="Penjelasan saat siswa memilih jawaban benar..." class="w-full px-3 py-2 bg-white border border-slate-200 rounded-xl text-xs font-medium text-slate-800" />
+          </div>
+        </div>
+      </div>
+
+      <div class="pt-2 flex gap-2">
+        <button type="button" onclick="tutupModalMateriKuis()" class="flex-1 py-2.5 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-xl text-xs font-bold transition">
+          Batal
+        </button>
+        <button type="submit" id="btn-save-mk" class="flex-1 py-2.5 bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl text-xs font-bold shadow-md shadow-indigo-600/20 active:scale-95 transition flex items-center justify-center gap-1.5">
+          <i class="fa-solid fa-floppy-disk"></i>
+          <span>Simpan Materi & Kuis</span>
+        </button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<script>
+  var cacheMonitoringData = null;
+  var cacheMateriKuisGuru = {};
+
+  function bukaModalMateriKuis(habitNum) {
+    var targetHid = habitNum || 1;
+    google.script.run
+      .withSuccessHandler(function(map) {
+        if (map) {
+          cacheMateriKuisGuru = map;
+          if (window.appState) window.appState.materiKuisMap = map;
+        }
+        pilihTabHabitMK(targetHid);
+        document.getElementById('modal-materi-kuis').classList.remove('hidden');
+      })
+      .withFailureHandler(function(err) {
+        showToast('Gagal memuat materi kuis: ' + err.message, 'error');
+        pilihTabHabitMK(targetHid);
+        document.getElementById('modal-materi-kuis').classList.remove('hidden');
+      })
+      .apiGetMateriKuisAll();
+  }
+
+  function tutupModalMateriKuis() {
+    document.getElementById('modal-materi-kuis').classList.add('hidden');
+  }
+
+  function pilihTabHabitMK(hid) {
+    document.getElementById('mk-select-habit').value = hid;
+    
+    // Update Tab Styles
+    for (var i = 1; i <= 7; i++) {
+      var tabBtn = document.getElementById('mk-tab-' + i);
+      if (tabBtn) {
+        if (i === hid) {
+          tabBtn.className = "mk-tab-btn px-3 py-1.5 rounded-xl text-xs font-bold transition whitespace-nowrap bg-indigo-600 text-white shadow-sm";
+        } else {
+          tabBtn.className = "mk-tab-btn px-3 py-1.5 rounded-xl text-xs font-bold transition whitespace-nowrap bg-slate-100 text-slate-600 hover:bg-slate-200";
+        }
+      }
+    }
+
+    onGantiHabitMateriKuis();
+  }
+
+  function updatePreviewVideoGuru() {
+    var url = document.getElementById('mk-input-url').value.trim();
+    var judul = document.getElementById('mk-input-judul').value.trim();
+    var pTitle = document.getElementById('mk-preview-title');
+    var pThumb = document.getElementById('mk-preview-thumb');
+
+    if (pTitle) pTitle.innerText = judul || 'Judul video materi...';
+
+    if (pThumb) {
+      var match = url.match(/(?:youtu\.be\/|youtube\.com\/(?:embed\/|v\/|watch\?v=|watch\?.+&v=|shorts\/))([\w-]{11})/);
+      var videoId = match ? match[1] : '';
+      if (videoId) {
+        pThumb.src = 'https://img.youtube.com/vi/' + videoId + '/hqdefault.jpg';
+      } else {
+        pThumb.src = 'https://images.unsplash.com/photo-1506126613408-eca07ce68773?auto=format&fit=crop&w=300&q=80';
+      }
+    }
+  }
+
+  function onGantiHabitMateriKuis() {
+    var hid = Number(document.getElementById('mk-select-habit').value) || 1;
+    var data = cacheMateriKuisGuru[hid] || {
+      judulMateri: '',
+      deskripsiMateri: '',
+      linkYoutube: 'https://www.youtube.com',
+      pertanyaan: '',
+      opsiA: '',
+      opsiB: '',
+      opsiC: '',
+      opsiD: '',
+      kunciJawaban: 'B',
+      penjelasan: ''
+    };
+
+    document.getElementById('mk-input-judul').value = data.judulMateri || '';
+    document.getElementById('mk-input-desc').value = data.deskripsiMateri || '';
+    document.getElementById('mk-input-url').value = data.linkYoutube || '';
+    document.getElementById('mk-input-pertanyaan').value = data.pertanyaan || '';
+    document.getElementById('mk-input-opsia').value = data.opsiA || '';
+    document.getElementById('mk-input-opsib').value = data.opsiB || '';
+    document.getElementById('mk-input-opsic').value = data.opsiC || '';
+    document.getElementById('mk-input-opsid').value = data.opsiD || '';
+    document.getElementById('mk-select-kunci').value = data.kunciJawaban || 'B';
+    document.getElementById('mk-input-penjelasan').value = data.penjelasan || '';
+
+    updatePreviewVideoGuru();
+  }
+
+  function simpanMateriKuisSubmit(e) {
+    e.preventDefault();
+    var hid = Number(document.getElementById('mk-select-habit').value) || 1;
+    var payload = {
+      judulMateri: document.getElementById('mk-input-judul').value.trim(),
+      deskripsiMateri: document.getElementById('mk-input-desc').value.trim(),
+      linkYoutube: document.getElementById('mk-input-url').value.trim(),
+      pertanyaan: document.getElementById('mk-input-pertanyaan').value.trim(),
+      opsiA: document.getElementById('mk-input-opsia').value.trim(),
+      opsiB: document.getElementById('mk-input-opsib').value.trim(),
+      opsiC: document.getElementById('mk-input-opsic').value.trim(),
+      opsiD: document.getElementById('mk-input-opsid').value.trim(),
+      kunciJawaban: document.getElementById('mk-select-kunci').value,
+      penjelasan: document.getElementById('mk-input-penjelasan').value.trim()
+    };
+
+    var btn = document.getElementById('btn-save-mk');
+    btn.disabled = true;
+    btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin mr-1"></i> Menyimpan ke Database...';
+
+    google.script.run
+      .withSuccessHandler(function(res) {
+        btn.disabled = false;
+        btn.innerHTML = '<i class="fa-solid fa-floppy-disk"></i> Simpan Materi & Kuis';
+        cacheMateriKuisGuru[hid] = payload;
+        
+        if (!window.appState) window.appState = {};
+        if (!window.appState.materiKuisMap) window.appState.materiKuisMap = {};
+        window.appState.materiKuisMap[hid] = payload;
+
+        // Hubungkan langsung ke DOM menu siswa
+        if (typeof applyMateriKuisDOM === 'function') {
+          applyMateriKuisDOM(hid, payload);
+        }
+
+        showToast(res.message || 'Materi & Kuis Misi ' + hid + ' berhasil disimpan & terhubung ke Siswa!', 'success');
+        tutupModalMateriKuis();
+      })
+      .withFailureHandler(function(err) {
+        btn.disabled = false;
+        btn.innerHTML = '<i class="fa-solid fa-floppy-disk"></i> Simpan Materi & Kuis';
+        showToast('Gagal menyimpan: ' + err.message, 'error');
+      })
+      .apiSimpanMateriKuis(hid, payload);
+  }
+
+  function initDashboardGuru() {
+    var user = appState.currentUser || {};
+    document.getElementById('guru-nama-display').innerText = user.nama || 'Bapak/Ibu Guru';
+
+    // Set default kelas ampuan
+    var selectKelas = document.getElementById('guru-filter-kelas');
+    if (user.kelas && user.kelas !== '-' && user.kelas.toLowerCase() !== 'kepsek') {
+      selectKelas.value = user.kelas;
+    }
+
+    // Set today string
+    var todayStr = new Date().toISOString().split('T')[0];
+    document.getElementById('guru-filter-tanggal').value = todayStr;
+
+    muatMonitoringGuru(false);
+  }
+
+  function muatMonitoringGuru(force) {
+    var kelas = document.getElementById('guru-filter-kelas').value;
+    var tanggal = document.getElementById('guru-filter-tanggal').value;
+    var tbody = document.getElementById('tabel-monitoring-guru-body');
+
+    tbody.innerHTML = '<tr><td colspan="10" class="text-center py-8 text-slate-400"><i class="fa-solid fa-spinner fa-spin mr-1"></i> Mengambil data jurnal siswa...</td></tr>';
+
+    google.script.run
+      .withSuccessHandler(function(res) {
+        cacheMonitoringData = res;
+        renderTabelMonitoring(res);
+      })
+      .withFailureHandler(function(err) {
+        tbody.innerHTML = '<tr><td colspan="10" class="text-center py-6 text-rose-500 font-semibold">Gagal memuat monitoring: ' + err.message + '</td></tr>';
+      })
+      .apiGetMonitoringKelas(kelas, tanggal);
+  }
+
+  function renderTabelMonitoring(data) {
+    var tbody = document.getElementById('tabel-monitoring-guru-body');
+    tbody.innerHTML = '';
+
+    if (!data || !data.rows || data.rows.length === 0) {
+      tbody.innerHTML = '<tr><td colspan="10" class="text-center py-8 text-slate-400">Belum ada siswa terdaftar di kelas ini.</td></tr>';
+      document.getElementById('stat-total-siswa').innerText = '0';
+      document.getElementById('stat-siswa-lengkap').innerText = '0';
+      document.getElementById('stat-rata-persen').innerText = '0%';
+      return;
+    }
+
+    var totalSiswa = data.rows.length;
+    var lengkapCount = 0;
+    var sumPct = 0;
+
+    data.rows.forEach(function(row, idx) {
+      if (row.completedCount === 7) lengkapCount++;
+      sumPct += row.percentage;
+
+      var tr = document.createElement('tr');
+      tr.className = "hover:bg-slate-50/80 transition";
+
+      var habitsCells = '';
+      for (var h = 1; h <= 7; h++) {
+        var item = row.habits['h' + h];
+        if (item) {
+          var icon = item.statusVerifikasi === 'Perlu Perbaikan' 
+            ? '<i class="fa-solid fa-circle-exclamation text-amber-500"></i>' 
+            : '<i class="fa-solid fa-circle-check text-emerald-500"></i>';
+          habitsCells += `
+            <td class="py-2.5 px-2 text-center">
+              <button onclick="bukaModalVerifikasi(${h}, '${row.nisn}', '${row.nama}', '${item.id || ''}', '${escapeQuotes(item.detail || '')}', '${escapeQuotes(item.fotoBukti || '')}', '${item.statusVerifikasi || 'Disetujui'}', '${escapeQuotes(item.catatanGuru || '')}')" class="p-1 hover:scale-125 transition">
+                ${icon}
+              </button>
+            </td>
+          `;
+        } else {
+          habitsCells += `
+            <td class="py-2.5 px-2 text-center text-slate-300">
+              <i class="fa-solid fa-minus"></i>
+            </td>
+          `;
+        }
+      }
+
+      tr.innerHTML = `
+        <td class="py-3 px-4 font-semibold text-slate-500 text-left">${idx + 1}</td>
+        <td class="py-3 px-4 text-left">
+          <div class="font-bold text-slate-800">${row.nama}</div>
+          <div class="text-[10px] text-slate-400">${row.nisn}</div>
+        </td>
+        ${habitsCells}
+        <td class="py-3 px-4 text-center">
+          <span class="px-2 py-0.5 rounded-full font-black text-[11px] ${row.percentage === 100 ? 'bg-emerald-100 text-emerald-700' : 'bg-slate-100 text-slate-600'}">
+            ${row.completedCount}/7 (${row.percentage}%)
+          </span>
+        </td>
+      `;
+      tbody.appendChild(tr);
+    });
+
+    document.getElementById('stat-total-siswa').innerText = totalSiswa;
+    document.getElementById('stat-siswa-lengkap').innerText = lengkapCount;
+    document.getElementById('stat-rata-persen').innerText = Math.round(sumPct / totalSiswa) + '%';
+  }
+
+  function bukaModalVerifikasi(habitNum, nisn, nama, rowId, detail, foto, status, catatan) {
+    document.getElementById('verif-habit-title').innerText = "Verifikasi Misi " + habitNum;
+    document.getElementById('verif-siswa-info').innerText = nama + " (" + nisn + ")";
+    document.getElementById('verif-detail-text').innerText = detail || "Belum ada catatan detail";
+    document.getElementById('verif-habit-num').value = habitNum;
+    document.getElementById('verif-row-id').value = rowId;
+    document.getElementById('verif-status-val').value = status || "Disetujui";
+    document.getElementById('verif-catatan-guru').value = catatan || "";
+
+    var fotoContainer = document.getElementById('verif-foto-container');
+    if (foto && foto.startsWith('http')) {
+      document.getElementById('verif-foto-link').href = foto;
+      fotoContainer.classList.remove('hidden');
+    } else {
+      fotoContainer.classList.add('hidden');
+    }
+
+    document.getElementById('modal-verifikasi-guru').classList.remove('hidden');
+  }
+
+  function tutupModalVerifikasi() {
+    document.getElementById('modal-verifikasi-guru').classList.add('hidden');
+  }
+
+  function simpanVerifikasiSubmit(e) {
+    e.preventDefault();
+    var habitNum = document.getElementById('verif-habit-num').value;
+    var rowId = document.getElementById('verif-row-id').value;
+    var status = document.getElementById('verif-status-val').value;
+    var catatan = document.getElementById('verif-catatan-guru').value.trim();
+
+    var btn = document.getElementById('btn-save-verif');
+    btn.disabled = true;
+    btn.innerText = 'Menyimpan...';
+
+    google.script.run
+      .withSuccessHandler(function(res) {
+        btn.disabled = false;
+        btn.innerText = 'Simpan Validasi';
+        tutupModalVerifikasi();
+        showToast(res.message || 'Verifikasi tersimpan!', 'success');
+        muatMonitoringGuru(true);
+      })
+      .withFailureHandler(function(err) {
+        btn.disabled = false;
+        btn.innerText = 'Simpan Validasi';
+        showToast('Gagal: ' + err.message, 'error');
+      })
+      .apiVerifikasiHabit(habitNum, rowId, status, catatan);
+  }
+
+  function escapeQuotes(str) {
+    return (str || '').replace(/'/g, "\\'").replace(/"/g, '&quot;');
+  }
+</script>

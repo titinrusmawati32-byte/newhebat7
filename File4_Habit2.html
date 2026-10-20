@@ -1,0 +1,246 @@
+<!-- File4_Habit2.html -->
+<!-- MOBILE PRIORITIZED: MISI 2 - TAAT BERIBADAH (LMS EDUCERIA DESIGN SYSTEM) -->
+<div id="view-habit-2" class="view-section hidden w-full max-w-md mx-auto pb-24 select-none">
+
+  <!-- STEP 1: PILIH IBADAH & BERSYUKUR -->
+  <div id="h2-step-1" class="h2-mobile-step space-y-4">
+    <div class="flex items-center justify-between py-2 border-b border-slate-100">
+      <div class="flex items-center gap-3">
+        <button type="button" onclick="bukaTabSiswa('beranda')" class="w-9 h-9 rounded-full bg-slate-100 hover:bg-slate-200 flex items-center justify-center text-slate-700 transition">
+          <i class="fa-solid fa-arrow-left"></i>
+        </button>
+        <h3 class="text-sm font-black text-slate-800">Taat Beribadah</h3>
+      </div>
+      <span class="text-[10px] font-black uppercase tracking-wider text-teal-600 bg-teal-50 px-2.5 py-1 rounded-full">
+        Step 1/3
+      </span>
+    </div>
+
+    <!-- Motivational Banner -->
+    <div class="relative overflow-hidden bg-gradient-to-r from-teal-500 via-emerald-500 to-green-500 rounded-3xl p-5 text-white shadow-md">
+      <div class="relative z-10 flex items-center justify-between">
+        <div>
+          <div class="inline-flex items-center gap-1.5 bg-white/25 backdrop-blur-md px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-wider mb-2">
+            <i class="fa-solid fa-hands-praying text-emerald-100"></i>
+            <span>Misi 2</span>
+          </div>
+          <h2 class="text-lg font-black tracking-tight">Taat Beribadah</h2>
+          <p class="text-[11px] text-teal-50 italic mt-1 leading-snug max-w-[210px]">
+            "Ibadah dan rasa syukur mendidik hati menjadi tenang, sabar, dan selalu rendah hati kepada sesama."
+          </p>
+        </div>
+        <div class="w-20 h-20 shrink-0">
+          <img src="https://illustrations.popertee.com/illustration-png/boy-praying.png" onerror="this.onerror=null; this.src='https://cdn-icons-png.flaticon.com/512/3048/3048127.png';" alt="Ibadah" class="w-full h-full object-contain drop-shadow-md" />
+        </div>
+      </div>
+      <div class="absolute -right-8 -top-8 w-32 h-32 bg-white/15 rounded-full blur-xl pointer-events-none"></div>
+    </div>
+
+    <!-- Card 1: Catat Ibadah & Syukur -->
+    <div class="bg-white rounded-3xl p-5 shadow-sm border border-slate-100 space-y-3">
+      <div class="flex items-center gap-2 mb-1">
+        <span class="w-6 h-6 rounded-full bg-teal-500 text-white flex items-center justify-center text-xs font-black">1</span>
+        <h4 class="text-xs font-black text-slate-800">Catat Ibadah Hari Ini</h4>
+      </div>
+      <p class="text-[11px] text-slate-400 ml-8">Pilih ibadah yang telah kamu laksanakan dengan sungguh-sungguh.</p>
+
+      <div class="space-y-2 pt-1">
+        <button type="button" onclick="setH2PresetIbadah('Sholat 5 Waktu Tepat Waktu / Doa Harian')" id="h2-btn-ib-1" class="h2-ib-btn w-full p-3 rounded-2xl border text-xs font-bold transition flex items-center justify-between bg-teal-50 text-teal-900 border-teal-300">
+          <span class="flex items-center gap-2"><i class="fa-solid fa-hands-praying text-teal-600"></i> Sholat 5 Waktu / Doa Pagi</span>
+          <i class="fa-solid fa-circle-check text-teal-600"></i>
+        </button>
+        <button type="button" onclick="setH2PresetIbadah('Membaca Kitab Suci / Mengaji')" id="h2-btn-ib-2" class="h2-ib-btn w-full p-3 rounded-2xl border text-xs font-bold transition flex items-center justify-between bg-white text-slate-700 border-slate-200 hover:bg-slate-50">
+          <span class="flex items-center gap-2"><i class="fa-solid fa-book-quran text-slate-400"></i> Membaca Kitab Suci / Mengaji</span>
+          <i class="fa-solid fa-circle-check text-transparent"></i>
+        </button>
+        <button type="button" onclick="setH2PresetIbadah('Berdoa Sebelum & Sesudah Beraktivitas')" id="h2-btn-ib-3" class="h2-ib-btn w-full p-3 rounded-2xl border text-xs font-bold transition flex items-center justify-between bg-white text-slate-700 border-slate-200 hover:bg-slate-50">
+          <span class="flex items-center gap-2"><i class="fa-solid fa-heart text-slate-400"></i> Berdoa Sebelum & Sesudah Belajar</span>
+          <i class="fa-solid fa-circle-check text-transparent"></i>
+        </button>
+      </div>
+    </div>
+
+    <!-- Solid Teal CTA: Lanjut ke Materi -> -->
+    <button type="button" onclick="simpanStep1H2DanLanjut()" class="w-full py-3.5 bg-gradient-to-r from-teal-500 to-emerald-600 hover:from-teal-600 hover:to-emerald-700 text-white rounded-2xl text-xs font-black shadow-md shadow-emerald-500/25 active:scale-95 transition flex items-center justify-center gap-2">
+      <span>Lanjut ke Materi</span>
+      <i class="fa-solid fa-arrow-right"></i>
+    </button>
+  </div>
+
+  <!-- STEP 2: TONTON MATERI -->
+  <div id="h2-step-2" class="h2-mobile-step hidden space-y-4" style="display: none;">
+    <div class="flex items-center justify-between py-2 border-b border-slate-100">
+      <div class="flex items-center gap-3">
+        <button type="button" onclick="bukaStepHabitMobile(2, 1)" class="w-9 h-9 rounded-full bg-slate-100 hover:bg-slate-200 flex items-center justify-center text-slate-700 transition">
+          <i class="fa-solid fa-arrow-left"></i>
+        </button>
+        <h3 class="text-sm font-black text-slate-800">Taat Beribadah</h3>
+      </div>
+      <span class="text-[10px] font-black uppercase tracking-wider text-teal-600 bg-teal-50 px-2.5 py-1 rounded-full">
+        Step 2/3
+      </span>
+    </div>
+
+    <div id="h2-card-materi" class="bg-white rounded-3xl p-5 shadow-sm border border-slate-100 space-y-3.5">
+      <div class="flex items-center gap-2.5">
+        <div class="w-8 h-8 rounded-xl bg-teal-100 text-teal-600 flex items-center justify-center text-sm font-black">
+          <i class="fa-solid fa-book-open"></i>
+        </div>
+        <div>
+          <h4 class="text-xs font-black text-slate-800">Materi Edukasi</h4>
+          <p class="text-[10px] text-slate-400">Pentingnya membiasakan ibadah dan rasa syukur sejak dini.</p>
+        </div>
+      </div>
+
+      <div class="relative w-full rounded-2xl overflow-hidden bg-slate-900 aspect-video group cursor-pointer shadow-sm" onclick="putarVideoMateriEdu(2)">
+        <img id="h2-video-thumb" src="https://images.unsplash.com/photo-1544717305-2782549b5136?auto=format&fit=crop&w=600&q=80" alt="Video" class="w-full h-full object-cover opacity-85 group-hover:opacity-95 transition" />
+        <div class="absolute inset-0 bg-gradient-to-t from-slate-950/80 via-transparent to-transparent"></div>
+        <div class="absolute inset-0 flex items-center justify-center">
+          <div class="w-12 h-12 rounded-full bg-red-600 group-hover:bg-red-700 text-white flex items-center justify-center text-lg shadow-xl shadow-red-600/40 group-hover:scale-110 transition">
+            <i class="fa-solid fa-play ml-1"></i>
+          </div>
+        </div>
+        <div class="absolute bottom-2.5 inset-x-3 text-white">
+          <span class="text-[9px] font-black uppercase tracking-wider bg-red-600 px-2 py-0.5 rounded-md inline-block mb-1">
+            <i class="fa-brands fa-youtube mr-1"></i>YouTube
+          </span>
+          <div id="h2-video-title-overlay" class="text-xs font-bold truncate">Indahnya Bersyukur dan Taat Beribadah</div>
+        </div>
+      </div>
+
+      <div>
+        <h4 id="h2-video-title" class="text-xs font-black text-slate-800 mb-1">Indahnya Bersyukur dan Taat Beribadah</h4>
+        <p id="h2-video-desc" class="text-[11px] text-slate-500 leading-relaxed">
+          Ibadah dan rasa syukur mendidik hati menjadi tenang, sabar, dan selalu rendah hati kepada sesama manusia.
+        </p>
+      </div>
+
+      <a id="h2-btn-youtube" href="https://www.youtube.com" target="_blank" class="w-full py-2.5 bg-emerald-50 hover:bg-emerald-100 text-emerald-700 rounded-xl text-xs font-bold border border-emerald-200 transition flex items-center justify-center gap-2">
+        <i class="fa-brands fa-youtube text-red-600"></i>
+        <span>Tonton di YouTube</span>
+      </a>
+    </div>
+
+    <!-- Alternatif Materi -->
+    <div class="space-y-2">
+      <span class="text-[10px] font-black text-slate-400 uppercase tracking-wider px-1">Alternatif Materi</span>
+      <div onclick="bukaStepHabitMobile(2, 3)" class="bg-white rounded-2xl p-3 border border-slate-100 shadow-xs hover:border-teal-300 cursor-pointer transition flex items-center justify-between">
+        <div class="flex items-center gap-3">
+          <div class="w-8 h-8 rounded-xl bg-teal-100 text-teal-600 flex items-center justify-center text-xs">
+            <i class="fa-solid fa-circle-question"></i>
+          </div>
+          <div>
+            <h5 class="text-xs font-bold text-slate-800">Kuis Singkat</h5>
+            <span class="text-[10px] text-slate-400">Uji pemahamanmu sekarang</span>
+          </div>
+        </div>
+        <i class="fa-solid fa-chevron-right text-slate-400 text-xs"></i>
+      </div>
+    </div>
+
+    <button type="button" onclick="bukaStepHabitMobile(2, 3)" class="w-full py-3.5 bg-gradient-to-r from-teal-500 to-emerald-600 hover:from-teal-600 hover:to-emerald-700 text-white rounded-2xl text-xs font-black shadow-md shadow-emerald-500/25 active:scale-95 transition flex items-center justify-center gap-2">
+      <span>Lanjut ke Kuis Singkat</span>
+      <i class="fa-solid fa-arrow-right"></i>
+    </button>
+  </div>
+
+  <!-- STEP 3: KUIS SINGKAT -->
+  <div id="h2-step-3" class="h2-mobile-step hidden space-y-4" style="display: none;">
+    <div class="flex items-center justify-between py-2 border-b border-slate-100">
+      <div class="flex items-center gap-3">
+        <button type="button" onclick="bukaStepHabitMobile(2, 2)" class="w-9 h-9 rounded-full bg-slate-100 hover:bg-slate-200 flex items-center justify-center text-slate-700 transition">
+          <i class="fa-solid fa-arrow-left"></i>
+        </button>
+        <h3 class="text-sm font-black text-slate-800">Kuis Singkat</h3>
+      </div>
+      <div class="flex items-center gap-2">
+        <span class="text-xs font-black text-slate-600">1/3</span>
+        <div class="w-16 h-2 bg-slate-100 rounded-full overflow-hidden">
+          <div class="bg-teal-600 h-full rounded-full" style="width: 33%"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Illustration -->
+    <div class="flex items-center justify-center py-2">
+      <div class="relative w-28 h-28">
+        <img src="https://illustrations.popertee.com/illustration-png/boy-praying.png" onerror="this.onerror=null; this.src='https://cdn-icons-png.flaticon.com/512/3048/3048127.png';" alt="Quiz Mascot" class="w-full h-full object-contain" />
+        <span class="absolute top-1 right-2 w-7 h-7 bg-teal-600 text-white rounded-full flex items-center justify-center text-xs font-black shadow-sm">?</span>
+      </div>
+    </div>
+
+    <div id="h2-card-kuis" class="bg-white rounded-3xl p-5 shadow-sm border border-slate-100 space-y-3">
+      <h4 id="h2-soal-text" class="text-xs sm:text-sm font-extrabold text-slate-800 leading-snug">
+        1. Mengapa kita harus selalu bersyukur kepada Tuhan setiap hari?
+      </h4>
+      <div class="space-y-2" id="h2-opsi-container">
+        <!-- Injected dynamically by applyMateriKuisDOM -->
+      </div>
+    </div>
+
+    <!-- Feedback Card -->
+    <div id="h2-feedback-card" class="hidden bg-emerald-50/90 border border-emerald-200 rounded-3xl p-4 space-y-2" style="display: none;">
+      <div class="flex items-center gap-2 text-emerald-700">
+        <div class="w-6 h-6 rounded-full bg-emerald-500 text-white flex items-center justify-center text-xs">
+          <i id="h2-feedback-icon" class="fa-solid fa-check"></i>
+        </div>
+        <span id="h2-feedback-status" class="text-xs font-black">Jawaban kamu benar!</span>
+      </div>
+      <p id="h2-penjelasan-text" class="text-[11px] text-emerald-900 font-medium leading-relaxed">
+        Bersyukur atas napas, kesehatan, dan keluarga membuat hidup kita senantiasa damai dan bahagia.
+      </p>
+
+      <button type="button" onclick="selesaikanMisiDanBukaHasil(2, 'Taat Beribadah & Bersyukur')" class="w-full mt-2 py-3 bg-emerald-600 hover:bg-emerald-700 text-white rounded-2xl text-xs font-black shadow-md shadow-emerald-600/20 active:scale-95 transition flex items-center justify-center gap-2">
+        <span>Lanjut ke Hasil Misi</span>
+        <i class="fa-solid fa-arrow-right"></i>
+      </button>
+    </div>
+  </div>
+
+</div>
+
+<script>
+  var h2SelectedIbadah = 'Sholat 5 Waktu Tepat Waktu / Doa Harian';
+
+  function setH2PresetIbadah(ibadahText) {
+    h2SelectedIbadah = ibadahText;
+    var btns = document.querySelectorAll('.h2-ib-btn');
+    btns.forEach(function(b) {
+      b.className = "h2-ib-btn w-full p-3 rounded-2xl border text-xs font-bold transition flex items-center justify-between bg-white text-slate-700 border-slate-200 hover:bg-slate-50";
+      var icon = b.querySelector('.fa-circle-check');
+      if (icon) icon.className = "fa-solid fa-circle-check text-transparent";
+    });
+
+    event.currentTarget.className = "h2-ib-btn w-full p-3 rounded-2xl border text-xs font-bold transition flex items-center justify-between bg-teal-50 text-teal-900 border-teal-300";
+    var curIcon = event.currentTarget.querySelector('.fa-circle-check');
+    if (curIcon) curIcon.className = "fa-solid fa-circle-check text-teal-600";
+  }
+
+  function simpanStep1H2DanLanjut() {
+    var user = appState.currentUser || {};
+    var todayStr = new Date().toISOString().split('T')[0];
+
+    var payload = {
+      id: (appState.habitsToday && appState.habitsToday[2]) ? appState.habitsToday[2].id : ('H2-' + Date.now()),
+      tanggal: todayStr,
+      username: user.username,
+      namaSiswa: user.nama,
+      kelas: user.kelas,
+      detail: h2SelectedIbadah,
+      fotoBukti: '',
+      statusVerifikasi: 'Disetujui',
+      catatanGuru: ''
+    };
+
+    if (!appState.habitsToday) appState.habitsToday = {};
+    appState.habitsToday[2] = payload;
+
+    google.script.run
+      .withSuccessHandler(function(res) {
+        showToast('Ibadah harian tersimpan!', 'success');
+      })
+      .apiSimpanHabit(2, payload);
+
+    bukaStepHabitMobile(2, 2);
+  }
+</script>

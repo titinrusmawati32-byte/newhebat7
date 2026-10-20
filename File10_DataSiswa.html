@@ -1,0 +1,363 @@
+<!-- File10_DataSiswa.html -->
+<div id="view-data-siswa" class="view-section hidden max-w-5xl mx-auto p-4 sm:p-6 pb-24">
+  <!-- Header Bar -->
+  <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6">
+    <div>
+      <div class="inline-flex items-center gap-1.5 text-xs font-bold text-emerald-700 bg-emerald-50 px-3 py-1 rounded-full border border-emerald-200 mb-2">
+        <i class="fa-solid fa-users"></i>
+        <span>Data Master Peserta Didik</span>
+      </div>
+      <h1 class="text-2xl font-black text-slate-800 tracking-tight">Manajemen Data Siswa</h1>
+      <p class="text-xs text-slate-500">Kelola NISN, nama lengkap, kelas, dan PIN login peserta didik.</p>
+    </div>
+
+    <div class="flex items-center gap-2">
+      <button onclick="bukaModalSiswa()" class="px-4 py-2.5 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl text-xs font-bold shadow-md shadow-emerald-600/20 active:scale-95 transition flex items-center gap-2">
+        <i class="fa-solid fa-user-plus"></i>
+        <span>Tambah Siswa</span>
+      </button>
+      <button onclick="muatDataSiswa(true)" title="Segarkan Data" class="w-10 h-10 bg-white hover:bg-slate-50 border border-slate-200 text-slate-600 rounded-xl flex items-center justify-center text-sm shadow-sm transition">
+        <i class="fa-solid fa-arrows-rotate"></i>
+      </button>
+    </div>
+  </div>
+
+  <!-- Search & Filter Controls -->
+  <div class="bg-white rounded-2xl p-4 shadow-sm border border-slate-200/80 mb-6 flex flex-col sm:flex-row items-center gap-3">
+    <div class="relative flex-1 w-full">
+      <span class="absolute inset-y-0 left-0 flex items-center pl-3.5 text-slate-400">
+        <i class="fa-solid fa-magnifying-glass"></i>
+      </span>
+      <input 
+        type="text" 
+        id="siswa-search-input" 
+        onkeyup="filterTabelSiswa()" 
+        placeholder="Cari berdasarkan NISN atau nama siswa..." 
+        class="w-full pl-10 pr-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs font-semibold text-slate-800 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 transition"
+      />
+    </div>
+
+    <div class="w-full sm:w-48">
+      <select 
+        id="siswa-filter-kelas" 
+        onchange="filterTabelSiswa()" 
+        class="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs font-semibold text-slate-800 focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 transition"
+      >
+        <option value="">Semua Kelas</option>
+        <option value="Kelas 1">Kelas 1</option>
+        <option value="Kelas 2">Kelas 2</option>
+        <option value="Kelas 3">Kelas 3</option>
+        <option value="Kelas 4">Kelas 4</option>
+        <option value="Kelas 5A">Kelas 5A</option>
+        <option value="Kelas 5B">Kelas 5B</option>
+        <option value="Kelas 6">Kelas 6</option>
+      </select>
+    </div>
+  </div>
+
+  <!-- Table Container -->
+  <div class="bg-white rounded-3xl shadow-sm border border-slate-200/80 overflow-hidden">
+    <div class="overflow-x-auto">
+      <table class="w-full text-left border-collapse">
+        <thead>
+          <tr class="bg-slate-50/80 border-b border-slate-100 text-[11px] font-bold text-slate-500 uppercase tracking-wider">
+            <th class="py-3.5 px-4">No</th>
+            <th class="py-3.5 px-4">NISN (Login)</th>
+            <th class="py-3.5 px-4">Nama Lengkap</th>
+            <th class="py-3.5 px-4">Panggilan</th>
+            <th class="py-3.5 px-4">Kelas</th>
+            <th class="py-3.5 px-4">Tahun Ajaran</th>
+            <th class="py-3.5 px-4">PIN / Sandi</th>
+            <th class="py-3.5 px-4 text-center">Aksi</th>
+          </tr>
+        </thead>
+        <tbody id="tabel-siswa-body" class="divide-y divide-slate-100 text-xs">
+          <!-- Rows will be rendered dynamically by JavaScript -->
+          <tr>
+            <td colspan="8" class="text-center py-8 text-slate-400">
+              <i class="fa-solid fa-spinner fa-spin mr-1"></i> Memuat data siswa...
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <!-- Empty State -->
+    <div id="siswa-empty-state" class="hidden py-12 text-center">
+      <div class="w-16 h-16 rounded-full bg-slate-100 text-slate-400 mx-auto flex items-center justify-center text-2xl mb-3">
+        <i class="fa-solid fa-user-slash"></i>
+      </div>
+      <h3 class="text-sm font-bold text-slate-700">Belum Ada Data Siswa</h3>
+      <p class="text-xs text-slate-400 mt-1">Silakan klik tombol "Tambah Siswa" untuk menambahkan data siswa baru.</p>
+    </div>
+  </div>
+</div>
+
+<!-- Modal Form Tambah / Edit Siswa -->
+<div id="modal-siswa" class="hidden fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-sm flex items-center justify-center p-4">
+  <div class="bg-white rounded-3xl max-w-md w-full p-6 shadow-2xl border border-slate-100 relative">
+    <button onclick="tutupModalSiswa()" class="absolute top-4 right-4 w-8 h-8 rounded-full bg-slate-100 text-slate-500 hover:text-slate-800 flex items-center justify-center font-bold">
+      &times;
+    </button>
+    <div class="flex items-center gap-2 mb-4">
+      <div class="w-10 h-10 rounded-xl bg-emerald-100 text-emerald-600 flex items-center justify-center text-lg">
+        <i class="fa-solid fa-user-graduate"></i>
+      </div>
+      <div>
+        <h3 id="modal-siswa-title" class="text-base font-bold text-slate-800">Tambah Siswa Baru</h3>
+        <p class="text-xs text-slate-500">Pastikan NISN unik dan PIN mudah diingat siswa.</p>
+      </div>
+    </div>
+
+    <form onsubmit="simpanDataSiswaSubmit(event)" class="space-y-3.5">
+      <input type="hidden" id="siswa-form-id" />
+
+      <div>
+        <label class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1">
+          NISN (10 Digit)
+        </label>
+        <input 
+          type="text" 
+          id="siswa-form-nisn" 
+          required 
+          placeholder="Contoh: 0012345678" 
+          class="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs font-semibold text-slate-800 focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 transition"
+        />
+      </div>
+
+      <div>
+        <label class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1">
+          Nama Lengkap Siswa
+        </label>
+        <input 
+          type="text" 
+          id="siswa-form-nama" 
+          required 
+          placeholder="Nama sesuai akta..." 
+          class="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs font-semibold text-slate-800 focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 transition"
+        />
+      </div>
+
+      <div class="grid grid-cols-2 gap-3">
+        <div>
+          <label class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1">
+            Nama Panggilan
+          </label>
+          <input 
+            type="text" 
+            id="siswa-form-panggilan" 
+            placeholder="Panggilan akrab..." 
+            class="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs font-semibold text-slate-800 focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 transition"
+          />
+        </div>
+        <div>
+          <label class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1">
+            Kelas
+          </label>
+          <input 
+            type="text" 
+            id="siswa-form-kelas" 
+            required 
+            placeholder="Contoh: Kelas 5A" 
+            class="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs font-semibold text-slate-800 focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 transition"
+          />
+        </div>
+      </div>
+
+      <div class="grid grid-cols-2 gap-3">
+        <div>
+          <label class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1">
+            Tahun Ajaran
+          </label>
+          <input 
+            type="text" 
+            id="siswa-form-tahun" 
+            value="2026/2027" 
+            class="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs font-semibold text-slate-800 focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 transition"
+          />
+        </div>
+        <div>
+          <label class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1">
+            PIN Login (6 Digit)
+          </label>
+          <input 
+            type="text" 
+            id="siswa-form-password" 
+            required 
+            value="123456" 
+            class="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs font-semibold text-slate-800 focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 transition"
+          />
+        </div>
+      </div>
+
+      <div class="pt-3 flex gap-2">
+        <button 
+          type="button" 
+          onclick="tutupModalSiswa()" 
+          class="flex-1 py-2.5 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-xl text-xs font-bold transition"
+        >
+          Batal
+        </button>
+        <button 
+          type="submit" 
+          id="btn-simpan-siswa" 
+          class="flex-1 py-2.5 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl text-xs font-bold shadow-md shadow-emerald-600/20 active:scale-95 transition flex items-center justify-center gap-1.5"
+        >
+          <i class="fa-solid fa-floppy-disk"></i>
+          <span>Simpan Data</span>
+        </button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<script>
+  var cacheListSiswa = [];
+
+  function muatDataSiswa(forceReload) {
+    if (cacheListSiswa.length > 0 && !forceReload) {
+      renderTabelSiswa(cacheListSiswa);
+      return;
+    }
+
+    var tbody = document.getElementById('tabel-siswa-body');
+    tbody.innerHTML = '<tr><td colspan="8" class="text-center py-8 text-slate-400"><i class="fa-solid fa-spinner fa-spin mr-1"></i> Mengambil data dari Spreadsheet...</td></tr>';
+
+    google.script.run
+      .withSuccessHandler(function(list) {
+        cacheListSiswa = list || [];
+        renderTabelSiswa(cacheListSiswa);
+      })
+      .withFailureHandler(function(err) {
+        tbody.innerHTML = '<tr><td colspan="8" class="text-center py-6 text-rose-500 font-semibold">Gagal memuat data: ' + err.message + '</td></tr>';
+      })
+      .apiGetSiswaList('');
+  }
+
+  function renderTabelSiswa(list) {
+    var tbody = document.getElementById('tabel-siswa-body');
+    var empty = document.getElementById('siswa-empty-state');
+    tbody.innerHTML = '';
+
+    if (!list || list.length === 0) {
+      empty.classList.remove('hidden');
+      return;
+    }
+    empty.classList.add('hidden');
+
+    list.forEach(function(s, idx) {
+      var tr = document.createElement('tr');
+      tr.className = "hover:bg-slate-50/80 transition";
+      tr.innerHTML = `
+        <td class="py-3 px-4 font-semibold text-slate-500">${idx + 1}</td>
+        <td class="py-3 px-4 font-bold text-slate-800">${s.nisn}</td>
+        <td class="py-3 px-4 font-semibold text-slate-800">${s.nama}</td>
+        <td class="py-3 px-4 text-slate-600">${s.panggilan || '-'}</td>
+        <td class="py-3 px-4"><span class="px-2 py-0.5 rounded-full text-[10px] font-bold bg-slate-100 text-slate-700">${s.kelas}</span></td>
+        <td class="py-3 px-4 text-slate-500">${s.tahunAjaran || '-'}</td>
+        <td class="py-3 px-4 font-mono text-slate-600">${s.password || '******'}</td>
+        <td class="py-3 px-4 text-center">
+          <div class="inline-flex items-center gap-1.5">
+            <button onclick="editSiswa('${s.id}')" class="p-1.5 bg-amber-50 hover:bg-amber-100 text-amber-700 rounded-lg transition" title="Edit Siswa">
+              <i class="fa-solid fa-pen-to-square"></i>
+            </button>
+            <button onclick="hapusSiswa('${s.id}', '${s.nama}')" class="p-1.5 bg-rose-50 hover:bg-rose-100 text-rose-600 rounded-lg transition" title="Hapus Siswa">
+              <i class="fa-solid fa-trash-can"></i>
+            </button>
+          </div>
+        </td>
+      `;
+      tbody.appendChild(tr);
+    });
+  }
+
+  function filterTabelSiswa() {
+    var keyword = document.getElementById('siswa-search-input').value.toLowerCase().trim();
+    var kelas = document.getElementById('siswa-filter-kelas').value.toLowerCase().trim();
+
+    var filtered = cacheListSiswa.filter(function(s) {
+      var matchKey = s.nisn.toLowerCase().includes(keyword) || s.nama.toLowerCase().includes(keyword);
+      var matchKelas = !kelas || s.kelas.toLowerCase() === kelas;
+      return matchKey && matchKelas;
+    });
+
+    renderTabelSiswa(filtered);
+  }
+
+  function bukaModalSiswa() {
+    document.getElementById('modal-siswa-title').innerText = "Tambah Siswa Baru";
+    document.getElementById('siswa-form-id').value = "";
+    document.getElementById('siswa-form-nisn').value = "";
+    document.getElementById('siswa-form-nama').value = "";
+    document.getElementById('siswa-form-panggilan').value = "";
+    document.getElementById('siswa-form-kelas').value = appState.currentUser && appState.currentUser.kelas !== '-' ? appState.currentUser.kelas : "Kelas 5A";
+    document.getElementById('siswa-form-tahun').value = "2026/2027";
+    document.getElementById('siswa-form-password').value = "123456";
+    document.getElementById('modal-siswa').classList.remove('hidden');
+  }
+
+  function tutupModalSiswa() {
+    document.getElementById('modal-siswa').classList.add('hidden');
+  }
+
+  function editSiswa(id) {
+    var found = cacheListSiswa.find(function(s) { return s.id === id; });
+    if (!found) return;
+
+    document.getElementById('modal-siswa-title').innerText = "Edit Data Siswa";
+    document.getElementById('siswa-form-id').value = found.id;
+    document.getElementById('siswa-form-nisn').value = found.nisn;
+    document.getElementById('siswa-form-nama').value = found.nama;
+    document.getElementById('siswa-form-panggilan').value = found.panggilan || "";
+    document.getElementById('siswa-form-kelas').value = found.kelas;
+    document.getElementById('siswa-form-tahun').value = found.tahunAjaran || "2026/2027";
+    document.getElementById('siswa-form-password').value = found.password || "123456";
+    document.getElementById('modal-siswa').classList.remove('hidden');
+  }
+
+  function simpanDataSiswaSubmit(e) {
+    e.preventDefault();
+    var payload = {
+      id: document.getElementById('siswa-form-id').value,
+      nisn: document.getElementById('siswa-form-nisn').value.trim(),
+      nama: document.getElementById('siswa-form-nama').value.trim(),
+      panggilan: document.getElementById('siswa-form-panggilan').value.trim(),
+      kelas: document.getElementById('siswa-form-kelas').value.trim(),
+      tahunAjaran: document.getElementById('siswa-form-tahun').value.trim(),
+      password: document.getElementById('siswa-form-password').value.trim()
+    };
+
+    var btn = document.getElementById('btn-simpan-siswa');
+    btn.disabled = true;
+    btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Menyimpan...';
+
+    google.script.run
+      .withSuccessHandler(function(res) {
+        btn.disabled = false;
+        btn.innerHTML = '<i class="fa-solid fa-floppy-disk"></i> Simpan Data';
+        tutupModalSiswa();
+        showToast(res.message || "Data siswa tersimpan!", "success");
+        muatDataSiswa(true);
+      })
+      .withFailureHandler(function(err) {
+        btn.disabled = false;
+        btn.innerHTML = '<i class="fa-solid fa-floppy-disk"></i> Simpan Data';
+        showToast("Gagal menyimpan: " + err.message, "error");
+      })
+      .apiSimpanSiswa(payload);
+  }
+
+  function hapusSiswa(id, nama) {
+    if (!confirm('Yakin ingin menghapus siswa: ' + nama + '?')) return;
+
+    google.script.run
+      .withSuccessHandler(function(res) {
+        showToast(res.message || 'Siswa dihapus!', 'success');
+        muatDataSiswa(true);
+      })
+      .withFailureHandler(function(err) {
+        showToast('Gagal menghapus: ' + err.message, 'error');
+      })
+      .apiHapusSiswa(id);
+  }
+</script>

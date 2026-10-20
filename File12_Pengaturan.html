@@ -1,0 +1,203 @@
+<!-- File12_Pengaturan.html -->
+<div id="view-pengaturan" class="view-section hidden max-w-4xl mx-auto p-4 sm:p-6 pb-24">
+  <!-- Header Bar -->
+  <div class="mb-6">
+    <div class="inline-flex items-center gap-1.5 text-xs font-bold text-slate-700 bg-slate-100 px-3 py-1 rounded-full border border-slate-200 mb-2">
+      <i class="fa-solid fa-sliders"></i>
+      <span>Konfigurasi Sistem</span>
+    </div>
+    <h1 class="text-2xl font-black text-slate-800 tracking-tight">Pengaturan Sekolah & Aplikasi</h1>
+    <p class="text-xs text-slate-500">Sesuaikan identitas sekolah, tautan materi, dan keamanan akun pimpinan.</p>
+  </div>
+
+  <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+    <!-- Form Card (2 Columns on Desktop) -->
+    <div class="md:col-span-2 bg-white rounded-3xl p-6 shadow-sm border border-slate-200/80">
+      <h3 class="text-base font-bold text-slate-800 mb-4 flex items-center gap-2">
+        <i class="fa-solid fa-school text-emerald-600"></i>
+        <span>Identitas & Konfigurasi Sekolah</span>
+      </h3>
+
+      <form onsubmit="simpanPengaturanSubmit(event)" class="space-y-4">
+        <div>
+          <label class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1.5">
+            Nama Satuan Pendidikan / Sekolah
+          </label>
+          <input 
+            type="text" 
+            id="cfg-nama-sekolah" 
+            required 
+            placeholder="Contoh: SD Generasi Indonesia Hebat" 
+            class="w-full px-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs font-semibold text-slate-800 focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 transition"
+          />
+        </div>
+
+        <div>
+          <label class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1.5">
+            Tautan / URL Logo Sekolah (Gambar PNG Transparan)
+          </label>
+          <input 
+            type="url" 
+            id="cfg-logo-sekolah" 
+            required 
+            placeholder="https://..." 
+            class="w-full px-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs font-semibold text-slate-800 focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 transition"
+          />
+        </div>
+
+        <div>
+          <label class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1.5">
+            Tautan Video YouTube Lagu 7 Kebiasaan Anak Hebat
+          </label>
+          <input 
+            type="url" 
+            id="cfg-link-youtube" 
+            placeholder="https://www.youtube.com/watch?v=..." 
+            class="w-full px-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs font-semibold text-slate-800 focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 transition"
+          />
+        </div>
+
+        <div class="pt-2 border-t border-slate-100">
+          <h4 class="text-xs font-bold text-slate-800 uppercase tracking-wider mb-3">Akun Kepala Sekolah</h4>
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+            <div>
+              <label class="block text-[11px] font-bold text-slate-600 mb-1">Username Kepsek</label>
+              <input 
+                type="text" 
+                id="cfg-user-kepsek" 
+                required 
+                placeholder="kepsek" 
+                class="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs font-semibold text-slate-800 focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 transition"
+              />
+            </div>
+            <div>
+              <label class="block text-[11px] font-bold text-slate-600 mb-1">Kata Sandi Kepsek</label>
+              <input 
+                type="text" 
+                id="cfg-pass-kepsek" 
+                required 
+                placeholder="123456" 
+                class="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs font-semibold text-slate-800 focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 transition"
+              />
+            </div>
+          </div>
+        </div>
+
+        <div class="pt-4">
+          <button 
+            type="submit" 
+            id="btn-simpan-pengaturan" 
+            class="w-full py-3 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl text-xs font-bold shadow-md shadow-emerald-600/25 active:scale-95 transition flex items-center justify-center gap-2"
+          >
+            <i class="fa-solid fa-floppy-disk"></i>
+            <span>Simpan Perubahan Pengaturan</span>
+          </button>
+        </div>
+      </form>
+    </div>
+
+    <!-- Info & Maintenance Tools (1 Column) -->
+    <div class="space-y-6">
+      <!-- Database Status Card -->
+      <div class="bg-white rounded-3xl p-6 shadow-sm border border-slate-200/80">
+        <h4 class="text-xs font-black uppercase tracking-wider text-slate-700 mb-3 flex items-center gap-2">
+          <i class="fa-solid fa-database text-teal-600"></i>
+          <span>Status Spreadsheet</span>
+        </h4>
+        <div class="p-3 bg-emerald-50 rounded-2xl border border-emerald-200 text-xs text-emerald-800 font-medium mb-4">
+          <div class="flex items-center gap-2 font-bold mb-1">
+            <i class="fa-solid fa-circle-check text-emerald-600"></i>
+            <span>Tersambung Google Sheets</span>
+          </div>
+          <p class="text-[11px] text-emerald-700">Data tersimpan aman di Google Drive Anda.</p>
+        </div>
+
+        <button 
+          onclick="inisialisasiUlangDatabase()" 
+          id="btn-init-db" 
+          class="w-full py-2.5 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-xl text-xs font-bold transition flex items-center justify-center gap-2"
+        >
+          <i class="fa-solid fa-wrench"></i>
+          <span>Periksa / Buat Header Tabel</span>
+        </button>
+      </div>
+
+      <!-- About Card -->
+      <div class="bg-gradient-to-br from-slate-900 to-slate-800 rounded-3xl p-6 text-white shadow-xl">
+        <div class="w-10 h-10 rounded-xl bg-white/10 flex items-center justify-center text-amber-400 text-xl mb-3">
+          <i class="fa-solid fa-shield-halved"></i>
+        </div>
+        <h4 class="text-sm font-bold tracking-tight">Karakter Anak Indonesia</h4>
+        <p class="text-xs text-slate-300 mt-1 leading-relaxed">
+          Membangun integritas, religiusitas, kemandirian, dan gotong royong melalui pembiasaan harian yang terpantau.
+        </p>
+        <div class="mt-4 pt-4 border-t border-white/10 text-[11px] text-slate-400">
+          Versi 2.0 (Google Apps Script Engine)
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+  function muatPengaturanUI() {
+    var cfg = appState.pengaturan || {};
+    document.getElementById('cfg-nama-sekolah').value = cfg.namaSekolah || "SD Generasi Indonesia Hebat";
+    document.getElementById('cfg-logo-sekolah').value = cfg.logoSekolah || "https://cdn-icons-png.flaticon.com/512/2997/2997295.png";
+    document.getElementById('cfg-link-youtube').value = cfg.linkYoutube || "";
+    document.getElementById('cfg-user-kepsek').value = cfg.usernameKepsek || "kepsek";
+    document.getElementById('cfg-pass-kepsek').value = cfg.passwordKepsek || "123456";
+  }
+
+  function simpanPengaturanSubmit(e) {
+    e.preventDefault();
+    var payload = {
+      namaSekolah: document.getElementById('cfg-nama-sekolah').value.trim(),
+      logoSekolah: document.getElementById('cfg-logo-sekolah').value.trim(),
+      linkYoutube: document.getElementById('cfg-link-youtube').value.trim(),
+      usernameKepsek: document.getElementById('cfg-user-kepsek').value.trim(),
+      passwordKepsek: document.getElementById('cfg-pass-kepsek').value.trim()
+    };
+
+    var btn = document.getElementById('btn-simpan-pengaturan');
+    btn.disabled = true;
+    btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Menyimpan...';
+
+    google.script.run
+      .withSuccessHandler(function(res) {
+        btn.disabled = false;
+        btn.innerHTML = '<i class="fa-solid fa-floppy-disk"></i> Simpan Perubahan Pengaturan';
+        appState.pengaturan = payload;
+        // Update live school branding in header
+        document.getElementById('landing-school-name').innerText = payload.namaSekolah;
+        document.getElementById('landing-logo').src = payload.logoSekolah;
+        showToast(res.message || "Pengaturan berhasil disimpan!", "success");
+      })
+      .withFailureHandler(function(err) {
+        btn.disabled = false;
+        btn.innerHTML = '<i class="fa-solid fa-floppy-disk"></i> Simpan Perubahan Pengaturan';
+        showToast("Gagal menyimpan: " + err.message, "error");
+      })
+      .apiSimpanPengaturan(payload);
+  }
+
+  function inisialisasiUlangDatabase() {
+    if (!confirm('Jalankan verifikasi dan pembuatan struktur tabel sheet jika ada tabel yang hilang?')) return;
+    var btn = document.getElementById('btn-init-db');
+    btn.disabled = true;
+    btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Menyiapkan...';
+
+    google.script.run
+      .withSuccessHandler(function(res) {
+        btn.disabled = false;
+        btn.innerHTML = '<i class="fa-solid fa-wrench"></i> Periksa / Buat Header Tabel';
+        showToast(res.message || 'Database siap!', 'success');
+      })
+      .withFailureHandler(function(err) {
+        btn.disabled = false;
+        btn.innerHTML = '<i class="fa-solid fa-wrench"></i> Periksa / Buat Header Tabel';
+        showToast('Error: ' + err.message, 'error');
+      })
+      .setupDatabase();
+  }
+</script>

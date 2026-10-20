@@ -1,0 +1,244 @@
+<!-- File7_Habit5.html -->
+<!-- MOBILE PRIORITIZED: MISI 5 - MAKAN SEHAT (LMS EDUCERIA DESIGN SYSTEM) -->
+<div id="view-habit-5" class="view-section hidden w-full max-w-md mx-auto pb-24 select-none">
+
+  <!-- STEP 1: CATAT MAKAN SEHAT -->
+  <div id="h5-step-1" class="h5-mobile-step space-y-4">
+    <div class="flex items-center justify-between py-2 border-b border-slate-100">
+      <div class="flex items-center gap-3">
+        <button type="button" onclick="bukaTabSiswa('beranda')" class="w-9 h-9 rounded-full bg-slate-100 hover:bg-slate-200 flex items-center justify-center text-slate-700 transition">
+          <i class="fa-solid fa-arrow-left"></i>
+        </button>
+        <h3 class="text-sm font-black text-slate-800">Makan Sehat</h3>
+      </div>
+      <span class="text-[10px] font-black uppercase tracking-wider text-rose-600 bg-rose-50 px-2.5 py-1 rounded-full">
+        Step 1/3
+      </span>
+    </div>
+
+    <!-- Motivational Banner -->
+    <div class="relative overflow-hidden bg-gradient-to-r from-rose-500 via-pink-500 to-rose-600 rounded-3xl p-5 text-white shadow-md">
+      <div class="relative z-10 flex items-center justify-between">
+        <div>
+          <div class="inline-flex items-center gap-1.5 bg-white/25 backdrop-blur-md px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-wider mb-2">
+            <i class="fa-solid fa-apple-whole text-rose-100"></i>
+            <span>Misi 5</span>
+          </div>
+          <h2 class="text-lg font-black tracking-tight">Makan Sehat & Bergizi</h2>
+          <p class="text-[11px] text-rose-50 italic mt-1 leading-snug max-w-[210px]">
+            "Tubuh sehat bermula dari piringmu. Perbanyak sayur, buah segar, dan cukup minum air putih."
+          </p>
+        </div>
+        <div class="w-20 h-20 shrink-0">
+          <img src="https://illustrations.popertee.com/illustration-png/boy-eating-healthy-food.png" onerror="this.onerror=null; this.src='https://cdn-icons-png.flaticon.com/512/3048/3048126.png';" alt="Makan Sehat" class="w-full h-full object-contain drop-shadow-md" />
+        </div>
+      </div>
+      <div class="absolute -right-8 -top-8 w-32 h-32 bg-white/15 rounded-full blur-xl pointer-events-none"></div>
+    </div>
+
+    <!-- Card 1: Pilihan Menu Piringku -->
+    <div class="bg-white rounded-3xl p-5 shadow-sm border border-slate-100 space-y-3">
+      <div class="flex items-center gap-2 mb-1">
+        <span class="w-6 h-6 rounded-full bg-rose-500 text-white flex items-center justify-center text-xs font-black">1</span>
+        <h4 class="text-xs font-black text-slate-800">Menu Isi Piringku Hari Ini</h4>
+      </div>
+      <p class="text-[11px] text-slate-400 ml-8">Tandai menu gizi seimbang yang telah kamu konsumsi.</p>
+
+      <div class="space-y-2 pt-1">
+        <button type="button" onclick="setH5PresetMakan('Nasi, Lauk Berprotein, Sayuran & Buah Segar')" id="h5-btn-mk-1" class="h5-mk-btn w-full p-3 rounded-2xl border text-xs font-bold transition flex items-center justify-between bg-rose-50 text-rose-900 border-rose-300">
+          <span class="flex items-center gap-2"><i class="fa-solid fa-bowl-rice text-rose-600"></i> Nasi, Lauk Sehat, Sayuran & Buah Segar</span>
+          <i class="fa-solid fa-circle-check text-rose-600"></i>
+        </button>
+        <button type="button" onclick="setH5PresetMakan('Minum Air Putih 8 Gelas & Sarapan Pagi')" id="h5-btn-mk-2" class="h5-mk-btn w-full p-3 rounded-2xl border text-xs font-bold transition flex items-center justify-between bg-white text-slate-700 border-slate-200 hover:bg-slate-50">
+          <span class="flex items-center gap-2"><i class="fa-solid fa-glass-water text-slate-400"></i> Minum Air Putih Cukup & Sarapan Bergizi</span>
+          <i class="fa-solid fa-circle-check text-transparent"></i>
+        </button>
+        <button type="button" onclick="setH5PresetMakan('Makan Sayur Bayam/Wortel & Buah Pisang/Apel')" id="h5-btn-mk-3" class="h5-mk-btn w-full p-3 rounded-2xl border text-xs font-bold transition flex items-center justify-between bg-white text-slate-700 border-slate-200 hover:bg-slate-50">
+          <span class="flex items-center gap-2"><i class="fa-solid fa-carrot text-slate-400"></i> Makan Sayuran Hijau & Buah-buahan</span>
+          <i class="fa-solid fa-circle-check text-transparent"></i>
+        </button>
+      </div>
+    </div>
+
+    <button type="button" onclick="simpanStep1H5DanLanjut()" class="w-full py-3.5 bg-gradient-to-r from-rose-500 to-pink-600 hover:from-rose-600 hover:to-pink-700 text-white rounded-2xl text-xs font-black shadow-md shadow-rose-500/25 active:scale-95 transition flex items-center justify-center gap-2">
+      <span>Lanjut ke Materi</span>
+      <i class="fa-solid fa-arrow-right"></i>
+    </button>
+  </div>
+
+  <!-- STEP 2: TONTON MATERI -->
+  <div id="h5-step-2" class="h5-mobile-step hidden space-y-4" style="display: none;">
+    <div class="flex items-center justify-between py-2 border-b border-slate-100">
+      <div class="flex items-center gap-3">
+        <button type="button" onclick="bukaStepHabitMobile(5, 1)" class="w-9 h-9 rounded-full bg-slate-100 hover:bg-slate-200 flex items-center justify-center text-slate-700 transition">
+          <i class="fa-solid fa-arrow-left"></i>
+        </button>
+        <h3 class="text-sm font-black text-slate-800">Makan Sehat</h3>
+      </div>
+      <span class="text-[10px] font-black uppercase tracking-wider text-rose-600 bg-rose-50 px-2.5 py-1 rounded-full">
+        Step 2/3
+      </span>
+    </div>
+
+    <div id="h5-card-materi" class="bg-white rounded-3xl p-5 shadow-sm border border-slate-100 space-y-3.5">
+      <div class="flex items-center gap-2.5">
+        <div class="w-8 h-8 rounded-xl bg-rose-100 text-rose-600 flex items-center justify-center text-sm font-black">
+          <i class="fa-solid fa-book-open"></i>
+        </div>
+        <div>
+          <h4 class="text-xs font-black text-slate-800">Materi Edukasi Nutrisi</h4>
+          <p class="text-[10px] text-slate-400">Kenali pedoman "Isi Piringku" kaya serat dan vitamin.</p>
+        </div>
+      </div>
+
+      <div class="relative w-full rounded-2xl overflow-hidden bg-slate-900 aspect-video group cursor-pointer shadow-sm" onclick="putarVideoMateriEdu(5)">
+        <img id="h5-video-thumb" src="https://images.unsplash.com/photo-1540420773420-3366772f4999?auto=format&fit=crop&w=600&q=80" alt="Video" class="w-full h-full object-cover opacity-85 group-hover:opacity-95 transition" />
+        <div class="absolute inset-0 bg-gradient-to-t from-slate-950/80 via-transparent to-transparent"></div>
+        <div class="absolute inset-0 flex items-center justify-center">
+          <div class="w-12 h-12 rounded-full bg-red-600 group-hover:bg-red-700 text-white flex items-center justify-center text-lg shadow-xl shadow-red-600/40 group-hover:scale-110 transition">
+            <i class="fa-solid fa-play ml-1"></i>
+          </div>
+        </div>
+        <div class="absolute bottom-2.5 inset-x-3 text-white">
+          <span class="text-[9px] font-black uppercase tracking-wider bg-red-600 px-2 py-0.5 rounded-md inline-block mb-1">
+            <i class="fa-brands fa-youtube mr-1"></i>YouTube
+          </span>
+          <div id="h5-video-title-overlay" class="text-xs font-bold truncate">Pedoman Isi Piringku Gizi Seimbang</div>
+        </div>
+      </div>
+
+      <div>
+        <h4 id="h5-video-title" class="text-xs font-black text-slate-800 mb-1">Tubuh Kuat Bebas Penyakit</h4>
+        <p id="h5-video-desc" class="text-[11px] text-slate-500 leading-relaxed">
+          Sayur dan buah mengandung serat dan antioksidan yang melindungi tubuh dari berbagai virus dan penyakit.
+        </p>
+      </div>
+
+      <a id="h5-btn-youtube" href="https://www.youtube.com" target="_blank" class="w-full py-2.5 bg-rose-50 hover:bg-rose-100 text-rose-700 rounded-xl text-xs font-bold border border-rose-200 transition flex items-center justify-center gap-2">
+        <i class="fa-brands fa-youtube text-red-600"></i>
+        <span>Tonton di YouTube</span>
+      </a>
+    </div>
+
+    <div class="space-y-2">
+      <span class="text-[10px] font-black text-slate-400 uppercase tracking-wider px-1">Alternatif Materi</span>
+      <div onclick="bukaStepHabitMobile(5, 3)" class="bg-white rounded-2xl p-3 border border-slate-100 shadow-xs hover:border-rose-300 cursor-pointer transition flex items-center justify-between">
+        <div class="flex items-center gap-3">
+          <div class="w-8 h-8 rounded-xl bg-rose-100 text-rose-600 flex items-center justify-center text-xs">
+            <i class="fa-solid fa-circle-question"></i>
+          </div>
+          <div>
+            <h5 class="text-xs font-bold text-slate-800">Kuis Singkat</h5>
+            <span class="text-[10px] text-slate-400">Uji pemahaman gizi seimbangmu</span>
+          </div>
+        </div>
+        <i class="fa-solid fa-chevron-right text-slate-400 text-xs"></i>
+      </div>
+    </div>
+
+    <button type="button" onclick="bukaStepHabitMobile(5, 3)" class="w-full py-3.5 bg-gradient-to-r from-rose-500 to-pink-600 hover:from-rose-600 hover:to-pink-700 text-white rounded-2xl text-xs font-black shadow-md shadow-rose-500/25 active:scale-95 transition flex items-center justify-center gap-2">
+      <span>Lanjut ke Kuis Singkat</span>
+      <i class="fa-solid fa-arrow-right"></i>
+    </button>
+  </div>
+
+  <!-- STEP 3: KUIS SINGKAT -->
+  <div id="h5-step-3" class="h5-mobile-step hidden space-y-4" style="display: none;">
+    <div class="flex items-center justify-between py-2 border-b border-slate-100">
+      <div class="flex items-center gap-3">
+        <button type="button" onclick="bukaStepHabitMobile(5, 2)" class="w-9 h-9 rounded-full bg-slate-100 hover:bg-slate-200 flex items-center justify-center text-slate-700 transition">
+          <i class="fa-solid fa-arrow-left"></i>
+        </button>
+        <h3 class="text-sm font-black text-slate-800">Kuis Singkat</h3>
+      </div>
+      <div class="flex items-center gap-2">
+        <span class="text-xs font-black text-slate-600">1/3</span>
+        <div class="w-16 h-2 bg-slate-100 rounded-full overflow-hidden">
+          <div class="bg-rose-600 h-full rounded-full" style="width: 33%"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Mascot Illustration -->
+    <div class="flex items-center justify-center py-2">
+      <div class="relative w-28 h-28">
+        <img src="https://illustrations.popertee.com/illustration-png/boy-eating-healthy-food.png" onerror="this.onerror=null; this.src='https://cdn-icons-png.flaticon.com/512/3048/3048126.png';" alt="Quiz Mascot" class="w-full h-full object-contain" />
+        <span class="absolute top-1 right-2 w-7 h-7 bg-rose-600 text-white rounded-full flex items-center justify-center text-xs font-black shadow-sm">?</span>
+      </div>
+    </div>
+
+    <div id="h5-card-kuis" class="bg-white rounded-3xl p-5 shadow-sm border border-slate-100 space-y-3">
+      <h4 id="h5-soal-text" class="text-xs sm:text-sm font-extrabold text-slate-800 leading-snug">
+        1. Mengapa tubuh kita membutuhkan sayuran dan buah-buahan setiap hari?
+      </h4>
+      <div class="space-y-2" id="h5-opsi-container">
+        <!-- Injected dynamically by applyMateriKuisDOM -->
+      </div>
+    </div>
+
+    <!-- Feedback Card -->
+    <div id="h5-feedback-card" class="hidden bg-emerald-50/90 border border-emerald-200 rounded-3xl p-4 space-y-2" style="display: none;">
+      <div class="flex items-center gap-2 text-emerald-700">
+        <div class="w-6 h-6 rounded-full bg-emerald-500 text-white flex items-center justify-center text-xs">
+          <i id="h5-feedback-icon" class="fa-solid fa-check"></i>
+        </div>
+        <span id="h5-feedback-status" class="text-xs font-black">Jawaban kamu benar!</span>
+      </div>
+      <p id="h5-penjelasan-text" class="text-[11px] text-emerald-900 font-medium leading-relaxed">
+        Serat pada sayur melancarkan pencernaan, sedangkan vitamin pada buah menjaga tubuh tetap bugar dan terhindar dari penyakit.
+      </p>
+
+      <button type="button" onclick="selesaikanMisiDanBukaHasil(5, 'Makan Sehat & Bergizi')" class="w-full mt-2 py-3 bg-emerald-600 hover:bg-emerald-700 text-white rounded-2xl text-xs font-black shadow-md shadow-emerald-600/20 active:scale-95 transition flex items-center justify-center gap-2">
+        <span>Lanjut ke Hasil Misi</span>
+        <i class="fa-solid fa-arrow-right"></i>
+      </button>
+    </div>
+  </div>
+
+</div>
+
+<script>
+  var h5SelectedMakan = 'Nasi, Lauk Berprotein, Sayuran & Buah Segar';
+
+  function setH5PresetMakan(mText) {
+    h5SelectedMakan = mText;
+    var btns = document.querySelectorAll('.h5-mk-btn');
+    btns.forEach(function(b) {
+      b.className = "h5-mk-btn w-full p-3 rounded-2xl border text-xs font-bold transition flex items-center justify-between bg-white text-slate-700 border-slate-200 hover:bg-slate-50";
+      var icon = b.querySelector('.fa-circle-check');
+      if (icon) icon.className = "fa-solid fa-circle-check text-transparent";
+    });
+
+    event.currentTarget.className = "h5-mk-btn w-full p-3 rounded-2xl border text-xs font-bold transition flex items-center justify-between bg-rose-50 text-rose-900 border-rose-300";
+    var curIcon = event.currentTarget.querySelector('.fa-circle-check');
+    if (curIcon) curIcon.className = "fa-solid fa-circle-check text-rose-600";
+  }
+
+  function simpanStep1H5DanLanjut() {
+    var user = appState.currentUser || {};
+    var todayStr = new Date().toISOString().split('T')[0];
+
+    var payload = {
+      id: (appState.habitsToday && appState.habitsToday[5]) ? appState.habitsToday[5].id : ('H5-' + Date.now()),
+      tanggal: todayStr,
+      username: user.username,
+      namaSiswa: user.nama,
+      kelas: user.kelas,
+      detail: h5SelectedMakan,
+      fotoBukti: '',
+      statusVerifikasi: 'Disetujui',
+      catatanGuru: ''
+    };
+
+    if (!appState.habitsToday) appState.habitsToday = {};
+    appState.habitsToday[5] = payload;
+
+    google.script.run
+      .withSuccessHandler(function(res) {
+        showToast('Catatan makan sehat tersimpan!', 'success');
+      })
+      .apiSimpanHabit(5, payload);
+
+    bukaStepHabitMobile(5, 2);
+  }
+</script>

@@ -1,0 +1,827 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>LMS Educeria - 7 Kebiasaan Anak Indonesia Hebat</title>
+
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+
+  <!-- Font Awesome 6 Icons -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" />
+
+  <!-- Google Font: Plus Jakarta Sans -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          fontFamily: {
+            sans: ['"Plus Jakarta Sans"', 'sans-serif'],
+          },
+          colors: {
+            sidebar: '#111827',
+            navy: {
+              800: '#1e293b',
+              900: '#0f172a',
+              950: '#0b1120'
+            }
+          }
+        }
+      }
+    }
+  </script>
+
+  <style>
+    /* Proteksi wajib agar elemen tersembunyi tidak bocor teksnya */
+    .hidden, [hidden] {
+      display: none !important;
+    }
+
+    body {
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      background: #f1f5f9;
+      color: #1e293b;
+      -webkit-tap-highlight-color: transparent;
+      user-select: none;
+    }
+
+    ::-webkit-scrollbar {
+      width: 6px;
+      height: 6px;
+    }
+    ::-webkit-scrollbar-track {
+      background: #f8fafc;
+    }
+    ::-webkit-scrollbar-thumb {
+      background: #cbd5e1;
+      border-radius: 9999px;
+    }
+    ::-webkit-scrollbar-thumb:hover {
+      background: #94a3b8;
+    }
+
+    @keyframes spinSlow {
+      from { transform: rotate(0deg); }
+      to { transform: rotate(360deg); }
+    }
+    .animate-spin-slow {
+      animation: spinSlow 20s linear infinite;
+    }
+
+    @media print {
+      body {
+        background: #ffffff !important;
+      }
+      aside, header, nav, #global-navbar, #mobile-bottom-nav, button {
+        display: none !important;
+      }
+      .view-section {
+        display: block !important;
+        padding: 0 !important;
+      }
+    }
+  </style>
+</head>
+
+<body class="min-h-screen bg-slate-100 flex flex-col antialiased">
+  <!-- Toast Notification Popup -->
+  <div id="toast-container" class="fixed top-5 right-5 z-[99999] flex flex-col gap-2 pointer-events-none"></div>
+
+  <!-- APPLICATION WRAPPER (Flex Row on Desktop when logged in) -->
+  <div id="app-wrapper" class="min-h-screen flex flex-col md:flex-row w-full">
+    
+    <!-- DESKTOP LEFT SIDEBAR (DARK NAVY THEME - LMS EDUCERIA STYLE) -->
+    <aside id="main-sidebar" class="hidden md:flex flex-col justify-between w-64 bg-[#111827] text-slate-300 p-4 shrink-0 border-r border-slate-800 select-none">
+      <div>
+        <!-- Brand / Logo LMS EDUCERIA -->
+        <div onclick="handleNavBrandClick()" class="flex items-center gap-3 px-2 py-3 mb-6 cursor-pointer">
+          <div class="w-10 h-10 rounded-xl bg-gradient-to-tr from-amber-400 via-emerald-400 to-sky-400 p-0.5 shadow-md flex items-center justify-center">
+            <div class="w-full h-full bg-[#111827] rounded-[10px] flex items-center justify-center text-emerald-400 text-lg">
+              <i class="fa-solid fa-book-open-reader"></i>
+            </div>
+          </div>
+          <div>
+            <div class="text-[10px] font-extrabold tracking-widest text-emerald-400 uppercase">LMS</div>
+            <div class="text-base font-black text-white tracking-tight leading-none">EDUCERIA</div>
+          </div>
+        </div>
+
+        <!-- Sidebar Navigation List -->
+        <nav class="space-y-1.5" id="sidebar-nav-items">
+          <!-- Populated dynamically based on role -->
+        </nav>
+      </div>
+
+      <!-- Bottom Motivation Promo Card in Sidebar -->
+      <div id="sidebar-promo-card" class="bg-gradient-to-br from-slate-800 to-slate-900/90 rounded-2xl p-3.5 border border-slate-700/60 relative overflow-hidden mt-6">
+        <div class="relative z-10">
+          <span class="text-[10px] font-bold text-amber-400 uppercase tracking-wider block">Semangat</span>
+          <h4 class="text-xs font-black text-white leading-snug mt-0.5">Bangun Pagi Raih Mimpimu!</h4>
+          <p class="text-[10px] text-slate-400 mt-1">Generasi Hebat Indonesia</p>
+        </div>
+        <div class="mt-2 text-right">
+          <button onclick="navigateTo('habit-1')" class="px-2.5 py-1 bg-amber-500 hover:bg-amber-400 text-slate-950 font-bold rounded-lg text-[10px] transition">
+            Buka Misi 1
+          </button>
+        </div>
+      </div>
+    </aside>
+
+    <!-- RIGHT MAIN CONTENT WRAPPER -->
+    <div class="flex-1 flex flex-col min-w-0 min-h-screen">
+      
+      <!-- TOP HEADER BAR (Belajar • Berkarya • Berprestasi) -->
+      <header id="main-header" class="hidden h-16 bg-white border-b border-slate-200/80 px-4 sm:px-8 flex items-center justify-between sticky top-0 z-30 shadow-xs">
+        <!-- Left: Tagline Motto -->
+        <div class="flex items-center gap-2 text-xs font-bold text-slate-500">
+          <span class="hover:text-slate-800 transition">Belajar</span>
+          <span class="text-slate-300">•</span>
+          <span class="hover:text-slate-800 transition">Berkarya</span>
+          <span class="text-slate-300">•</span>
+          <span class="hover:text-slate-800 transition text-emerald-600">Berprestasi</span>
+        </div>
+
+        <!-- Right: Notification Bell + User Profile -->
+        <div class="flex items-center gap-4">
+          <!-- Notification Bell -->
+          <div class="relative cursor-pointer p-1.5 rounded-full hover:bg-slate-100 text-slate-600 transition" onclick="showToast('Kamu memiliki 3 misi kebiasaan baru hari ini!', 'info')">
+            <i class="fa-regular fa-bell text-lg"></i>
+            <span class="absolute top-0.5 right-0.5 w-4 h-4 bg-rose-500 text-white rounded-full text-[9px] font-black flex items-center justify-center">3</span>
+          </div>
+
+          <!-- User Avatar & Role Badge -->
+          <div class="flex items-center gap-2.5 pl-2 border-l border-slate-100">
+            <div class="relative">
+              <div class="w-9 h-9 rounded-full bg-gradient-to-tr from-amber-400 to-orange-500 p-0.5 shadow-xs">
+                <img id="header-user-avatar" src="https://api.dicebear.com/7.x/bottts/svg?seed=student1" alt="Avatar" class="w-full h-full rounded-full bg-white object-cover" />
+              </div>
+              <span class="absolute bottom-0 right-0 w-2.5 h-2.5 rounded-full bg-emerald-500 border-2 border-white"></span>
+            </div>
+            <div class="hidden sm:block text-left">
+              <div id="header-user-name" class="text-xs font-extrabold text-slate-800 leading-tight">Siswa</div>
+              <div id="header-user-kelas" class="text-[10px] font-bold text-slate-400">Kelas 5A</div>
+            </div>
+            <!-- Logout Button -->
+            <button onclick="handleLogout()" title="Keluar Akun" class="ml-1 text-slate-400 hover:text-rose-600 p-1.5 rounded-lg transition">
+              <i class="fa-solid fa-arrow-right-from-bracket"></i>
+            </button>
+          </div>
+        </div>
+      </header>
+
+      <!-- VIEW SECTIONS CONTAINER -->
+      <main class="flex-1 p-4 sm:p-6 lg:p-8 max-w-7xl w-full mx-auto">
+        <!-- File 1: Landing Page (Login) -->
+        <?!= include('File1_LandingPage'); ?>
+
+        <!-- File 2: Dashboard Siswa -->
+        <?!= include('File2_Dashboard'); ?>
+
+        <!-- File 3 s/d File 9: 7 Misi Kebiasaan -->
+        <?!= include('File3_Habit1'); ?>
+        <?!= include('File4_Habit2'); ?>
+        <?!= include('File5_Habit3'); ?>
+        <?!= include('File6_Habit4'); ?>
+        <?!= include('File7_Habit5'); ?>
+        <?!= include('File8_Habit6'); ?>
+        <?!= include('File9_Habit7'); ?>
+
+        <!-- File 10: Data Siswa (CRUD) -->
+        <?!= include('File10_DataSiswa'); ?>
+
+        <!-- File 11: Data Guru (CRUD) -->
+        <?!= include('File11_DataGuru'); ?>
+
+        <!-- File 12: Pengaturan Sekolah -->
+        <?!= include('File12_Pengaturan'); ?>
+
+        <!-- File 14: Dashboard Guru -->
+        <?!= include('File14_DashboardGuru'); ?>
+
+        <!-- File 15: Dashboard Kepala Sekolah -->
+        <?!= include('File15_DashboardKepsek'); ?>
+      </main>
+    </div>
+  </div>
+
+  <!-- MODAL VIDEO YOUTUBE PLAYER EDUKASI SISWA -->
+  <div id="modal-video-player" class="hidden fixed inset-0 z-[9999] bg-slate-950/85 backdrop-blur-md flex items-center justify-center p-4">
+    <div class="bg-slate-900 rounded-3xl max-w-3xl w-full p-4 sm:p-6 shadow-2xl border border-slate-800 relative">
+      <button onclick="tutupModalVideo()" class="absolute top-3 right-3 w-9 h-9 rounded-full bg-slate-800 hover:bg-slate-700 text-slate-300 hover:text-white flex items-center justify-center font-bold text-lg transition">
+        &times;
+      </button>
+      <div class="mb-3 pr-10">
+        <span id="mv-habit-badge" class="px-2.5 py-0.5 rounded-full text-[10px] font-black uppercase tracking-wider bg-red-600 text-white">YouTube Materi</span>
+        <h3 id="mv-video-title" class="text-sm sm:text-base font-bold text-white mt-1">Judul Video Materi</h3>
+      </div>
+      <div class="relative w-full aspect-video rounded-2xl overflow-hidden bg-black shadow-inner border border-slate-800">
+        <iframe id="mv-video-iframe" class="w-full h-full" src="" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
+      </div>
+      <div class="mt-3 flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+        <p id="mv-video-desc" class="text-xs text-slate-400 line-clamp-2 max-w-xl"></p>
+        <a id="mv-video-open-yt" href="#" target="_blank" class="px-3.5 py-1.5 bg-red-600 hover:bg-red-700 text-white rounded-xl text-xs font-bold transition flex items-center justify-center gap-1.5 shrink-0 self-start sm:self-auto">
+          <i class="fa-brands fa-youtube"></i> Tonton di YouTube
+        </a>
+      </div>
+    </div>
+  </div>
+
+  <!-- FLOATING BOTTOM NAVIGATION BAR FOR MOBILE (LMS EDUCERIA 4 TABS) -->
+  <nav id="mobile-bottom-nav" class="hidden fixed bottom-0 inset-x-0 max-w-md mx-auto z-40 bg-white/95 backdrop-blur-md border-t border-slate-200/80 shadow-lg px-2 py-1 flex items-center justify-around text-slate-400">
+    <!-- Populated dynamically based on user role -->
+  </nav>
+
+  <!-- Global JavaScript Router & State Machine -->
+  <script>
+    var appState = {
+      currentUser: null,
+      pengaturan: {
+        namaSekolah: 'SD Generasi Indonesia Hebat',
+        logoSekolah: 'https://cdn-icons-png.flaticon.com/512/2997/2997295.png',
+        linkYoutube: '',
+        usernameKepsek: 'kepsek',
+        passwordKepsek: '123456'
+      },
+      habitsToday: {},
+      materiKuisMap: {},
+      currentView: 'landing'
+    };
+
+    window.addEventListener('DOMContentLoaded', function() {
+      google.script.run
+        .withSuccessHandler(function(cfg) {
+          if (cfg) {
+            appState.pengaturan = cfg;
+            var lName = document.getElementById('landing-school-name');
+            var lLogo = document.getElementById('landing-logo');
+            if (lName) lName.innerText = cfg.namaSekolah;
+            if (lLogo) lLogo.src = cfg.logoSekolah;
+          }
+        })
+        .apiGetPengaturan();
+
+      // Sinkronisasi seluruh materi & kuis guru ke menu siswa
+      syncAllMateriKuisSiswa();
+    });
+
+    function syncAllMateriKuisSiswa(callback) {
+      google.script.run
+        .withSuccessHandler(function(map) {
+          if (map) {
+            appState.materiKuisMap = map;
+            for (var i = 1; i <= 7; i++) {
+              if (map[i]) applyMateriKuisDOM(i, map[i]);
+            }
+          }
+          if (typeof callback === 'function') callback(map);
+        })
+        .withFailureHandler(function(err) {
+          console.warn('Gagal sinkron materi & kuis: ', err);
+          if (typeof callback === 'function') callback(null);
+        })
+        .apiGetMateriKuisAll();
+    }
+
+    // ==========================================
+    // ROUTING & VIEW CONTROLLER
+    // ==========================================
+    function navigateTo(viewName) {
+      appState.currentView = viewName;
+
+      // Sembunyikan seluruh view section dengan display none eksplisit
+      var views = document.querySelectorAll('.view-section');
+      views.forEach(function(el) {
+        el.classList.add('hidden');
+        el.style.display = 'none';
+      });
+
+      // Munculkan target view
+      var target = document.getElementById('view-' + viewName);
+      if (target) {
+        target.classList.remove('hidden');
+        target.style.display = 'block';
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+      }
+
+      var sidebar = document.getElementById('main-sidebar');
+      var header = document.getElementById('main-header');
+      var bNav = document.getElementById('mobile-bottom-nav');
+      var user = appState.currentUser || {};
+
+      if (viewName === 'landing') {
+        sidebar.classList.add('hidden');
+        sidebar.classList.remove('md:flex');
+        header.classList.add('hidden');
+        bNav.classList.add('hidden');
+      } else {
+        if (user.role === 'Siswa') {
+          // Mobile First Experience untuk Siswa
+          sidebar.classList.add('hidden');
+          sidebar.classList.remove('md:flex');
+          header.classList.add('hidden');
+          bNav.classList.remove('hidden');
+        } else {
+          // Tampilan Desktop untuk Guru & Kepsek
+          sidebar.classList.remove('hidden');
+          sidebar.classList.add('md:flex');
+          header.classList.remove('hidden');
+          bNav.classList.remove('hidden');
+        }
+
+        renderSidebarNav();
+        renderMobileBottomNav();
+
+        if (viewName === 'dashboard') {
+          if (typeof renderDashboardUI === 'function') renderDashboardUI();
+          if (typeof bukaTabSiswa === 'function') bukaTabSiswa('beranda');
+        }
+
+        // Otomatis sinkronkan materi & kuis guru saat membuka menu habit siswa
+        if (viewName.indexOf('habit-') === 0) {
+          updateBottomNavIcons('kelas');
+          var hNum = parseInt(viewName.replace('habit-', ''), 10);
+          if (!isNaN(hNum)) {
+            renderMateriKuisSiswa(hNum);
+            bukaStepHabitMobile(hNum, 1);
+          }
+        }
+      }
+    }
+
+    // Wizard Pengatur Langkah 1, 2, 3 pada Setiap Habit Siswa
+    function bukaStepHabitMobile(hid, stepNum) {
+      for (var s = 1; s <= 3; s++) {
+        var el = document.getElementById('h' + hid + '-step-' + s);
+        if (el) {
+          if (s === stepNum) {
+            el.classList.remove('hidden');
+            el.style.display = 'block';
+          } else {
+            el.classList.add('hidden');
+            el.style.display = 'none';
+          }
+        }
+      }
+
+      // Pastikan kartu feedback kuis selalu tersembunyi sampai siswa memilih jawaban
+      var fbCard = document.getElementById('h' + hid + '-feedback-card');
+      if (fbCard && stepNum !== 3) {
+        fbCard.classList.add('hidden');
+        fbCard.style.display = 'none';
+      }
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+
+    function navigateToHabit(habitNum) {
+      if (typeof habitActiveCurrentId !== 'undefined') habitActiveCurrentId = habitNum;
+      navigateTo('habit-' + habitNum);
+      bukaStepHabitMobile(habitNum, 1);
+      if (habitNum === 1 && typeof setH1PresetTime === 'function') {
+        setH1PresetTime('05:30');
+      }
+      renderMateriKuisSiswa(habitNum);
+    }
+
+    function renderMateriKuisSiswa(habitNum) {
+      if (!appState.materiKuisMap || !appState.materiKuisMap[habitNum]) {
+        syncAllMateriKuisSiswa(function(map) {
+          if (map && map[habitNum]) {
+            applyMateriKuisDOM(habitNum, map[habitNum]);
+          }
+        });
+      } else {
+        applyMateriKuisDOM(habitNum, appState.materiKuisMap[habitNum]);
+      }
+    }
+
+    function extractYouTubeId(url) {
+      if (!url) return '';
+      var match = url.match(/(?:youtu\.be\/|youtube\.com\/(?:embed\/|v\/|watch\?v=|watch\?.+&v=|shorts\/))([\w-]{11})/);
+      return match ? match[1] : '';
+    }
+
+    function putarVideoMateriEdu(hid) {
+      var id = hid || 1;
+      var data = (appState.materiKuisMap && appState.materiKuisMap[id]) ? appState.materiKuisMap[id] : null;
+      var url = (data && data.linkYoutube) ? data.linkYoutube : (appState.pengaturan ? appState.pengaturan.linkYoutube : 'https://www.youtube.com');
+      var videoId = extractYouTubeId(url);
+
+      var modal = document.getElementById('modal-video-player');
+      var iframe = document.getElementById('mv-video-iframe');
+      var titleEl = document.getElementById('mv-video-title');
+      var descEl = document.getElementById('mv-video-desc');
+      var openYt = document.getElementById('mv-video-open-yt');
+      var badgeEl = document.getElementById('mv-habit-badge');
+
+      if (videoId && modal && iframe) {
+        iframe.src = 'https://www.youtube.com/embed/' + videoId + '?autoplay=1';
+        if (titleEl) titleEl.innerText = (data && data.judulMateri) ? data.judulMateri : ('Materi Video Misi ' + id);
+        if (descEl) descEl.innerText = (data && data.deskripsiMateri) ? data.deskripsiMateri : '';
+        if (openYt) openYt.href = url;
+        if (badgeEl) badgeEl.innerText = 'YouTube Materi Misi ' + id;
+        modal.classList.remove('hidden');
+      } else {
+        window.open(url, '_blank');
+      }
+    }
+
+    function tutupModalVideo() {
+      var modal = document.getElementById('modal-video-player');
+      var iframe = document.getElementById('mv-video-iframe');
+      if (iframe) iframe.src = '';
+      if (modal) modal.classList.add('hidden');
+    }
+
+    function lompatKeMateriSiswa(hid) {
+      var card = document.getElementById('h' + hid + '-card-materi');
+      if (card) {
+        card.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        card.classList.add('ring-4', 'ring-rose-400/50');
+        setTimeout(function() {
+          card.classList.remove('ring-4', 'ring-rose-400/50');
+        }, 1500);
+      }
+    }
+
+    function lompatKeKuisSiswa(hid) {
+      var card = document.getElementById('h' + hid + '-card-kuis');
+      if (card) {
+        card.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        card.classList.add('ring-4', 'ring-indigo-400/50');
+        setTimeout(function() {
+          card.classList.remove('ring-4', 'ring-indigo-400/50');
+        }, 1500);
+      }
+    }
+
+    function applyMateriKuisDOM(hid, data) {
+      if (!data) return;
+
+      // 1. Update Video YouTube Thumbnail & Links
+      var thumbEl = document.getElementById('h' + hid + '-video-thumb');
+      var videoId = extractYouTubeId(data.linkYoutube);
+      if (thumbEl) {
+        if (videoId) {
+          thumbEl.src = 'https://img.youtube.com/vi/' + videoId + '/hqdefault.jpg';
+        } else if (data.linkYoutube && data.linkYoutube.indexOf('http') === 0) {
+          thumbEl.src = 'https://images.unsplash.com/photo-1506126613408-eca07ce68773?auto=format&fit=crop&w=600&q=80';
+        }
+      }
+
+      var tOverlay = document.getElementById('h' + hid + '-video-title-overlay');
+      if (tOverlay && data.judulMateri) tOverlay.innerText = data.judulMateri;
+
+      var tTitle = document.getElementById('h' + hid + '-video-title');
+      if (tTitle && data.judulMateri) tTitle.innerText = data.judulMateri;
+
+      var tDesc = document.getElementById('h' + hid + '-video-desc');
+      if (tDesc && data.deskripsiMateri) tDesc.innerText = data.deskripsiMateri;
+
+      var btnYt = document.getElementById('h' + hid + '-btn-youtube');
+      if (btnYt && data.linkYoutube) btnYt.href = data.linkYoutube;
+
+      // 2. Update Quiz Questions, Options, and Instant Verification
+      var sText = document.getElementById('h' + hid + '-soal-text');
+      var pText = document.getElementById('h' + hid + '-penjelasan-text');
+      var container = document.getElementById('h' + hid + '-opsi-container');
+      var fCard = document.getElementById('h' + hid + '-feedback-card');
+      var fStatus = document.getElementById('h' + hid + '-feedback-status');
+      var fIcon = document.getElementById('h' + hid + '-feedback-icon');
+
+      if (data.pertanyaan && sText) {
+        sText.innerText = '1. ' + data.pertanyaan.replace(/^\d+\.\s*/, '');
+      }
+      if (data.penjelasan && pText) {
+        pText.innerText = data.penjelasan;
+      }
+
+      if (container && data.opsiA) {
+        var charMap = { 'A': 0, 'B': 1, 'C': 2, 'D': 3 };
+        var keyChar = (data.kunciJawaban || 'B').toUpperCase();
+        var keyIdx = charMap[keyChar] !== undefined ? charMap[keyChar] : 1;
+        var options = [data.opsiA, data.opsiB, data.opsiC, data.opsiD];
+        var letters = ['A', 'B', 'C', 'D'];
+        container.innerHTML = '';
+
+        options.forEach(function(opt, idx) {
+          var btn = document.createElement('button');
+          btn.type = 'button';
+          btn.id = 'h' + hid + '-btn-opt-' + letters[idx];
+          btn.className = "w-full p-3 rounded-2xl border border-slate-200 text-left text-xs font-semibold text-slate-700 hover:bg-slate-50 transition flex items-center justify-between";
+          btn.innerHTML = `
+            <span class="flex items-center gap-3">
+              <span class="w-6 h-6 rounded-full bg-slate-100 text-slate-600 flex items-center justify-center text-xs font-bold">${letters[idx]}</span>
+              <span>${opt}</span>
+            </span>
+            <i class="fa-solid fa-circle-check text-transparent opt-check-icon text-base"></i>
+          `;
+
+          btn.onclick = function() {
+            // Reset styles for all 4 option buttons
+            for (var o = 0; o < letters.length; o++) {
+              var ob = document.getElementById('h' + hid + '-btn-opt-' + letters[o]);
+              if (ob) {
+                ob.className = "w-full p-3 rounded-2xl border border-slate-200 text-left text-xs font-semibold text-slate-700 hover:bg-slate-50 transition flex items-center justify-between";
+                var icon = ob.querySelector('.opt-check-icon');
+                if (icon) icon.className = "fa-solid fa-circle-check text-transparent opt-check-icon text-base";
+              }
+            }
+
+            if (fCard) {
+              fCard.classList.remove('hidden');
+              fCard.style.display = 'block';
+            }
+
+            if (idx === keyIdx) {
+              btn.className = "w-full p-3 rounded-2xl border-2 border-emerald-500 bg-emerald-50 text-left text-xs font-bold text-emerald-900 transition flex items-center justify-between";
+              var checkIcon = btn.querySelector('.opt-check-icon');
+              if (checkIcon) checkIcon.className = "fa-solid fa-circle-check text-emerald-600 opt-check-icon text-base";
+              
+              if (fCard) fCard.className = "bg-emerald-50/90 border border-emerald-200 rounded-3xl p-4 space-y-2 transition-all";
+              if (fStatus) fStatus.innerText = "Jawaban kamu benar! 🎉";
+              if (fIcon) fIcon.className = "fa-solid fa-star text-amber-500";
+              if (pText && data.penjelasan) pText.innerText = data.penjelasan;
+              showToast('Hebat! Jawaban kamu benar! (+15 XP)', 'success');
+            } else {
+              btn.className = "w-full p-3 rounded-2xl border-2 border-rose-400 bg-rose-50 text-left text-xs font-semibold text-rose-800 transition flex items-center justify-between";
+              if (fCard) fCard.className = "bg-amber-50/90 border border-amber-200 rounded-3xl p-4 space-y-2 transition-all";
+              if (fStatus) fStatus.innerText = "Jawaban kurang tepat!";
+              if (fIcon) fIcon.className = "fa-solid fa-circle-exclamation text-amber-500";
+              if (pText) pText.innerText = 'Coba baca penjelasan materi dan pilih jawaban yang benar ya!';
+              showToast('Kurang tepat, coba lagi ya!', 'info');
+            }
+          };
+
+          container.appendChild(btn);
+        });
+      }
+    }
+
+    function handleNavBrandClick() {
+      if (!appState.currentUser) {
+        navigateTo('landing');
+        return;
+      }
+      var role = appState.currentUser.role;
+      if (role === 'Siswa') navigateTo('habit-1');
+      else if (role === 'Guru') navigateTo('dashboard-guru');
+      else navigateTo('dashboard-kepsek');
+    }
+
+    // ==========================================
+    // LOGIN & LOGOUT HANDLER
+    // ==========================================
+    function onLoginSuccess() {
+      var user = appState.currentUser;
+      document.getElementById('header-user-name').innerText = user.panggilan || user.nama || user.username;
+      document.getElementById('header-user-kelas').innerText = user.role === 'Siswa' ? user.kelas : user.role;
+      document.getElementById('header-user-avatar').src = 'https://api.dicebear.com/7.x/bottts/svg?seed=' + encodeURIComponent(user.username);
+
+      showToast('Selamat datang, ' + (user.panggilan || user.nama) + '!', 'success');
+
+      if (user.role === 'Siswa') {
+        syncAllMateriKuisSiswa();
+        google.script.run
+          .withSuccessHandler(function(res) {
+            if (res && res.habitsToday) {
+              appState.habitsToday = res.habitsToday;
+            }
+            if (typeof renderDashboardUI === 'function') renderDashboardUI();
+            navigateTo('dashboard');
+          })
+          .apiGetInitialSiswaData(user.username);
+      } else if (user.role === 'Guru') {
+        syncAllMateriKuisSiswa();
+        if (typeof initDashboardGuru === 'function') initDashboardGuru();
+        navigateTo('dashboard-guru');
+      } else {
+        syncAllMateriKuisSiswa();
+        if (typeof initDashboardKepsek === 'function') initDashboardKepsek();
+        navigateTo('dashboard-kepsek');
+      }
+    }
+
+    function handleLogout() {
+      if (!confirm('Apakah Anda yakin ingin keluar dari aplikasi?')) return;
+      appState.currentUser = null;
+      appState.habitsToday = {};
+      navigateTo('landing');
+      showToast('Anda telah keluar.', 'info');
+    }
+
+    // ==========================================
+    // SIDEBAR NAVIGATION RENDERER (LMS STYLE)
+    // ==========================================
+    function renderSidebarNav() {
+      var container = document.getElementById('sidebar-nav-items');
+      container.innerHTML = '';
+      var user = appState.currentUser || {};
+      var cur = appState.currentView;
+
+      if (user.role === 'Siswa') {
+        var menuSiswa = [
+          { id: 'dashboard', label: 'Dashboard', icon: 'fa-solid fa-house' },
+          { id: 'habit-1', label: 'Bangun Pagi', icon: 'fa-solid fa-sun', activeGradient: true },
+          { id: 'habit-2', label: 'Beribadah', icon: 'fa-solid fa-hands-praying' },
+          { id: 'habit-3', label: 'Berolahraga', icon: 'fa-solid fa-person-running' },
+          { id: 'habit-4', label: 'Gemar Belajar', icon: 'fa-solid fa-book-open' },
+          { id: 'habit-5', label: 'Makan Sehat', icon: 'fa-solid fa-apple-whole' },
+          { id: 'habit-6', label: 'Membantu Ortu', icon: 'fa-solid fa-hand-holding-heart' },
+          { id: 'habit-7', label: 'Tidur Tepat', icon: 'fa-solid fa-moon' }
+        ];
+
+        menuSiswa.forEach(function(item) {
+          var isActive = (cur === item.id);
+          var btn = document.createElement('button');
+          btn.type = 'button';
+          btn.onclick = function() { navigateTo(item.id); };
+
+          if (isActive) {
+            btn.className = "w-full flex items-center gap-3 px-3.5 py-2.5 rounded-2xl text-xs font-bold text-white bg-gradient-to-r from-amber-500 to-orange-500 shadow-lg shadow-orange-500/25 transition";
+          } else {
+            btn.className = "w-full flex items-center gap-3 px-3.5 py-2.5 rounded-2xl text-xs font-semibold text-slate-400 hover:text-white hover:bg-slate-800/80 transition";
+          }
+
+          btn.innerHTML = `
+            <i class="${item.icon} text-sm w-5 text-center"></i>
+            <span>${item.label}</span>
+          `;
+          container.appendChild(btn);
+        });
+
+      } else if (user.role === 'Guru') {
+        var menuGuru = [
+          { id: 'dashboard-guru', label: 'Monitoring Kelas', icon: 'fa-solid fa-clipboard-check' },
+          { id: 'materi-kuis', label: 'Kelola Materi & Kuis', icon: 'fa-solid fa-graduation-cap', action: function() { bukaModalMateriKuis(1); } },
+          { id: 'data-siswa', label: 'Data Siswa', icon: 'fa-solid fa-users', action: function() { navigateTo('data-siswa'); if (typeof muatDataSiswa === 'function') muatDataSiswa(false); } }
+        ];
+
+        menuGuru.forEach(function(item) {
+          var isActive = (cur === item.id);
+          var btn = document.createElement('button');
+          btn.type = 'button';
+          btn.onclick = item.action || function() { navigateTo(item.id); };
+          btn.className = isActive 
+            ? "w-full flex items-center gap-3 px-3.5 py-2.5 rounded-2xl text-xs font-bold text-white bg-gradient-to-r from-teal-500 to-emerald-600 shadow-md transition"
+            : "w-full flex items-center gap-3 px-3.5 py-2.5 rounded-2xl text-xs font-semibold text-slate-400 hover:text-white hover:bg-slate-800/80 transition";
+          btn.innerHTML = `<i class="${item.icon} text-sm w-5 text-center"></i><span>${item.label}</span>`;
+          container.appendChild(btn);
+        });
+
+      } else {
+        // Kepala Sekolah
+        var menuKepsek = [
+          { id: 'dashboard-kepsek', label: 'Dashboard Kepsek', icon: 'fa-solid fa-chart-pie' },
+          { id: 'dashboard-guru', label: 'Jurnal Kelas', icon: 'fa-solid fa-chalkboard-user' },
+          { id: 'data-siswa', label: 'Data Siswa', icon: 'fa-solid fa-users', action: function() { navigateTo('data-siswa'); if (typeof muatDataSiswa === 'function') muatDataSiswa(false); } },
+          { id: 'data-guru', label: 'Data Guru', icon: 'fa-solid fa-user-tie', action: function() { navigateTo('data-guru'); if (typeof muatDataGuru === 'function') muatDataGuru(false); } },
+          { id: 'pengaturan', label: 'Pengaturan Sekolah', icon: 'fa-solid fa-gear', action: function() { navigateTo('pengaturan'); if (typeof muatPengaturanUI === 'function') muatPengaturanUI(); } }
+        ];
+
+        menuKepsek.forEach(function(item) {
+          var isActive = (cur === item.id);
+          var btn = document.createElement('button');
+          btn.type = 'button';
+          btn.onclick = item.action || function() { navigateTo(item.id); };
+          btn.className = isActive 
+            ? "w-full flex items-center gap-3 px-3.5 py-2.5 rounded-2xl text-xs font-bold text-white bg-gradient-to-r from-indigo-500 to-violet-600 shadow-md transition"
+            : "w-full flex items-center gap-3 px-3.5 py-2.5 rounded-2xl text-xs font-semibold text-slate-400 hover:text-white hover:bg-slate-800/80 transition";
+          btn.innerHTML = `<i class="${item.icon} text-sm w-5 text-center"></i><span>${item.label}</span>`;
+          container.appendChild(btn);
+        });
+      }
+    }
+
+    // ==========================================
+    // MOBILE BOTTOM NAVIGATION (LMS EDUCERIA 4 TABS)
+    // ==========================================
+    function renderMobileBottomNav() {
+      var container = document.getElementById('mobile-bottom-nav');
+      if (!container) return;
+      container.innerHTML = '';
+      var user = appState.currentUser || {};
+      var cur = appState.currentView;
+
+      if (user.role === 'Siswa') {
+        container.innerHTML = `
+          <!-- 1. Beranda -->
+          <button id="bnav-beranda" type="button" onclick="bukaTabSiswa('beranda')" class="relative flex flex-col items-center py-1.5 px-3 text-[10px] font-black text-amber-500 transition active:scale-95">
+            <i class="fa-solid fa-house text-base mb-0.5"></i>
+            <span>Beranda</span>
+          </button>
+
+          <!-- 2. Kelas / 7 Misi -->
+          <button id="bnav-kelas" type="button" onclick="bukaTabSiswa('kelas')" class="relative flex flex-col items-center py-1.5 px-3 text-[10px] font-semibold text-slate-400 hover:text-slate-700 transition active:scale-95">
+            <i class="fa-solid fa-shapes text-base mb-0.5"></i>
+            <span>Kelas</span>
+          </button>
+
+          <!-- 3. Notifikasi (dengan Red Badge '3') -->
+          <button id="bnav-notif" type="button" onclick="bukaTabSiswa('notif')" class="relative flex flex-col items-center py-1.5 px-3 text-[10px] font-semibold text-slate-400 hover:text-slate-700 transition active:scale-95">
+            <div class="relative">
+              <i class="fa-solid fa-bell text-base mb-0.5"></i>
+              <span class="absolute -top-1 -right-2 w-3.5 h-3.5 bg-rose-500 text-white rounded-full text-[8px] font-black flex items-center justify-center shadow-xs">3</span>
+            </div>
+            <span>Notifikasi</span>
+          </button>
+
+          <!-- 4. Lainnya / Profil -->
+          <button id="bnav-profil" type="button" onclick="bukaTabSiswa('profil')" class="relative flex flex-col items-center py-1.5 px-3 text-[10px] font-semibold text-slate-400 hover:text-slate-700 transition active:scale-95">
+            <i class="fa-solid fa-bars text-base mb-0.5"></i>
+            <span>Lainnya</span>
+          </button>
+        `;
+      } else if (user.role === 'Guru') {
+        container.innerHTML = `
+          <button onclick="navigateTo('dashboard-guru')" class="flex flex-col items-center py-1 px-3 text-[10px] font-bold ${cur === 'dashboard-guru' ? 'text-emerald-500' : 'text-slate-400'}">
+            <i class="fa-solid fa-clipboard-check text-base"></i>
+            <span>Monitoring</span>
+          </button>
+          <button onclick="navigateTo('data-siswa'); if (typeof muatDataSiswa === 'function') muatDataSiswa(false);" class="flex flex-col items-center py-1 px-3 text-[10px] font-bold ${cur === 'data-siswa' ? 'text-emerald-500' : 'text-slate-400'}">
+            <i class="fa-solid fa-users text-base"></i>
+            <span>Siswa</span>
+          </button>
+          <button onclick="handleLogout()" class="flex flex-col items-center py-1 px-3 text-[10px] font-bold text-rose-500">
+            <i class="fa-solid fa-arrow-right-from-bracket text-base"></i>
+            <span>Keluar</span>
+          </button>
+        `;
+      } else {
+        container.innerHTML = `
+          <button onclick="navigateTo('dashboard-kepsek')" class="flex flex-col items-center py-1 px-2 text-[10px] font-bold ${cur === 'dashboard-kepsek' ? 'text-emerald-500' : 'text-slate-400'}">
+            <i class="fa-solid fa-chart-pie text-base"></i>
+            <span>Laporan</span>
+          </button>
+          <button onclick="navigateTo('dashboard-guru')" class="flex flex-col items-center py-1 px-2 text-[10px] font-bold ${cur === 'dashboard-guru' ? 'text-emerald-500' : 'text-slate-400'}">
+            <i class="fa-solid fa-chalkboard-user text-base"></i>
+            <span>Kelas</span>
+          </button>
+          <button onclick="navigateTo('data-siswa'); if (typeof muatDataSiswa === 'function') muatDataSiswa(false);" class="flex flex-col items-center py-1 px-2 text-[10px] font-bold ${cur === 'data-siswa' ? 'text-emerald-500' : 'text-slate-400'}">
+            <i class="fa-solid fa-users text-base"></i>
+            <span>Siswa</span>
+          </button>
+          <button onclick="handleLogout()" class="flex flex-col items-center py-1 px-2 text-[10px] font-bold text-rose-500">
+            <i class="fa-solid fa-arrow-right-from-bracket text-base"></i>
+            <span>Keluar</span>
+          </button>
+        `;
+      }
+    }
+
+    function updateBottomNavIcons(activeTab) {
+      var user = appState.currentUser || {};
+      if (user.role !== 'Siswa') return;
+
+      var tabs = ['beranda', 'kelas', 'notif', 'profil'];
+      tabs.forEach(function(t) {
+        var el = document.getElementById('bnav-' + t);
+        if (el) {
+          if (t === activeTab) {
+            el.className = "relative flex flex-col items-center py-1.5 px-3 text-[10px] font-black text-amber-500 transition scale-105";
+          } else {
+            el.className = "relative flex flex-col items-center py-1.5 px-3 text-[10px] font-semibold text-slate-400 hover:text-slate-700 transition";
+          }
+        }
+      });
+    }
+
+    // ==========================================
+    // TOAST NOTIFICATIONS
+    // ==========================================
+    function showToast(message, type) {
+      var container = document.getElementById('toast-container');
+      var toast = document.createElement('div');
+      toast.className = 'pointer-events-auto flex items-center gap-2.5 px-4 py-3 rounded-2xl shadow-xl border text-xs font-bold transition-all transform duration-300 translate-y-2 opacity-0';
+
+      if (type === 'success') {
+        toast.className += ' bg-emerald-600 text-white border-emerald-500';
+        toast.innerHTML = '<i class="fa-solid fa-circle-check text-base"></i> <span>' + message + '</span>';
+      } else if (type === 'error') {
+        toast.className += ' bg-rose-600 text-white border-rose-500';
+        toast.innerHTML = '<i class="fa-solid fa-circle-exclamation text-base"></i> <span>' + message + '</span>';
+      } else {
+        toast.className += ' bg-slate-900 text-white border-slate-700';
+        toast.innerHTML = '<i class="fa-solid fa-circle-info text-base text-amber-400"></i> <span>' + message + '</span>';
+      }
+
+      container.appendChild(toast);
+
+      setTimeout(function() {
+        toast.classList.remove('translate-y-2', 'opacity-0');
+      }, 10);
+
+      setTimeout(function() {
+        toast.classList.add('opacity-0', 'translate-x-4');
+        setTimeout(function() {
+          if (toast.parentNode) toast.parentNode.removeChild(toast);
+        }, 300);
+      }, 3500);
+    }
+  </script>
+</body>
+</html>
