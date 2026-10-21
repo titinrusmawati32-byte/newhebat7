@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { callApi } from '../services/api';
 
 const HABIT_TITLES = [
@@ -19,6 +19,147 @@ const HABIT_ICONS = [
   'fa-hand-holding-heart',
   'fa-piggy-bank',
   'fa-moon'
+];
+
+const INITIAL_STUDENTS = [
+  {
+    id: 1,
+    nisn: '0012345678',
+    nama: 'Ahmad Farhan Pratama',
+    panggilan: 'Farhan',
+    username: 'farhan',
+    password: 'password123',
+    kelas: 'Kelas 5A',
+    gender: 'L',
+    completedCount: 6,
+    percentage: 86,
+    habits: { h1: true, h2: true, h3: true, h4: true, h5: true, h6: true, h7: false },
+    statusVerif: 'Menunggu',
+    detailMisi: {
+      1: { selesai: true, jam: '05:15 WIB', jawabanKuis: 'B', kuisBenar: true, nilaiKuis: 100, catatan: 'Bangun pagi pukul 05:00 WIB. Kegiatan: Merapikan tempat tidur & melipat selimut, Minum segelas air putih hangat.', fotoBukti: 'https://images.unsplash.com/photo-1543269865-cbf427effbad?auto=format&fit=crop&w=600&q=80' },
+      2: { selesai: true, jam: '05:30 WIB', jawabanKuis: 'B', kuisBenar: true, nilaiKuis: 100, catatan: 'Sholat: Subuh (04:45 WIB), Dzuhur (12:15 WIB). Ibadah lainnya: Membaca Al-Qur\'an / Kitab Suci, Berdoa bersama keluarga.', fotoBukti: 'https://images.unsplash.com/photo-1506126613408-eca07ce68773?auto=format&fit=crop&w=600&q=80' },
+      3: { selesai: true, jam: '06:05 WIB', jawabanKuis: 'B', kuisBenar: true, nilaiKuis: 100, catatan: 'Durasi: 30 Menit. Olahraga: Senam ceria / peregangan otot, Jalan sehat pagi bersama keluarga.' },
+      4: { selesai: true, jam: '06:35 WIB', jawabanKuis: 'B', kuisBenar: true, nilaiKuis: 100, catatan: 'Belum Belajar: [IPA Tata Surya] (30 Menit). Aktivitas: Membaca buku literasi, Mengerjakan tugas & PR sekolah.' },
+      5: { selesai: true, jam: '16:00 WIB', jawabanKuis: 'B', kuisBenar: true, nilaiKuis: 100, catatan: 'Waktu: Sarapan Pagi. Menu & kebiasaan sehat: Makan sayur-sayuran hijau, Makan buah segar, Minum air putih 8 gelas.' },
+      6: { selesai: true, jam: '17:20 WIB', jawabanKuis: 'B', kuisBenar: true, nilaiKuis: 100, catatan: 'Bantuan di rumah: Menyapu & mengepel lantai rumah, Mencuci piring & gelas sehabis makan.' },
+      7: { selesai: false, jam: '-', jawabanKuis: '-', kuisBenar: false, nilaiKuis: 0, catatan: 'Belum mengisi jurnal tidur malam.' }
+    }
+  },
+  {
+    id: 2,
+    nisn: '0012345679',
+    nama: 'Annisa Zahra Kirana',
+    panggilan: 'Zahra',
+    username: 'zahra',
+    password: 'password123',
+    kelas: 'Kelas 5A',
+    gender: 'P',
+    completedCount: 7,
+    percentage: 100,
+    habits: { h1: true, h2: true, h3: true, h4: true, h5: true, h6: true, h7: true },
+    statusVerif: 'Disetujui',
+    detailMisi: {
+      1: { selesai: true, jam: '05:00 WIB', jawabanKuis: 'B', kuisBenar: true, nilaiKuis: 100, catatan: 'Bangun pukul 05:00 WIB. Kegiatan: Merapikan tempat tidur, Membuka jendela kamar.', fotoBukti: 'https://images.unsplash.com/photo-1517486808906-6ca8b3f04846?auto=format&fit=crop&w=600&q=80' },
+      2: { selesai: true, jam: '05:25 WIB', jawabanKuis: 'B', kuisBenar: true, nilaiKuis: 100, catatan: 'Sholat: Subuh (04:45 WIB), Dzuhur (12:15 WIB), Ashar (15:30 WIB). Ibadah: Tadarus Al-Qur\'an.' },
+      3: { selesai: true, jam: '06:00 WIB', jawabanKuis: 'B', kuisBenar: true, nilaiKuis: 100, catatan: 'Durasi: 30 Menit. Olahraga: Senam SKJ ceria bersama adik di teras.' },
+      4: { selesai: true, jam: '06:30 WIB', jawabanKuis: 'B', kuisBenar: true, nilaiKuis: 100, catatan: 'Belajar: [Bahasa Indonesia] (30 Menit). Aktivitas: Membaca buku dongeng & kosa kata.' },
+      5: { selesai: true, jam: '15:30 WIB', jawabanKuis: 'B', kuisBenar: true, nilaiKuis: 100, catatan: 'Waktu: Sarapan Pagi. Menu sehat: Makan sayur bayam, telur rebus, buah pisang.' },
+      6: { selesai: true, jam: '17:00 WIB', jawabanKuis: 'B', kuisBenar: true, nilaiKuis: 100, catatan: 'Bantuan di rumah: Mencuci piring & gelas sehabis makan, Menyiram tanaman.' },
+      7: { selesai: true, jam: '20:45 WIB', jawabanKuis: 'B', kuisBenar: true, nilaiKuis: 100, catatan: 'Target tidur pukul 20:45 WIB. Persiapan: Menggosok gigi, Mematikan HP, Berdoa.' }
+    }
+  },
+  {
+    id: 3,
+    nisn: '0012345680',
+    nama: 'Bima Sakti Wicaksono',
+    panggilan: 'Bima',
+    username: 'bima',
+    password: 'password123',
+    kelas: 'Kelas 5A',
+    gender: 'L',
+    completedCount: 4,
+    percentage: 57,
+    habits: { h1: true, h2: true, h3: false, h4: true, h5: true, h6: false, h7: false },
+    statusVerif: 'Menunggu',
+    detailMisi: {
+      1: { selesai: true, jam: '05:20 WIB', jawabanKuis: 'B', kuisBenar: true, nilaiKuis: 100, catatan: 'Bangun pagi dan langsung merapikan tempat tidur.' },
+      2: { selesai: true, jam: '05:40 WIB', jawabanKuis: 'B', kuisBenar: true, nilaiKuis: 100, catatan: 'Berdoa dan beribadah sebelum berangkat sekolah.' },
+      3: { selesai: false, jam: '-', jawabanKuis: '-', kuisBenar: false, nilaiKuis: 0, catatan: 'Hari ini tidak sempat olahraga pagi.' },
+      4: { selesai: true, jam: '06:45 WIB', jawabanKuis: 'B', kuisBenar: true, nilaiKuis: 100, catatan: 'Sarapan bersama keluarga dan membaca rangkuman PKn.' },
+      5: { selesai: true, jam: '16:30 WIB', jawabanKuis: 'B', kuisBenar: true, nilaiKuis: 100, catatan: 'Makan sayur & buah-buahan segar.' },
+      6: { selesai: false, jam: '-', jawabanKuis: '-', kuisBenar: false, nilaiKuis: 0, catatan: 'Belum membantu orang tua hari ini.' },
+      7: { selesai: false, jam: '-', jawabanKuis: '-', kuisBenar: false, nilaiKuis: 0, catatan: 'Belum mengisi jam tidur malam.' }
+    }
+  },
+  {
+    id: 4,
+    nisn: '0012345681',
+    nama: 'Cantika Putri Lestari',
+    panggilan: 'Cantika',
+    username: 'cantika',
+    password: 'password123',
+    kelas: 'Kelas 5A',
+    gender: 'P',
+    completedCount: 7,
+    percentage: 100,
+    habits: { h1: true, h2: true, h3: true, h4: true, h5: true, h6: true, h7: true },
+    statusVerif: 'Disetujui',
+    detailMisi: {
+      1: { selesai: true, jam: '04:55 WIB', jawabanKuis: 'B', kuisBenar: true, nilaiKuis: 100, catatan: 'Bangun jam 04:55, merapikan sprei dan bantal boneka.' },
+      2: { selesai: true, jam: '05:15 WIB', jawabanKuis: 'B', kuisBenar: true, nilaiKuis: 100, catatan: 'Ibadah subuh tepat waktu dan hafalan surat pendek.' },
+      3: { selesai: true, jam: '06:00 WIB', jawabanKuis: 'B', kuisBenar: true, nilaiKuis: 100, catatan: 'Lompat tali 10 menit di halaman depan.' },
+      4: { selesai: true, jam: '06:30 WIB', jawabanKuis: 'B', kuisBenar: true, nilaiKuis: 100, catatan: 'Sarapan oatmeal dan pisang, membaca buku cerita.' },
+      5: { selesai: true, jam: '16:15 WIB', jawabanKuis: 'B', kuisBenar: true, nilaiKuis: 100, catatan: 'Membantu ibu menyiapkan bumbu masak di dapur.' },
+      6: { selesai: true, jam: '17:30 WIB', jawabanKuis: 'B', kuisBenar: true, nilaiKuis: 100, catatan: 'Merapikan meja makan dan mencuci sendok piring.' },
+      7: { selesai: true, jam: '20:50 WIB', jawabanKuis: 'B', kuisBenar: true, nilaiKuis: 100, catatan: 'Tidur cepat pukul 20:50 setelah minum air putih.' }
+    }
+  },
+  {
+    id: 5,
+    nisn: '0012345682',
+    nama: 'Dimas Arya Raditya',
+    panggilan: 'Dimas',
+    username: 'dimas',
+    password: 'password123',
+    kelas: 'Kelas 5A',
+    gender: 'L',
+    completedCount: 5,
+    percentage: 71,
+    habits: { h1: true, h2: true, h3: true, h4: true, h5: false, h6: true, h7: false },
+    statusVerif: 'Menunggu',
+    detailMisi: {
+      1: { selesai: true, jam: '05:10 WIB', jawabanKuis: 'B', kuisBenar: true, nilaiKuis: 100, catatan: 'Bangun pagi dan membersihkan kamar.' },
+      2: { selesai: true, jam: '05:30 WIB', jawabanKuis: 'B', kuisBenar: true, nilaiKuis: 100, catatan: 'Beribadah tepat waktu dan bersiap sekolah.' },
+      3: { selesai: true, jam: '06:10 WIB', jawabanKuis: 'B', kuisBenar: true, nilaiKuis: 100, catatan: 'Push-up 10 kali dan peregangan tubuh.' },
+      4: { selesai: true, jam: '06:40 WIB', jawabanKuis: 'B', kuisBenar: true, nilaiKuis: 100, catatan: 'Makan roti telur dan susu cokelat, belajar matematika.' },
+      5: { selesai: false, jam: '-', jawabanKuis: '-', kuisBenar: false, nilaiKuis: 0, catatan: 'Belum mengisi kegiatan makan sehat.' },
+      6: { selesai: true, jam: '17:00 WIB', jawabanKuis: 'B', kuisBenar: true, nilaiKuis: 100, catatan: 'Menyapu halaman rumah dan membuang sampah.' },
+      7: { selesai: false, jam: '-', jawabanKuis: '-', kuisBenar: false, nilaiKuis: 0, catatan: 'Belum tidur saat jurnal dibuat.' }
+    }
+  },
+  {
+    id: 6,
+    nisn: '0012345683',
+    nama: 'Evelyn Nathania',
+    panggilan: 'Evelyn',
+    username: 'evelyn',
+    password: 'password123',
+    kelas: 'Kelas 5A',
+    gender: 'P',
+    completedCount: 6,
+    percentage: 86,
+    habits: { h1: true, h2: true, h3: true, h4: true, h5: true, h6: false, h7: true },
+    statusVerif: 'Disetujui',
+    detailMisi: {
+      1: { selesai: true, jam: '05:05 WIB', jawabanKuis: 'B', kuisBenar: true, nilaiKuis: 100, catatan: 'Bangun tidur dan langsung menata sprei ranjang.' },
+      2: { selesai: true, jam: '05:20 WIB', jawabanKuis: 'B', kuisBenar: true, nilaiKuis: 100, catatan: 'Berdoa pagi dan membaca kitab suci bersama keluarga.' },
+      3: { selesai: true, jam: '06:00 WIB', jawabanKuis: 'B', kuisBenar: true, nilaiKuis: 100, catatan: 'Jalan santai mengelilingi komplek 15 menit.' },
+      4: { selesai: true, jam: '06:30 WIB', jawabanKuis: 'B', kuisBenar: true, nilaiKuis: 100, catatan: 'Sarapan salad buah dan telur rebus, belajar bahasa inggris.' },
+      5: { selesai: true, jam: '16:00 WIB', jawabanKuis: 'B', kuisBenar: true, nilaiKuis: 100, catatan: 'Membantu melipat pakaian yang sudah kering.' },
+      6: { selesai: false, jam: '-', jawabanKuis: '-', kuisBenar: false, nilaiKuis: 0, catatan: 'Belum mencatat bantuan hari ini.' },
+      7: { selesai: true, jam: '20:55 WIB', jawabanKuis: 'B', kuisBenar: true, nilaiKuis: 100, catatan: 'Tidur cepat pukul 20:55.' }
+    }
+  }
 ];
 
 export default function DashboardGuru({
@@ -68,147 +209,30 @@ export default function DashboardGuru({
   const [studentSearchQuery, setStudentSearchQuery] = useState('');
   const [lightboxImage, setLightboxImage] = useState({ open: false, url: '', title: '', subtitle: '', mission: '' });
 
-  // Student Monitoring Data with Rich Mission & Quiz Details
-  const [monitoringData, setMonitoringData] = useState([
-    {
-      id: 1,
-      nisn: '0012345678',
-      nama: 'Ahmad Farhan Pratama',
-      panggilan: 'Farhan',
-      username: 'farhan',
-      password: 'password123',
-      kelas: 'Kelas 5A',
-      gender: 'L',
-      completedCount: 6,
-      percentage: 86,
-      habits: { h1: true, h2: true, h3: true, h4: true, h5: true, h6: true, h7: false },
-      statusVerif: 'Menunggu',
-      detailMisi: {
-        1: { selesai: true, jam: '05:15 WIB', jawabanKuis: 'B', kuisBenar: true, nilaiKuis: 100, catatan: 'Bangun pagi pukul 05:00 WIB. Kegiatan: Merapikan tempat tidur & melipat selimut, Minum segelas air putih hangat.', fotoBukti: 'https://images.unsplash.com/photo-1543269865-cbf427effbad?auto=format&fit=crop&w=600&q=80' },
-        2: { selesai: true, jam: '05:30 WIB', jawabanKuis: 'B', kuisBenar: true, nilaiKuis: 100, catatan: 'Sholat: Subuh (04:45 WIB), Dzuhur (12:15 WIB). Ibadah lainnya: Membaca Al-Qur\'an / Kitab Suci, Berdoa bersama keluarga.', fotoBukti: 'https://images.unsplash.com/photo-1506126613408-eca07ce68773?auto=format&fit=crop&w=600&q=80' },
-        3: { selesai: true, jam: '06:05 WIB', jawabanKuis: 'B', kuisBenar: true, nilaiKuis: 100, catatan: 'Durasi: 30 Menit. Olahraga: Senam ceria / peregangan otot, Jalan sehat pagi bersama keluarga.' },
-        4: { selesai: true, jam: '06:35 WIB', jawabanKuis: 'B', kuisBenar: true, nilaiKuis: 100, catatan: 'Belum Belajar: [IPA Tata Surya] (30 Menit). Aktivitas: Membaca buku literasi, Mengerjakan tugas & PR sekolah.' },
-        5: { selesai: true, jam: '16:00 WIB', jawabanKuis: 'B', kuisBenar: true, nilaiKuis: 100, catatan: 'Waktu: Sarapan Pagi. Menu & kebiasaan sehat: Makan sayur-sayuran hijau, Makan buah segar, Minum air putih 8 gelas.' },
-        6: { selesai: true, jam: '17:20 WIB', jawabanKuis: 'B', kuisBenar: true, nilaiKuis: 100, catatan: 'Bantuan di rumah: Menyapu & mengepel lantai rumah, Mencuci piring & gelas sehabis makan.' },
-        7: { selesai: false, jam: '-', jawabanKuis: '-', kuisBenar: false, nilaiKuis: 0, catatan: 'Belum mengisi jurnal tidur malam.' }
+  // Student Monitoring Data with Rich Mission & Quiz Details (Persisted in localStorage)
+  const [monitoringData, setMonitoringData] = useState(() => {
+    try {
+      const cached = localStorage.getItem('GURU_MONITORING_DATA_CACHE');
+      if (cached !== null) {
+        const parsed = JSON.parse(cached);
+        if (Array.isArray(parsed)) {
+          return parsed;
+        }
       }
-    },
-    {
-      id: 2,
-      nisn: '0012345679',
-      nama: 'Annisa Zahra Kirana',
-      panggilan: 'Zahra',
-      username: 'zahra',
-      password: 'password123',
-      kelas: 'Kelas 5A',
-      gender: 'P',
-      completedCount: 7,
-      percentage: 100,
-      habits: { h1: true, h2: true, h3: true, h4: true, h5: true, h6: true, h7: true },
-      statusVerif: 'Disetujui',
-      detailMisi: {
-        1: { selesai: true, jam: '05:00 WIB', jawabanKuis: 'B', kuisBenar: true, nilaiKuis: 100, catatan: 'Bangun pukul 05:00 WIB. Kegiatan: Merapikan tempat tidur, Membuka jendela kamar.', fotoBukti: 'https://images.unsplash.com/photo-1517486808906-6ca8b3f04846?auto=format&fit=crop&w=600&q=80' },
-        2: { selesai: true, jam: '05:25 WIB', jawabanKuis: 'B', kuisBenar: true, nilaiKuis: 100, catatan: 'Sholat: Subuh (04:45 WIB), Dzuhur (12:15 WIB), Ashar (15:30 WIB). Ibadah: Tadarus Al-Qur\'an.' },
-        3: { selesai: true, jam: '06:00 WIB', jawabanKuis: 'B', kuisBenar: true, nilaiKuis: 100, catatan: 'Durasi: 30 Menit. Olahraga: Senam SKJ ceria bersama adik di teras.' },
-        4: { selesai: true, jam: '06:30 WIB', jawabanKuis: 'B', kuisBenar: true, nilaiKuis: 100, catatan: 'Belajar: [Bahasa Indonesia] (30 Menit). Aktivitas: Membaca buku dongeng & kosa kata.' },
-        5: { selesai: true, jam: '15:30 WIB', jawabanKuis: 'B', kuisBenar: true, nilaiKuis: 100, catatan: 'Waktu: Sarapan Pagi. Menu sehat: Makan sayur bayam, telur rebus, buah pisang.' },
-        6: { selesai: true, jam: '17:00 WIB', jawabanKuis: 'B', kuisBenar: true, nilaiKuis: 100, catatan: 'Bantuan di rumah: Mencuci piring & gelas sehabis makan, Menyiram tanaman.' },
-        7: { selesai: true, jam: '20:45 WIB', jawabanKuis: 'B', kuisBenar: true, nilaiKuis: 100, catatan: 'Target tidur pukul 20:45 WIB. Persiapan: Menggosok gigi, Mematikan HP, Berdoa.' }
-      }
-    },
-    {
-      id: 3,
-      nisn: '0012345680',
-      nama: 'Bima Sakti Wicaksono',
-      panggilan: 'Bima',
-      username: 'bima',
-      password: 'password123',
-      kelas: 'Kelas 5A',
-      gender: 'L',
-      completedCount: 4,
-      percentage: 57,
-      habits: { h1: true, h2: true, h3: false, h4: true, h5: true, h6: false, h7: false },
-      statusVerif: 'Menunggu',
-      detailMisi: {
-        1: { selesai: true, jam: '05:20 WIB', jawabanKuis: 'B', kuisBenar: true, nilaiKuis: 100, catatan: 'Bangun pagi dan langsung merapikan tempat tidur.' },
-        2: { selesai: true, jam: '05:40 WIB', jawabanKuis: 'B', kuisBenar: true, nilaiKuis: 100, catatan: 'Berdoa dan beribadah sebelum berangkat sekolah.' },
-        3: { selesai: false, jam: '-', jawabanKuis: '-', kuisBenar: false, nilaiKuis: 0, catatan: 'Hari ini tidak sempat olahraga pagi.' },
-        4: { selesai: true, jam: '06:45 WIB', jawabanKuis: 'B', kuisBenar: true, nilaiKuis: 100, catatan: 'Sarapan bersama keluarga dan membaca rangkuman PKn.' },
-        5: { selesai: true, jam: '16:30 WIB', jawabanKuis: 'B', kuisBenar: true, nilaiKuis: 100, catatan: 'Makan sayur & buah-buahan segar.' },
-        6: { selesai: false, jam: '-', jawabanKuis: '-', kuisBenar: false, nilaiKuis: 0, catatan: 'Belum membantu orang tua hari ini.' },
-        7: { selesai: false, jam: '-', jawabanKuis: '-', kuisBenar: false, nilaiKuis: 0, catatan: 'Belum mengisi jam tidur malam.' }
-      }
-    },
-    {
-      id: 4,
-      nisn: '0012345681',
-      nama: 'Cantika Putri Lestari',
-      panggilan: 'Cantika',
-      username: 'cantika',
-      password: 'password123',
-      kelas: 'Kelas 5A',
-      gender: 'P',
-      completedCount: 7,
-      percentage: 100,
-      habits: { h1: true, h2: true, h3: true, h4: true, h5: true, h6: true, h7: true },
-      statusVerif: 'Disetujui',
-      detailMisi: {
-        1: { selesai: true, jam: '04:55 WIB', jawabanKuis: 'B', kuisBenar: true, nilaiKuis: 100, catatan: 'Bangun jam 04:55, merapikan sprei dan bantal boneka.' },
-        2: { selesai: true, jam: '05:15 WIB', jawabanKuis: 'B', kuisBenar: true, nilaiKuis: 100, catatan: 'Ibadah subuh tepat waktu dan hafalan surat pendek.' },
-        3: { selesai: true, jam: '06:00 WIB', jawabanKuis: 'B', kuisBenar: true, nilaiKuis: 100, catatan: 'Lompat tali 10 menit di halaman depan.' },
-        4: { selesai: true, jam: '06:30 WIB', jawabanKuis: 'B', kuisBenar: true, nilaiKuis: 100, catatan: 'Sarapan oatmeal dan pisang, membaca buku cerita.' },
-        5: { selesai: true, jam: '16:15 WIB', jawabanKuis: 'B', kuisBenar: true, nilaiKuis: 100, catatan: 'Membantu ibu menyiapkan bumbu masak di dapur.' },
-        6: { selesai: true, jam: '17:30 WIB', jawabanKuis: 'B', kuisBenar: true, nilaiKuis: 100, catatan: 'Merapikan meja makan dan mencuci sendok piring.' },
-        7: { selesai: true, jam: '20:50 WIB', jawabanKuis: 'B', kuisBenar: true, nilaiKuis: 100, catatan: 'Tidur cepat pukul 20:50 setelah minum air putih.' }
-      }
-    },
-    {
-      id: 5,
-      nisn: '0012345682',
-      nama: 'Dimas Arya Raditya',
-      panggilan: 'Dimas',
-      username: 'dimas',
-      password: 'password123',
-      kelas: 'Kelas 5A',
-      gender: 'L',
-      completedCount: 5,
-      percentage: 71,
-      habits: { h1: true, h2: true, h3: true, h4: true, h5: false, h6: true, h7: false },
-      statusVerif: 'Menunggu',
-      detailMisi: {
-        1: { selesai: true, jam: '05:10 WIB', jawabanKuis: 'B', kuisBenar: true, nilaiKuis: 100, catatan: 'Bangun pagi dan membersihkan kamar.' },
-        2: { selesai: true, jam: '05:30 WIB', jawabanKuis: 'B', kuisBenar: true, nilaiKuis: 100, catatan: 'Beribadah tepat waktu dan bersiap sekolah.' },
-        3: { selesai: true, jam: '06:10 WIB', jawabanKuis: 'B', kuisBenar: true, nilaiKuis: 100, catatan: 'Push-up 10 kali dan peregangan tubuh.' },
-        4: { selesai: true, jam: '06:40 WIB', jawabanKuis: 'B', kuisBenar: true, nilaiKuis: 100, catatan: 'Makan roti telur dan susu cokelat, belajar matematika.' },
-        5: { selesai: false, jam: '-', jawabanKuis: '-', kuisBenar: false, nilaiKuis: 0, catatan: 'Belum mengisi kegiatan makan sehat.' },
-        6: { selesai: true, jam: '17:00 WIB', jawabanKuis: 'B', kuisBenar: true, nilaiKuis: 100, catatan: 'Menyapu halaman rumah dan membuang sampah.' },
-        7: { selesai: false, jam: '-', jawabanKuis: '-', kuisBenar: false, nilaiKuis: 0, catatan: 'Belum tidur saat jurnal dibuat.' }
-      }
-    },
-    {
-      id: 6,
-      nisn: '0012345683',
-      nama: 'Evelyn Nathania',
-      panggilan: 'Evelyn',
-      username: 'evelyn',
-      password: 'password123',
-      kelas: 'Kelas 5A',
-      gender: 'P',
-      completedCount: 6,
-      percentage: 86,
-      habits: { h1: true, h2: true, h3: true, h4: true, h5: true, h6: false, h7: true },
-      statusVerif: 'Disetujui',
-      detailMisi: {
-        1: { selesai: true, jam: '05:05 WIB', jawabanKuis: 'B', kuisBenar: true, nilaiKuis: 100, catatan: 'Bangun tidur dan langsung menata sprei ranjang.' },
-        2: { selesai: true, jam: '05:20 WIB', jawabanKuis: 'B', kuisBenar: true, nilaiKuis: 100, catatan: 'Berdoa pagi dan membaca kitab suci bersama keluarga.' },
-        3: { selesai: true, jam: '06:00 WIB', jawabanKuis: 'B', kuisBenar: true, nilaiKuis: 100, catatan: 'Jalan santai mengelilingi komplek 15 menit.' },
-        4: { selesai: true, jam: '06:30 WIB', jawabanKuis: 'B', kuisBenar: true, nilaiKuis: 100, catatan: 'Sarapan salad buah dan telur rebus, belajar bahasa inggris.' },
-        5: { selesai: true, jam: '16:00 WIB', jawabanKuis: 'B', kuisBenar: true, nilaiKuis: 100, catatan: 'Membantu melipat pakaian yang sudah kering.' },
-        6: { selesai: false, jam: '-', jawabanKuis: '-', kuisBenar: false, nilaiKuis: 0, catatan: 'Belum mencatat bantuan hari ini.' },
-        7: { selesai: true, jam: '20:55 WIB', jawabanKuis: 'B', kuisBenar: true, nilaiKuis: 100, catatan: 'Tidur cepat pukul 20:55.' }
-      }
+    } catch (e) {
+      console.warn('Error reading cached student data:', e);
     }
-  ]);
+    return INITIAL_STUDENTS;
+  });
+
+  // Sync monitoringData to localStorage on every change
+  useEffect(() => {
+    try {
+      localStorage.setItem('GURU_MONITORING_DATA_CACHE', JSON.stringify(monitoringData));
+    } catch (e) {
+      console.warn('Error saving student cache:', e);
+    }
+  }, [monitoringData]);
 
   // Announcements List
   const [announcements, setAnnouncements] = useState([
@@ -581,12 +605,30 @@ export default function DashboardGuru({
     }
   };
 
-  const handleDeleteStudent = async (id, nama) => {
-    if (window.confirm(`Yakin ingin menghapus siswa "${nama}" dari sistem?`)) {
+  const handleDeleteStudent = async (studentOrId, maybeNama) => {
+    let studentId, studentNisn, studentNama;
+    if (typeof studentOrId === 'object' && studentOrId !== null) {
+      studentId = studentOrId.id;
+      studentNisn = studentOrId.nisn;
+      studentNama = studentOrId.nama || 'Siswa';
+    } else {
+      studentId = studentOrId;
+      studentNama = maybeNama || 'Siswa';
+      const found = monitoringData.find(s => s.id === studentId || s.nisn === studentId);
+      studentNisn = found?.nisn || studentId;
+    }
+
+    if (window.confirm(`Yakin ingin menghapus siswa "${studentNama}" dari sistem?`)) {
       try {
-        await callApi('hapusSiswa', { idOrNisn: id });
-        setMonitoringData(prev => prev.filter(s => s.id !== id));
-        showToast(`Siswa "${nama}" berhasil dihapus.`, 'info');
+        await callApi('hapusSiswa', { idOrNisn: studentNisn || studentId });
+        setMonitoringData(prev => {
+          const updated = prev.filter(s => s.id !== studentId && s.nisn !== studentNisn);
+          try {
+            localStorage.setItem('GURU_MONITORING_DATA_CACHE', JSON.stringify(updated));
+          } catch (e) {}
+          return updated;
+        });
+        showToast(`Siswa "${studentNama}" berhasil dihapus dari sistem!`, 'info');
       } catch (e) {
         console.warn(e);
         showToast('Gagal menghapus siswa: ' + e.message, 'error');
@@ -1526,9 +1568,9 @@ export default function DashboardGuru({
                                   </button>
                                   <button
                                     type="button"
-                                    onClick={() => handleDeleteStudent(s.id, s.nama)}
+                                    onClick={() => handleDeleteStudent(s)}
                                     className="px-2 py-1 bg-rose-50 hover:bg-rose-100 text-rose-600 rounded-lg text-[10px] font-bold transition"
-                                    title="Hapus siswa"
+                                    title="Hapus siswa dari sistem"
                                   >
                                     <i className="fa-solid fa-trash-can"></i>
                                   </button>
