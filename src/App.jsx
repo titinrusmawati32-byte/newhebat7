@@ -204,7 +204,7 @@ export default function App() {
       </div>
 
       {/* Main View Router */}
-      <main className={`flex-1 w-full ${(currentView === 'guru' || currentView === 'landing') ? 'p-0 max-w-none' : 'p-3 sm:p-6 max-w-7xl mx-auto'}`}>
+      <main className={`flex-1 w-full ${(currentView === 'guru' || currentView === 'landing' || currentView === 'dashboard') ? 'p-0 max-w-none' : 'p-3 sm:p-6 max-w-7xl mx-auto'}`}>
         {currentView === 'landing' && (
           <Login
             onLoginSuccess={handleLoginSuccess}
@@ -251,10 +251,10 @@ export default function App() {
         )}
       </main>
 
-      {/* Mobile Bottom Navigation for Siswa */}
-      {currentUser?.role === 'Siswa' && (currentView === 'dashboard' || currentView === 'habit') && (
+      {/* Mobile Bottom Navigation for Siswa (Hanya saat di Wizard Misi) */}
+      {currentUser?.role === 'Siswa' && currentView === 'habit' && (
         <BottomNav
-          activeTab={currentView === 'habit' ? 'kelas' : activeTabSiswa}
+          activeTab="kelas"
           setActiveTab={(tab) => {
             setCurrentView('dashboard');
             setActiveTabSiswa(tab);
