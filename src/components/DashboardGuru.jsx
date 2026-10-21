@@ -11,6 +11,16 @@ const HABIT_TITLES = [
   'Tidur Cepat Maksimal Pukul 21.00'
 ];
 
+const HABIT_ICONS = [
+  'fa-sun',
+  'fa-hands-praying',
+  'fa-person-running',
+  'fa-apple-whole',
+  'fa-hand-holding-heart',
+  'fa-piggy-bank',
+  'fa-moon'
+];
+
 export default function DashboardGuru({
   currentUser,
   materiKuisMap = {},
@@ -33,14 +43,127 @@ export default function DashboardGuru({
   const [editingMk, setEditingMk] = useState(materiKuisMap[1] || {});
   const [isSavingMk, setIsSavingMk] = useState(false);
 
-  // Student Monitoring Data
+  // Student Detail Modal State (Rekap Siswa)
+  const [selectedStudent, setSelectedStudent] = useState(null);
+  const [showStudentDetailModal, setShowStudentDetailModal] = useState(false);
+  const [detailFilter, setDetailFilter] = useState('all'); // 'all' | 'done' | 'pending'
+
+  // Student Monitoring Data with Rich Mission & Quiz Details
   const [monitoringData, setMonitoringData] = useState([
-    { id: 1, nisn: '0012345678', nama: 'Ahmad Farhan Pratama', gender: 'L', completedCount: 6, percentage: 86, habits: { h1: true, h2: true, h3: true, h4: true, h5: true, h6: true, h7: false }, statusVerif: 'Menunggu' },
-    { id: 2, nisn: '0012345679', nama: 'Annisa Zahra Kirana', gender: 'P', completedCount: 7, percentage: 100, habits: { h1: true, h2: true, h3: true, h4: true, h5: true, h6: true, h7: true }, statusVerif: 'Disetujui' },
-    { id: 3, nisn: '0012345680', nama: 'Bima Sakti Wicaksono', gender: 'L', completedCount: 4, percentage: 57, habits: { h1: true, h2: true, h3: false, h4: true, h5: true, h6: false, h7: false }, statusVerif: 'Menunggu' },
-    { id: 4, nisn: '0012345681', nama: 'Cantika Putri Lestari', gender: 'P', completedCount: 7, percentage: 100, habits: { h1: true, h2: true, h3: true, h4: true, h5: true, h6: true, h7: true }, statusVerif: 'Disetujui' },
-    { id: 5, nisn: '0012345682', nama: 'Dimas Arya Raditya', gender: 'L', completedCount: 5, percentage: 71, habits: { h1: true, h2: true, h3: true, h4: true, h5: false, h6: true, h7: false }, statusVerif: 'Menunggu' },
-    { id: 6, nisn: '0012345683', nama: 'Evelyn Nathania', gender: 'P', completedCount: 6, percentage: 86, habits: { h1: true, h2: true, h3: true, h4: true, h5: true, h6: false, h7: true }, statusVerif: 'Disetujui' }
+    {
+      id: 1,
+      nisn: '0012345678',
+      nama: 'Ahmad Farhan Pratama',
+      gender: 'L',
+      completedCount: 6,
+      percentage: 86,
+      habits: { h1: true, h2: true, h3: true, h4: true, h5: true, h6: true, h7: false },
+      statusVerif: 'Menunggu',
+      detailMisi: {
+        1: { selesai: true, jam: '05:15 WIB', jawabanKuis: 'A', kuisBenar: true, nilaiKuis: 100, catatan: 'Bangun pagi pukul 05:00, langsung merapikan sprei dan bantal sendiri.' },
+        2: { selesai: true, jam: '05:30 WIB', jawabanKuis: 'A', kuisBenar: true, nilaiKuis: 100, catatan: 'Sholat Subuh berjamaah di musholla dan membaca doa pagi.' },
+        3: { selesai: true, jam: '06:05 WIB', jawabanKuis: 'A', kuisBenar: true, nilaiKuis: 100, catatan: 'Lari pagi santai 15 menit dan peregangan di halaman rumah.' },
+        4: { selesai: true, jam: '06:35 WIB', jawabanKuis: 'A', kuisBenar: true, nilaiKuis: 100, catatan: 'Sarapan nasi goreng telur dan sayur, membaca buku IPA 20 menit.' },
+        5: { selesai: true, jam: '16:00 WIB', jawabanKuis: 'A', kuisBenar: true, nilaiKuis: 100, catatan: 'Membantu ayah mencuci sepeda dan menyiram tanaman hias.' },
+        6: { selesai: true, jam: '17:20 WIB', jawabanKuis: 'A', kuisBenar: true, nilaiKuis: 100, catatan: 'Menabung sisa uang saku Rp 5.000 ke celengan ayam dan mematikan TV.' },
+        7: { selesai: false, jam: '-', jawabanKuis: '-', kuisBenar: false, nilaiKuis: 0, catatan: 'Belum mengisi jurnal tidur malam.' }
+      }
+    },
+    {
+      id: 2,
+      nisn: '0012345679',
+      nama: 'Annisa Zahra Kirana',
+      gender: 'P',
+      completedCount: 7,
+      percentage: 100,
+      habits: { h1: true, h2: true, h3: true, h4: true, h5: true, h6: true, h7: true },
+      statusVerif: 'Disetujui',
+      detailMisi: {
+        1: { selesai: true, jam: '05:00 WIB', jawabanKuis: 'A', kuisBenar: true, nilaiKuis: 100, catatan: 'Bangun tepat waktu, merapikan selimut dan membuka jendela kamar.' },
+        2: { selesai: true, jam: '05:25 WIB', jawabanKuis: 'A', kuisBenar: true, nilaiKuis: 100, catatan: 'Sholat Subuh tepat waktu dan tadarus Al-Quran 1 lembar.' },
+        3: { selesai: true, jam: '06:00 WIB', jawabanKuis: 'A', kuisBenar: true, nilaiKuis: 100, catatan: 'Senam SKJ ceria bersama adik di teras.' },
+        4: { selesai: true, jam: '06:30 WIB', jawabanKuis: 'A', kuisBenar: true, nilaiKuis: 100, catatan: 'Makan buah pisang dan roti gandum, mengulang hafalan kosa kata.' },
+        5: { selesai: true, jam: '15:30 WIB', jawabanKuis: 'A', kuisBenar: true, nilaiKuis: 100, catatan: 'Membantu ibu merapikan piring makan dan mencuci gelas.' },
+        6: { selesai: true, jam: '17:00 WIB', jawabanKuis: 'A', kuisBenar: true, nilaiKuis: 100, catatan: 'Menabung uang kembalian belanja Rp 4.000 dan mematikan AC.' },
+        7: { selesai: true, jam: '20:45 WIB', jawabanKuis: 'A', kuisBenar: true, nilaiKuis: 100, catatan: 'Sikat gigi, cuci muka, berdoa dan tidur pukul 20:45.' }
+      }
+    },
+    {
+      id: 3,
+      nisn: '0012345680',
+      nama: 'Bima Sakti Wicaksono',
+      gender: 'L',
+      completedCount: 4,
+      percentage: 57,
+      habits: { h1: true, h2: true, h3: false, h4: true, h5: true, h6: false, h7: false },
+      statusVerif: 'Menunggu',
+      detailMisi: {
+        1: { selesai: true, jam: '05:20 WIB', jawabanKuis: 'A', kuisBenar: true, nilaiKuis: 100, catatan: 'Bangun pagi dan langsung merapikan tempat tidur.' },
+        2: { selesai: true, jam: '05:40 WIB', jawabanKuis: 'A', kuisBenar: true, nilaiKuis: 100, catatan: 'Berdoa dan beribadah sebelum berangkat sekolah.' },
+        3: { selesai: false, jam: '-', jawabanKuis: '-', kuisBenar: false, nilaiKuis: 0, catatan: 'Hari ini tidak sempat olahraga pagi.' },
+        4: { selesai: true, jam: '06:45 WIB', jawabanKuis: 'A', kuisBenar: true, nilaiKuis: 100, catatan: 'Sarapan bersama keluarga dan membaca rangkuman PKn.' },
+        5: { selesai: true, jam: '16:30 WIB', jawabanKuis: 'A', kuisBenar: true, nilaiKuis: 100, catatan: 'Membantu membersihkan kandang kucing peliharaan.' },
+        6: { selesai: false, jam: '-', jawabanKuis: '-', kuisBenar: false, nilaiKuis: 0, catatan: 'Belum menabung hari ini.' },
+        7: { selesai: false, jam: '-', jawabanKuis: '-', kuisBenar: false, nilaiKuis: 0, catatan: 'Belum mengisi jam tidur malam.' }
+      }
+    },
+    {
+      id: 4,
+      nisn: '0012345681',
+      nama: 'Cantika Putri Lestari',
+      gender: 'P',
+      completedCount: 7,
+      percentage: 100,
+      habits: { h1: true, h2: true, h3: true, h4: true, h5: true, h6: true, h7: true },
+      statusVerif: 'Disetujui',
+      detailMisi: {
+        1: { selesai: true, jam: '04:55 WIB', jawabanKuis: 'A', kuisBenar: true, nilaiKuis: 100, catatan: 'Bangun jam 04:55, merapikan sprei dan bantal boneka.' },
+        2: { selesai: true, jam: '05:15 WIB', jawabanKuis: 'A', kuisBenar: true, nilaiKuis: 100, catatan: 'Ibadah subuh tepat waktu dan hafalan surat pendek.' },
+        3: { selesai: true, jam: '06:00 WIB', jawabanKuis: 'A', kuisBenar: true, nilaiKuis: 100, catatan: 'Lompat tali 10 menit di halaman depan.' },
+        4: { selesai: true, jam: '06:30 WIB', jawabanKuis: 'A', kuisBenar: true, nilaiKuis: 100, catatan: 'Sarapan oatmeal dan pisang, membaca buku cerita.' },
+        5: { selesai: true, jam: '16:15 WIB', jawabanKuis: 'A', kuisBenar: true, nilaiKuis: 100, catatan: 'Membantu ibu menyiapkan bumbu masak di dapur.' },
+        6: { selesai: true, jam: '17:30 WIB', jawabanKuis: 'A', kuisBenar: true, nilaiKuis: 100, catatan: 'Menyisihkan uang jajan Rp 2.500 ke kaleng tabungan.' },
+        7: { selesai: true, jam: '20:50 WIB', jawabanKuis: 'A', kuisBenar: true, nilaiKuis: 100, catatan: 'Tidur cepat pukul 20:50 setelah minum air putih.' }
+      }
+    },
+    {
+      id: 5,
+      nisn: '0012345682',
+      nama: 'Dimas Arya Raditya',
+      gender: 'L',
+      completedCount: 5,
+      percentage: 71,
+      habits: { h1: true, h2: true, h3: true, h4: true, h5: false, h6: true, h7: false },
+      statusVerif: 'Menunggu',
+      detailMisi: {
+        1: { selesai: true, jam: '05:10 WIB', jawabanKuis: 'A', kuisBenar: true, nilaiKuis: 100, catatan: 'Bangun pagi dan membersihkan kamar.' },
+        2: { selesai: true, jam: '05:30 WIB', jawabanKuis: 'A', kuisBenar: true, nilaiKuis: 100, catatan: 'Beribadah tepat waktu dan bersiap sekolah.' },
+        3: { selesai: true, jam: '06:10 WIB', jawabanKuis: 'A', kuisBenar: true, nilaiKuis: 100, catatan: 'Push-up 10 kali dan peregangan tubuh.' },
+        4: { selesai: true, jam: '06:40 WIB', jawabanKuis: 'A', kuisBenar: true, nilaiKuis: 100, catatan: 'Makan roti telur dan susu cokelat, belajar matematika.' },
+        5: { selesai: false, jam: '-', jawabanKuis: '-', kuisBenar: false, nilaiKuis: 0, catatan: 'Belum mengisi kegiatan membantu orang tua.' },
+        6: { selesai: true, jam: '17:00 WIB', jawabanKuis: 'A', kuisBenar: true, nilaiKuis: 100, catatan: 'Menabung Rp 5.000 ke rekening tabungan cilik.' },
+        7: { selesai: false, jam: '-', jawabanKuis: '-', kuisBenar: false, nilaiKuis: 0, catatan: 'Belum tidur saat jurnal dibuat.' }
+      }
+    },
+    {
+      id: 6,
+      nisn: '0012345683',
+      nama: 'Evelyn Nathania',
+      gender: 'P',
+      completedCount: 6,
+      percentage: 86,
+      habits: { h1: true, h2: true, h3: true, h4: true, h5: true, h6: false, h7: true },
+      statusVerif: 'Disetujui',
+      detailMisi: {
+        1: { selesai: true, jam: '05:05 WIB', jawabanKuis: 'A', kuisBenar: true, nilaiKuis: 100, catatan: 'Bangun tidur dan langsung menata sprei ranjang.' },
+        2: { selesai: true, jam: '05:20 WIB', jawabanKuis: 'A', kuisBenar: true, nilaiKuis: 100, catatan: 'Berdoa pagi dan membaca kitab suci bersama keluarga.' },
+        3: { selesai: true, jam: '06:00 WIB', jawabanKuis: 'A', kuisBenar: true, nilaiKuis: 100, catatan: 'Jalan santai mengelilingi komplek 15 menit.' },
+        4: { selesai: true, jam: '06:30 WIB', jawabanKuis: 'A', kuisBenar: true, nilaiKuis: 100, catatan: 'Sarapan salad buah dan telur rebus, belajar bahasa inggris.' },
+        5: { selesai: true, jam: '16:00 WIB', jawabanKuis: 'A', kuisBenar: true, nilaiKuis: 100, catatan: 'Membantu melipat pakaian yang sudah kering.' },
+        6: { selesai: false, jam: '-', jawabanKuis: '-', kuisBenar: false, nilaiKuis: 0, catatan: 'Belum menabung hari ini.' },
+        7: { selesai: true, jam: '20:55 WIB', jawabanKuis: 'A', kuisBenar: true, nilaiKuis: 100, catatan: 'Tidur cepat pukul 20:55.' }
+      }
+    }
   ]);
 
   // Announcements List
@@ -102,7 +225,6 @@ export default function DashboardGuru({
       showToast(`Materi & Kuis Misi ${activeHabitTab} berhasil diperbarui & terhubung ke Siswa!`, 'success');
       setShowEditModal(false);
     } catch (err) {
-      // Offline fallback state update
       if (onUpdateMateriKuis) {
         onUpdateMateriKuis(activeHabitTab, editingMk);
       }
@@ -117,7 +239,17 @@ export default function DashboardGuru({
     setMonitoringData(prev =>
       prev.map(s => s.id === id ? { ...s, statusVerif: newStatus } : s)
     );
+    if (selectedStudent && selectedStudent.id === id) {
+      setSelectedStudent(prev => ({ ...prev, statusVerif: newStatus }));
+    }
     showToast(`Status jurnal siswa telah diubah menjadi: ${newStatus}`, 'info');
+  };
+
+  // Open Student Detail Modal
+  const handleOpenStudentDetail = (student) => {
+    setSelectedStudent(student);
+    setDetailFilter('all');
+    setShowStudentDetailModal(true);
   };
 
   return (
@@ -292,7 +424,6 @@ export default function DashboardGuru({
             <>
               {/* HERO WELCOME BANNER */}
               <div className="relative overflow-hidden rounded-3xl bg-gradient-to-r from-blue-600 via-sky-600 to-indigo-700 p-6 sm:p-8 text-white shadow-xl shadow-blue-500/10">
-                {/* Decorative background glow circles */}
                 <div className="absolute -top-12 -right-12 w-64 h-64 bg-white/10 rounded-full blur-2xl pointer-events-none"></div>
                 <div className="absolute -bottom-10 -left-10 w-48 h-48 bg-sky-400/20 rounded-full blur-xl pointer-events-none"></div>
 
@@ -311,7 +442,6 @@ export default function DashboardGuru({
                       LMS EDU CERIA siap membantu Anda dalam mengelola kelas, mengunggah materi YouTube, dan memantau pembiasaan karakter 7 kebiasaan siswa.
                     </p>
 
-                    {/* Frosted Quote Card */}
                     <div className="pt-2">
                       <div className="inline-flex items-center gap-2.5 px-4 py-2 rounded-2xl bg-white/10 backdrop-blur-md border border-white/20 text-xs font-semibold text-white/95 shadow-xs">
                         <i className="fa-solid fa-quote-left text-sky-300 text-xs"></i>
@@ -320,7 +450,6 @@ export default function DashboardGuru({
                     </div>
                   </div>
 
-                  {/* 3D Teacher/Student Illustration */}
                   <div className="shrink-0 flex items-center justify-center">
                     <div className="relative w-44 h-44 sm:w-52 sm:h-52 rounded-3xl bg-white/10 backdrop-blur-md p-3 border border-white/20 flex flex-col items-center justify-center text-center shadow-lg transform rotate-1 hover:rotate-0 transition duration-300">
                       <div className="w-20 h-20 rounded-2xl bg-white text-blue-600 flex items-center justify-center text-4xl shadow-md mb-2">
@@ -341,7 +470,6 @@ export default function DashboardGuru({
 
               {/* 4 STAT SUMMARY CARDS */}
               <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
-                {/* Total Siswa */}
                 <div className="p-4 sm:p-5 rounded-3xl bg-white border border-slate-200/80 shadow-xs hover:shadow-md transition">
                   <div className="flex items-center justify-between">
                     <span className="text-xs font-bold text-slate-500">Total Siswa</span>
@@ -353,7 +481,6 @@ export default function DashboardGuru({
                   <p className="mt-1 text-[11px] font-medium text-slate-500">Siswa aktif dalam kelas</p>
                 </div>
 
-                {/* Materi */}
                 <div className="p-4 sm:p-5 rounded-3xl bg-white border border-slate-200/80 shadow-xs hover:shadow-md transition">
                   <div className="flex items-center justify-between">
                     <span className="text-xs font-bold text-slate-500">Materi</span>
@@ -365,7 +492,6 @@ export default function DashboardGuru({
                   <p className="mt-1 text-[11px] font-medium text-slate-500">Materi telah dipublikasikan</p>
                 </div>
 
-                {/* Tugas */}
                 <div className="p-4 sm:p-5 rounded-3xl bg-white border border-slate-200/80 shadow-xs hover:shadow-md transition">
                   <div className="flex items-center justify-between">
                     <span className="text-xs font-bold text-slate-500">Tugas</span>
@@ -377,7 +503,6 @@ export default function DashboardGuru({
                   <p className="mt-1 text-[11px] font-medium text-slate-500">Tugas aktif & menunggu</p>
                 </div>
 
-                {/* Penilaian */}
                 <div className="p-4 sm:p-5 rounded-3xl bg-white border border-slate-200/80 shadow-xs hover:shadow-md transition">
                   <div className="flex items-center justify-between">
                     <span className="text-xs font-bold text-slate-500">Penilaian</span>
@@ -406,7 +531,6 @@ export default function DashboardGuru({
                   </div>
                 </div>
 
-                {/* Legend Pills */}
                 <div className="flex flex-wrap items-center gap-4 text-xs font-bold pt-1">
                   <span className="inline-flex items-center gap-1.5 text-blue-600">
                     <span className="w-2.5 h-2.5 rounded-full bg-blue-500"></span> Materi
@@ -422,7 +546,6 @@ export default function DashboardGuru({
                   </span>
                 </div>
 
-                {/* Clean Multi-line SVG Chart */}
                 <div className="relative w-full h-56 pt-2">
                   <svg className="w-full h-full overflow-visible" viewBox="0 0 700 200" preserveAspectRatio="none">
                     <defs>
@@ -432,7 +555,6 @@ export default function DashboardGuru({
                       </linearGradient>
                     </defs>
 
-                    {/* Horizontal Grid lines */}
                     {[0, 50, 100, 150].map((y, idx) => (
                       <line
                         key={idx}
@@ -446,13 +568,11 @@ export default function DashboardGuru({
                       />
                     ))}
 
-                    {/* Area under blue line */}
                     <polygon
                       points="0,200 0,140 116,110 233,130 350,90 466,60 583,80 700,40 700,200"
                       fill="url(#blueGlow)"
                     />
 
-                    {/* Blue Line: Materi */}
                     <polyline
                       fill="none"
                       stroke="#3b82f6"
@@ -462,7 +582,6 @@ export default function DashboardGuru({
                       points="0,140 116,110 233,130 350,90 466,60 583,80 700,40"
                     />
 
-                    {/* Orange Line: Tugas */}
                     <polyline
                       fill="none"
                       stroke="#f59e0b"
@@ -472,7 +591,6 @@ export default function DashboardGuru({
                       points="0,170 116,150 233,140 350,110 466,95 583,120 700,75"
                     />
 
-                    {/* Green Line: Kuis */}
                     <polyline
                       fill="none"
                       stroke="#10b981"
@@ -482,7 +600,6 @@ export default function DashboardGuru({
                       points="0,160 116,145 233,105 350,130 466,70 583,60 700,50"
                     />
 
-                    {/* Purple Line: Siswa Aktif */}
                     <polyline
                       fill="none"
                       stroke="#a855f7"
@@ -492,14 +609,12 @@ export default function DashboardGuru({
                       points="0,180 116,160 233,120 350,100 466,50 583,40 700,30"
                     />
 
-                    {/* Interactive Points on Latest Day (700) */}
                     <circle cx="700" cy="40" r="5" fill="#3b82f6" stroke="#ffffff" strokeWidth="2" />
                     <circle cx="700" cy="75" r="5" fill="#f59e0b" stroke="#ffffff" strokeWidth="2" />
                     <circle cx="700" cy="50" r="5" fill="#10b981" stroke="#ffffff" strokeWidth="2" />
                     <circle cx="700" cy="30" r="5" fill="#a855f7" stroke="#ffffff" strokeWidth="2" />
                   </svg>
 
-                  {/* Dates X-Axis */}
                   <div className="flex justify-between text-[11px] font-bold text-slate-400 mt-2 px-1">
                     <span>15 Okt</span>
                     <span>16 Okt</span>
@@ -530,7 +645,6 @@ export default function DashboardGuru({
                   </div>
 
                   <div className="space-y-3">
-                    {/* Item 1 */}
                     <div className="p-3 rounded-2xl bg-slate-50 hover:bg-slate-100/80 border border-slate-200/60 flex items-center justify-between gap-3 transition">
                       <div className="flex items-center gap-3">
                         <div className="w-10 h-10 rounded-xl bg-red-100 text-red-600 flex items-center justify-center text-lg shrink-0">
@@ -554,7 +668,6 @@ export default function DashboardGuru({
                       </button>
                     </div>
 
-                    {/* Item 2 */}
                     <div className="p-3 rounded-2xl bg-slate-50 hover:bg-slate-100/80 border border-slate-200/60 flex items-center justify-between gap-3 transition">
                       <div className="flex items-center gap-3">
                         <div className="w-10 h-10 rounded-xl bg-blue-100 text-blue-600 flex items-center justify-center text-lg shrink-0">
@@ -578,7 +691,6 @@ export default function DashboardGuru({
                       </button>
                     </div>
 
-                    {/* Item 3 */}
                     <div className="p-3 rounded-2xl bg-slate-50 hover:bg-slate-100/80 border border-slate-200/60 flex items-center justify-between gap-3 transition">
                       <div className="flex items-center gap-3">
                         <div className="w-10 h-10 rounded-xl bg-purple-100 text-purple-600 flex items-center justify-center text-lg shrink-0">
@@ -676,7 +788,6 @@ export default function DashboardGuru({
                 </button>
               </div>
 
-              {/* Grid 7 Habit Materials */}
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
                 {[1, 2, 3, 4, 5, 6, 7].map((hid) => {
                   const mk = materiKuisMap[hid] || {};
@@ -808,7 +919,6 @@ export default function DashboardGuru({
                       </p>
                     </div>
 
-                    {/* Options Grid */}
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
                       {[
                         { key: 'A', text: mk.opsiA || 'Membentuk kedisiplinan dan karakter diri yang unggul' },
@@ -844,7 +954,6 @@ export default function DashboardGuru({
                       })}
                     </div>
 
-                    {/* Explanation */}
                     <div className="p-3.5 rounded-2xl bg-blue-50/70 border border-blue-200/60 text-xs text-blue-900">
                       <span className="font-bold">Penjelasan Edukatif: </span>
                       {mk.penjelasan || 'Kebiasaan positif yang konsisten membentuk kedisiplinan dan akhlak mulia siswa.'}
@@ -901,7 +1010,17 @@ export default function DashboardGuru({
                         <tr key={s.id} className="hover:bg-slate-50/80 transition">
                           <td className="py-3.5 px-4 font-bold text-slate-400">{idx + 1}</td>
                           <td className="py-3.5 px-4 font-mono text-slate-600">{s.nisn}</td>
-                          <td className="py-3.5 px-4 font-bold text-slate-800">{s.nama}</td>
+                          <td className="py-3.5 px-4 font-bold text-slate-800">
+                            <button
+                              onClick={() => handleOpenStudentDetail(s)}
+                              className="text-left font-bold text-slate-800 hover:text-blue-600 transition flex items-center gap-2 group cursor-pointer"
+                            >
+                              <span className="w-6 h-6 rounded-full bg-blue-100 text-blue-700 font-bold flex items-center justify-center text-[10px] group-hover:bg-blue-600 group-hover:text-white transition">
+                                {s.nama.charAt(0)}
+                              </span>
+                              <span className="group-hover:underline">{s.nama}</span>
+                            </button>
+                          </td>
                           <td className="py-3.5 px-4 text-center">
                             <span className={`inline-block px-2 py-0.5 rounded-md font-bold text-[10px] ${s.gender === 'L' ? 'bg-blue-50 text-blue-600' : 'bg-pink-50 text-pink-600'}`}>
                               {s.gender}
@@ -925,10 +1044,10 @@ export default function DashboardGuru({
                           </td>
                           <td className="py-3.5 px-4 text-center">
                             <button
-                              onClick={() => handleVerifyStudent(s.id, s.statusVerif === 'Disetujui' ? 'Menunggu' : 'Disetujui')}
-                              className="px-2.5 py-1 bg-slate-100 hover:bg-blue-50 text-slate-700 hover:text-blue-700 rounded-lg text-[11px] font-bold transition"
+                              onClick={() => handleOpenStudentDetail(s)}
+                              className="px-2.5 py-1 bg-blue-50 hover:bg-blue-100 text-blue-700 rounded-lg text-[11px] font-bold transition flex items-center gap-1 mx-auto"
                             >
-                              Verifikasi
+                              <i className="fa-solid fa-eye text-[10px]"></i> Detail
                             </button>
                           </td>
                         </tr>
@@ -941,15 +1060,18 @@ export default function DashboardGuru({
           )}
 
           {/* ============================================================== */}
-          {/* VIEW: REKAP 7 KEBIASAAN SISWA */}
+          {/* VIEW: REKAP 7 KEBIASAAN SISWA (WITH CLICKABLE STUDENT DETAIL) */}
           {/* ============================================================== */}
           {activeMenu === 'rekap' && (
             <div className="space-y-6">
               <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 p-5 rounded-3xl bg-white border border-slate-200/80 shadow-xs">
                 <div>
                   <h2 className="text-xl font-black text-slate-900">Rekap Pembiasaan 7 Karakter Hebat</h2>
-                  <p className="text-xs text-slate-500 font-medium">
-                    Matrix kepatuhan harian: Tanggal {selectedTanggal} • {selectedKelas}
+                  <p className="text-xs text-slate-500 font-medium mt-0.5">
+                    Matrix kepatuhan harian: Tanggal {selectedTanggal} • {selectedKelas}.
+                    <span className="text-blue-600 font-bold ml-1.5 inline-flex items-center gap-1">
+                      <i className="fa-solid fa-circle-info text-[11px]"></i> Klik pada nama siswa untuk melihat rincian jam & hasil kuis Misi 1 - 7.
+                    </span>
                   </p>
                 </div>
                 <div className="flex items-center gap-2">
@@ -975,7 +1097,7 @@ export default function DashboardGuru({
                     <thead>
                       <tr className="bg-slate-50 border-b border-slate-200/80 text-[11px] font-bold text-slate-500 uppercase tracking-wider">
                         <th className="py-3.5 px-3">No</th>
-                        <th className="py-3.5 px-3">Nama Siswa</th>
+                        <th className="py-3.5 px-3">Nama Siswa (Klik untuk Detail)</th>
                         <th className="py-3.5 px-2 text-center" title="Bangun Pagi">H1</th>
                         <th className="py-3.5 px-2 text-center" title="Beribadah">H2</th>
                         <th className="py-3.5 px-2 text-center" title="Olahraga">H3</th>
@@ -989,30 +1111,56 @@ export default function DashboardGuru({
                     </thead>
                     <tbody className="divide-y divide-slate-100 text-xs">
                       {monitoringData.map((s, idx) => (
-                        <tr key={s.id} className="hover:bg-slate-50/80 transition">
+                        <tr key={s.id} className="hover:bg-blue-50/40 transition">
                           <td className="py-3 px-3 font-bold text-slate-400">{idx + 1}</td>
-                          <td className="py-3 px-3 font-bold text-slate-800">{s.nama}</td>
+                          <td className="py-3 px-3 font-bold text-slate-800">
+                            {/* Clickable Student Name */}
+                            <button
+                              onClick={() => handleOpenStudentDetail(s)}
+                              className="text-left font-bold text-slate-800 hover:text-blue-600 transition flex items-center gap-2.5 group cursor-pointer"
+                              title="Klik untuk melihat hasil isian & kuis siswa"
+                            >
+                              <div className="w-7 h-7 rounded-xl bg-gradient-to-tr from-blue-500 to-indigo-600 text-white font-black flex items-center justify-center text-xs shadow-xs group-hover:scale-105 transition">
+                                {s.nama.charAt(0)}
+                              </div>
+                              <div className="leading-tight">
+                                <span className="underline decoration-slate-300 group-hover:decoration-blue-600 group-hover:text-blue-600 transition">
+                                  {s.nama}
+                                </span>
+                                <span className="block text-[10px] text-slate-400 font-normal">NISN: {s.nisn}</span>
+                              </div>
+                            </button>
+                          </td>
                           {['h1', 'h2', 'h3', 'h4', 'h5', 'h6', 'h7'].map((hk, i) => {
                             const isDone = s.habits[hk];
+                            const detail = s.detailMisi?.[i + 1];
                             return (
                               <td key={i} className="py-3 px-2 text-center">
                                 {isDone ? (
-                                  <span className="w-6 h-6 rounded-full bg-emerald-100 text-emerald-700 inline-flex items-center justify-center text-xs font-bold">
+                                  <button
+                                    onClick={() => handleOpenStudentDetail(s)}
+                                    className="w-7 h-7 rounded-full bg-emerald-100 hover:bg-emerald-200 text-emerald-700 inline-flex flex-col items-center justify-center text-[10px] font-black transition cursor-pointer"
+                                    title={`Misi ${i + 1} Selesai pada: ${detail?.jam || '-'}`}
+                                  >
                                     ✓
-                                  </span>
+                                  </button>
                                 ) : (
-                                  <span className="w-6 h-6 rounded-full bg-slate-100 text-slate-300 inline-flex items-center justify-center text-xs">
+                                  <span className="w-7 h-7 rounded-full bg-slate-100 text-slate-300 inline-flex items-center justify-center text-xs">
                                     -
                                   </span>
                                 )}
                               </td>
                             );
                           })}
-                          <td className="py-3 px-3 text-center font-bold text-slate-800">{s.percentage}%</td>
+                          <td className="py-3 px-3 text-center font-bold text-slate-800">
+                            <span className="inline-block px-2 py-0.5 rounded-md bg-slate-100 font-black">
+                              {s.percentage}%
+                            </span>
+                          </td>
                           <td className="py-3 px-3 text-center">
                             <button
                               onClick={() => handleVerifyStudent(s.id, s.statusVerif === 'Disetujui' ? 'Menunggu' : 'Disetujui')}
-                              className={`px-3 py-1 rounded-full text-[10px] font-black transition ${
+                              className={`px-3 py-1 rounded-full text-[10px] font-black transition cursor-pointer ${
                                 s.statusVerif === 'Disetujui'
                                   ? 'bg-emerald-100 hover:bg-rose-100 text-emerald-800 hover:text-rose-800'
                                   : 'bg-amber-100 hover:bg-emerald-100 text-amber-800 hover:text-emerald-800'
@@ -1222,7 +1370,223 @@ export default function DashboardGuru({
       </div>
 
       {/* ========================================================================= */}
-      {/* 4. MODAL EDIT MATERI & KUIS (CONNECTED TO STUDENTS REALTIME) */}
+      {/* 4. MODAL DETAIL SISWA & HASIL KUIS MISI 1 - MISI 7 (INTERACTIVE) */}
+      {/* ========================================================================= */}
+      {showStudentDetailModal && selectedStudent && (
+        <div className="fixed inset-0 z-50 bg-slate-950/80 backdrop-blur-xs flex items-center justify-center p-3 sm:p-5 overflow-y-auto">
+          <div className="bg-white rounded-3xl max-w-3xl w-full p-5 sm:p-7 shadow-2xl border border-slate-200 space-y-5 my-6 animate-in fade-in zoom-in-95 duration-200">
+            {/* Modal Header */}
+            <div className="flex items-start justify-between border-b border-slate-100 pb-4">
+              <div className="flex items-center gap-3.5">
+                <div className="w-13 h-13 rounded-2xl bg-gradient-to-tr from-blue-600 to-indigo-600 text-white font-black flex items-center justify-center text-xl shadow-md shadow-blue-500/25">
+                  {selectedStudent.nama.charAt(0)}
+                </div>
+                <div>
+                  <div className="flex items-center gap-2">
+                    <h3 className="text-base sm:text-lg font-black text-slate-900">{selectedStudent.nama}</h3>
+                    <span className={`px-2 py-0.5 rounded-full text-[10px] font-black ${
+                      selectedStudent.statusVerif === 'Disetujui' ? 'bg-emerald-100 text-emerald-800' : 'bg-amber-100 text-amber-800'
+                    }`}>
+                      {selectedStudent.statusVerif}
+                    </span>
+                  </div>
+                  <p className="text-xs text-slate-500 font-medium">
+                    NISN: <span className="font-mono text-slate-700">{selectedStudent.nisn}</span> • {selectedKelas} • Tanggal: <span className="font-bold text-slate-700">{selectedTanggal}</span>
+                  </p>
+                </div>
+              </div>
+              <button
+                onClick={() => setShowStudentDetailModal(false)}
+                className="w-9 h-9 rounded-full bg-slate-100 hover:bg-slate-200 text-slate-500 flex items-center justify-center text-xl font-bold transition"
+              >
+                &times;
+              </button>
+            </div>
+
+            {/* Score & Verification Summary Banner */}
+            <div className="p-4 rounded-2xl bg-gradient-to-r from-blue-50 via-indigo-50 to-sky-50 border border-blue-100 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+              <div className="space-y-1">
+                <div className="text-xs font-bold text-slate-500 uppercase tracking-wider">Capaian Pembiasaan Harian</div>
+                <div className="flex items-center gap-2">
+                  <span className="text-2xl font-black text-blue-700">{selectedStudent.completedCount} dari 7 Misi Selesai</span>
+                  <span className="px-2.5 py-0.5 rounded-full bg-blue-600 text-white text-xs font-black shadow-xs">
+                    {selectedStudent.percentage}%
+                  </span>
+                </div>
+                <div className="w-48 h-2 bg-blue-200/70 rounded-full overflow-hidden">
+                  <div className="h-full bg-blue-600 rounded-full" style={{ width: `${selectedStudent.percentage}%` }}></div>
+                </div>
+              </div>
+
+              {/* Action Verifikasi Langsung */}
+              <div className="flex items-center gap-2">
+                <button
+                  onClick={() => handleVerifyStudent(selectedStudent.id, selectedStudent.statusVerif === 'Disetujui' ? 'Menunggu' : 'Disetujui')}
+                  className={`px-4 py-2.5 rounded-xl text-xs font-black transition active:scale-95 shadow-md flex items-center gap-2 ${
+                    selectedStudent.statusVerif === 'Disetujui'
+                      ? 'bg-rose-50 text-rose-700 border border-rose-200 hover:bg-rose-100'
+                      : 'bg-emerald-600 hover:bg-emerald-700 text-white shadow-emerald-500/20'
+                  }`}
+                >
+                  <i className={`fa-solid ${selectedStudent.statusVerif === 'Disetujui' ? 'fa-rotate-left' : 'fa-circle-check'}`}></i>
+                  <span>{selectedStudent.statusVerif === 'Disetujui' ? 'Batalkan Persetujuan' : 'Setujui Jurnal Ini'}</span>
+                </button>
+              </div>
+            </div>
+
+            {/* Filter Pills */}
+            <div className="flex items-center justify-between gap-2 pt-1 border-b border-slate-100 pb-3">
+              <span className="text-xs font-black text-slate-800 flex items-center gap-1.5">
+                <i className="fa-solid fa-list-check text-blue-600"></i> Rincian Misi 1 sampai Misi 7:
+              </span>
+              <div className="flex items-center gap-1 text-xs">
+                {[
+                  { id: 'all', label: 'Semua (7)' },
+                  { id: 'done', label: 'Selesai' },
+                  { id: 'pending', label: 'Belum Selesai' }
+                ].map(f => (
+                  <button
+                    key={f.id}
+                    onClick={() => setDetailFilter(f.id)}
+                    className={`px-3 py-1 rounded-xl text-[11px] font-bold transition ${
+                      detailFilter === f.id ? 'bg-slate-900 text-white' : 'bg-slate-100 text-slate-600 hover:bg-slate-200'
+                    }`}
+                  >
+                    {f.label}
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            {/* Habit Mission List Cards */}
+            <div className="space-y-3 max-h-[52vh] overflow-y-auto pr-1">
+              {[1, 2, 3, 4, 5, 6, 7].map((hid) => {
+                const habitKey = `h${hid}`;
+                const isDone = selectedStudent.habits[habitKey];
+                const detail = selectedStudent.detailMisi?.[hid] || {
+                  selesai: isDone,
+                  jam: isDone ? '06:00 WIB' : '-',
+                  jawabanKuis: isDone ? 'A' : '-',
+                  kuisBenar: isDone,
+                  nilaiKuis: isDone ? 100 : 0,
+                  catatan: isDone ? 'Telah melaksanakan misi pembiasaan ini dengan baik.' : 'Belum mengisi pembiasaan.'
+                };
+                const mk = materiKuisMap[hid] || {};
+
+                // Filter logic
+                if (detailFilter === 'done' && !isDone) return null;
+                if (detailFilter === 'pending' && isDone) return null;
+
+                return (
+                  <div
+                    key={hid}
+                    className={`p-4 rounded-2xl border transition ${
+                      isDone
+                        ? 'bg-white border-slate-200/90 shadow-2xs hover:border-emerald-300'
+                        : 'bg-slate-50/70 border-dashed border-slate-200 opacity-75'
+                    }`}
+                  >
+                    {/* Mission Header */}
+                    <div className="flex items-center justify-between gap-3 mb-2.5">
+                      <div className="flex items-center gap-2.5">
+                        <div className={`w-8 h-8 rounded-xl flex items-center justify-center text-xs font-black shrink-0 ${
+                          isDone ? 'bg-emerald-100 text-emerald-700' : 'bg-slate-200 text-slate-400'
+                        }`}>
+                          <i className={`fa-solid ${HABIT_ICONS[hid - 1] || 'fa-star'}`}></i>
+                        </div>
+                        <div>
+                          <div className="flex items-center gap-2">
+                            <span className="text-[10px] font-extrabold uppercase px-2 py-0.5 rounded-md bg-blue-100 text-blue-800">
+                              Misi {hid}
+                            </span>
+                            <h4 className="text-xs font-black text-slate-800">{HABIT_TITLES[hid - 1]}</h4>
+                          </div>
+                        </div>
+                      </div>
+
+                      {/* Status & Jam Pill */}
+                      <div>
+                        {isDone ? (
+                          <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[11px] font-bold bg-emerald-50 text-emerald-700 border border-emerald-200">
+                            <i className="fa-solid fa-clock text-[10px]"></i>
+                            <span>{detail.jam}</span>
+                            <span className="w-1.5 h-1.5 rounded-full bg-emerald-500"></span>
+                          </span>
+                        ) : (
+                          <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-[11px] font-bold bg-slate-100 text-slate-400">
+                            <i className="fa-regular fa-circle-xmark"></i> Belum Dikerjakan
+                          </span>
+                        )}
+                      </div>
+                    </div>
+
+                    {/* Mission Details (Kuis, Jam, Refleksi) */}
+                    {isDone ? (
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-3 pt-1 text-xs">
+                        {/* Box 1: Hasil Kuis */}
+                        <div className="p-3 rounded-xl bg-slate-50 border border-slate-200/60 space-y-1.5">
+                          <div className="flex items-center justify-between">
+                            <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider flex items-center gap-1">
+                              <i className="fa-solid fa-clipboard-question text-emerald-600"></i> Hasil Kuis Misi {hid}
+                            </span>
+                            <span className="px-2 py-0.5 rounded-full text-[10px] font-black bg-emerald-100 text-emerald-800">
+                              Nilai: {detail.nilaiKuis}/100 ✓
+                            </span>
+                          </div>
+
+                          <div className="text-[11px] font-bold text-slate-700">
+                            {mk.pertanyaan || 'Pertanyaan pemahaman materi kebiasaan.'}
+                          </div>
+
+                          <div className="text-[11px] text-slate-600 bg-white p-2 rounded-lg border border-slate-100 flex items-center justify-between">
+                            <span>Jawaban Siswa: <strong className="text-emerald-700 font-extrabold">Pilihan {detail.jawabanKuis}</strong></span>
+                            <span className="text-emerald-600 font-black text-[10px]">BENAR ✓</span>
+                          </div>
+                        </div>
+
+                        {/* Box 2: Catatan / Refleksi Siswa */}
+                        <div className="p-3 rounded-xl bg-slate-50 border border-slate-200/60 space-y-1.5">
+                          <div className="flex items-center justify-between">
+                            <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider flex items-center gap-1">
+                              <i className="fa-solid fa-pen-fancy text-blue-600"></i> Catatan Pelaksanaan Siswa
+                            </span>
+                            <span className="text-[10px] text-slate-400 font-semibold">{detail.jam}</span>
+                          </div>
+
+                          <div className="text-[11px] font-medium text-slate-700 bg-white p-2.5 rounded-lg border border-slate-100 italic leading-relaxed">
+                            "{detail.catatan}"
+                          </div>
+                        </div>
+                      </div>
+                    ) : (
+                      <p className="text-[11px] text-slate-400 italic pt-1 pl-10">
+                        Siswa belum menyelesaikan misi ini pada tanggal yang dipilih.
+                      </p>
+                    )}
+                  </div>
+                );
+              })}
+            </div>
+
+            {/* Modal Footer */}
+            <div className="flex items-center justify-between pt-3 border-t border-slate-100">
+              <span className="text-xs text-slate-400 font-medium">
+                Siswa: <strong className="text-slate-700">{selectedStudent.nama}</strong> ({selectedKelas})
+              </span>
+              <button
+                type="button"
+                onClick={() => setShowStudentDetailModal(false)}
+                className="px-5 py-2.5 rounded-xl bg-slate-900 hover:bg-slate-800 text-white text-xs font-bold transition active:scale-95 shadow-md"
+              >
+                Tutup
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* ========================================================================= */}
+      {/* 5. MODAL EDIT MATERI & KUIS (CONNECTED TO STUDENTS REALTIME) */}
       {/* ========================================================================= */}
       {showEditModal && (
         <div className="fixed inset-0 z-50 bg-slate-950/75 backdrop-blur-xs flex items-center justify-center p-4 overflow-y-auto">
@@ -1244,7 +1608,6 @@ export default function DashboardGuru({
               </button>
             </div>
 
-            {/* Quick Habit Switcher */}
             <div className="flex overflow-x-auto gap-2 pb-1">
               {[1, 2, 3, 4, 5, 6, 7].map((hid) => (
                 <button
