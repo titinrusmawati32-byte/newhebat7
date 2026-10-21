@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { callApi } from '../services/api';
+import { callApi, getGasApiUrl } from '../services/api';
 
 const HABIT_TITLES = [
   'Bangun Pagi & Merapikan Tempat Tidur',
@@ -210,6 +210,7 @@ export default function DashboardGuru({
   const [lightboxImage, setLightboxImage] = useState({ open: false, url: '', title: '', subtitle: '', mission: '' });
 
   // Student Monitoring Data with Rich Mission & Quiz Details (Persisted in localStorage)
+  const [hasInitialLoaded, setHasInitialLoaded] = useState(false);
   const [monitoringData, setMonitoringData] = useState(() => {
     try {
       const cached = localStorage.getItem('GURU_MONITORING_DATA_CACHE');
@@ -222,7 +223,9 @@ export default function DashboardGuru({
     } catch (e) {
       console.warn('Error reading cached student data:', e);
     }
-    return INITIAL_STUDENTS;
+    // Jika ada koneksi backend Google Apps Script, jangan fallback ke dummy data INITIAL_STUDENTS
+    // agar data yang sudah dihapus tidak muncul kembali di perangkat baru
+    return getGasApiUrl() ? [] : INITIAL_STUDENTS;
   });
 
   // Sync monitoringData to localStorage on every change
@@ -233,6 +236,38 @@ export default function DashboardGuru({
       console.warn('Error saving student cache:', e);
     }
   }, [monitoringData]);
+
+  const [isSyncing, setIsSyncing] = useState(false);
+
+  // Fetch real-time monitoring and student list from Google Sheets database
+  const fetchStudentsAndMonitoring = async (showToastNotice = false) => {
+    setIsSyncing(true);
+    try {
+      const res = await callApi('getMonitoringKelas', {
+        kelas: selectedKelas,
+        tanggal: selectedTanggal
+      });
+      if (res && Array.isArray(res.rows)) {
+        setMonitoringData(res.rows);
+        try {
+          localStorage.setItem('GURU_MONITORING_DATA_CACHE', JSON.stringify(res.rows));
+        } catch (e) {}
+        if (showToastNotice) {
+          showToast(`Data realtime berhasil disinkronkan (${res.rows.length} siswa)!`, 'success');
+        }
+      }
+    } catch (err) {
+      console.warn('Gagal memuat monitoring realtime:', err);
+    } finally {
+      setIsSyncing(false);
+      setHasInitialLoaded(true);
+    }
+  };
+
+  // Run on mount and whenever class or date changes
+  useEffect(() => {
+    fetchStudentsAndMonitoring();
+  }, [selectedKelas, selectedTanggal]);
 
   // Announcements List
   const [announcements, setAnnouncements] = useState([
@@ -527,6 +562,8 @@ export default function DashboardGuru({
       showToast(`Berhasil mengimpor ${importParsedStudents.length} siswa ke database! 🎉`, 'success');
       setShowImportModal(false);
       setImportParsedStudents([]);
+      // Sinkronkan ulang dengan database Google Sheets
+      fetchStudentsAndMonitoring();
     } catch (e) {
       console.warn(e);
       showToast('Gagal menyimpan impor: ' + e.message, 'error');
@@ -581,10 +618,11 @@ export default function DashboardGuru({
     try {
       await callApi('simpanSiswa', { payload });
       setMonitoringData(prev => {
+        let updated;
         if (isEditingStudent) {
-          return prev.map(s => s.id === payload.id || s.nisn === payload.nisn ? { ...s, ...payload } : s);
+          updated = prev.map(s => s.id === payload.id || s.nisn === payload.nisn ? { ...s, ...payload } : s);
         } else {
-          return [
+          updated = [
             ...prev,
             {
               ...payload,
@@ -596,9 +634,15 @@ export default function DashboardGuru({
             }
           ];
         }
+        try {
+          localStorage.setItem('GURU_MONITORING_DATA_CACHE', JSON.stringify(updated));
+        } catch (e) {}
+        return updated;
       });
       showToast(`Data siswa ${payload.nama} berhasil disimpan!`, 'success');
       setShowAddEditModal(false);
+      // Sinkronkan ulang dengan database Google Sheets
+      fetchStudentsAndMonitoring();
     } catch (e) {
       console.warn(e);
       showToast('Gagal menyimpan siswa: ' + e.message, 'error');
@@ -618,21 +662,27 @@ export default function DashboardGuru({
       studentNisn = found?.nisn || studentId;
     }
 
-    if (window.confirm(`Yakin ingin menghapus siswa "${studentNama}" dari sistem?`)) {
+    if (!window.confirm(`Yakin ingin menghapus siswa "${studentNama}" dari database? Data akan terhapus permanen di SEMUA perangkat.`)) return;
+
+    // 1. Optimistic removal di UI & LocalStorage saat ini
+    setMonitoringData(prev => {
+      const updated = prev.filter(s => s.id !== studentId && s.nisn !== studentNisn);
       try {
-        await callApi('hapusSiswa', { idOrNisn: studentNisn || studentId });
-        setMonitoringData(prev => {
-          const updated = prev.filter(s => s.id !== studentId && s.nisn !== studentNisn);
-          try {
-            localStorage.setItem('GURU_MONITORING_DATA_CACHE', JSON.stringify(updated));
-          } catch (e) {}
-          return updated;
-        });
-        showToast(`Siswa "${studentNama}" berhasil dihapus dari sistem!`, 'info');
-      } catch (e) {
-        console.warn(e);
-        showToast('Gagal menghapus siswa: ' + e.message, 'error');
-      }
+        localStorage.setItem('GURU_MONITORING_DATA_CACHE', JSON.stringify(updated));
+      } catch (e) {}
+      return updated;
+    });
+
+    // 2. Kirim perintah hapus ke database Google Spreadsheet
+    try {
+      await callApi('hapusSiswa', { idOrNisn: studentNisn || studentId });
+      showToast(`Siswa "${studentNama}" berhasil dihapus permanen dari database Google!`, 'success');
+    } catch (e) {
+      console.warn(e);
+      showToast('Gagal menghapus siswa dari database: ' + e.message, 'error');
+    } finally {
+      // 3. Re-fetch agar data di memori 100% identik dengan database Google
+      fetchStudentsAndMonitoring();
     }
   };
 
@@ -1385,6 +1435,18 @@ export default function DashboardGuru({
                     className="hidden"
                   />
 
+                  {/* Tombol Sinkron Realtime */}
+                  <button
+                    type="button"
+                    onClick={() => fetchStudentsAndMonitoring(true)}
+                    disabled={isSyncing}
+                    className="px-3.5 py-2.5 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-xl text-xs font-bold transition border border-slate-300 flex items-center gap-2 active:scale-95 disabled:opacity-50 shadow-xs"
+                    title="Sinkronkan data siswa dari database Google Sheets secara realtime"
+                  >
+                    <i className={`fa-solid fa-rotate ${isSyncing ? 'fa-spin text-blue-600' : ''}`}></i>
+                    <span>{isSyncing ? 'Menyinkronkan...' : 'Sinkron Realtime'}</span>
+                  </button>
+
                   {/* Download Template Excel Button */}
                   <button
                     type="button"
@@ -1585,15 +1647,19 @@ export default function DashboardGuru({
 
                 {monitoringData.length === 0 && (
                   <div className="py-12 text-center text-slate-400 space-y-2">
-                    <i className="fa-solid fa-user-graduate text-3xl"></i>
-                    <p className="text-xs font-bold">Belum ada siswa di kelas ini.</p>
-                    <button
-                      type="button"
-                      onClick={handleDownloadTemplateExcel}
-                      className="text-xs font-bold text-blue-600 underline"
-                    >
-                      Unduh template Excel & impor siswa sekarang
-                    </button>
+                    <i className={`fa-solid ${isSyncing ? 'fa-circle-notch fa-spin text-blue-500' : 'fa-user-graduate'} text-3xl`}></i>
+                    <p className="text-xs font-bold text-slate-600">
+                      {isSyncing ? 'Sedang menyinkronkan data siswa dari Google Sheets...' : 'Belum ada siswa di kelas ini.'}
+                    </p>
+                    {!isSyncing && (
+                      <button
+                        type="button"
+                        onClick={handleDownloadTemplateExcel}
+                        className="text-xs font-bold text-blue-600 hover:text-blue-700 underline block mx-auto"
+                      >
+                        Unduh template Excel & impor siswa sekarang
+                      </button>
+                    )}
                   </div>
                 )}
               </div>
@@ -1622,6 +1688,16 @@ export default function DashboardGuru({
                     onChange={(e) => setSelectedTanggal(e.target.value)}
                     className="px-3 py-1.5 rounded-xl border border-slate-300 text-xs font-bold text-slate-700 outline-hidden"
                   />
+                  <button
+                    type="button"
+                    onClick={() => fetchStudentsAndMonitoring(true)}
+                    disabled={isSyncing}
+                    className="px-3 py-1.5 bg-blue-50 hover:bg-blue-100 text-blue-700 border border-blue-200 rounded-xl text-xs font-bold transition flex items-center gap-1.5 active:scale-95 disabled:opacity-50"
+                    title="Sinkronkan data rekapitulasi terbaru dari Google Sheets"
+                  >
+                    <i className={`fa-solid fa-rotate ${isSyncing ? 'fa-spin text-blue-600' : ''}`}></i>
+                    <span>{isSyncing ? 'Menyinkronkan...' : 'Sinkron'}</span>
+                  </button>
                   <button
                     onClick={() => showToast('Data rekapitulasi berhasil dicetak!', 'success')}
                     className="px-3.5 py-2 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl text-xs font-bold transition flex items-center gap-1.5"
@@ -1739,6 +1815,15 @@ export default function DashboardGuru({
                     </tbody>
                   </table>
                 </div>
+
+                {monitoringData.length === 0 && (
+                  <div className="py-12 text-center text-slate-400 space-y-2">
+                    <i className={`fa-solid ${isSyncing ? 'fa-circle-notch fa-spin text-blue-500' : 'fa-clipboard-list'} text-3xl`}></i>
+                    <p className="text-xs font-bold text-slate-600">
+                      {isSyncing ? 'Sedang memuat data rekapitulasi dari database Google Sheets...' : 'Belum ada data rekapitulasi siswa untuk kelas dan tanggal ini.'}
+                    </p>
+                  </div>
+                )}
               </div>
             </div>
           )}

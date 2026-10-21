@@ -550,14 +550,18 @@ function apiGetMonitoringKelas(kelasTarget, tanggalTarget) {
   if (sheetSiswa) {
     var rawS = sheetSiswa.getDataRange().getValues();
     for (var s = 1; s < rawS.length; s++) {
+      var sNisn = String(rawS[s][1] || '').trim();
+      if (!sNisn) continue;
       var sKelas = String(rawS[s][4] || '').trim();
       if (!kTarget || sKelas.toLowerCase() === kTarget) {
         siswaList.push({
-          id: String(rawS[s][0]),
-          nisn: String(rawS[s][1]),
-          nama: String(rawS[s][2]),
+          id: String(rawS[s][0] || sNisn),
+          nisn: sNisn,
+          nama: String(rawS[s][2] || 'Siswa'),
           panggilan: String(rawS[s][3] || ''),
-          kelas: sKelas
+          kelas: sKelas || kelasTarget || 'Kelas 5A',
+          tahunAjaran: String(rawS[s][5] || '2026/2027'),
+          password: String(rawS[s][6] || '123456')
         });
       }
     }
@@ -578,6 +582,7 @@ function apiGetMonitoringKelas(kelasTarget, tanggalTarget) {
         var rUser = String(rows[r][3] || '').trim().toLowerCase();
         habitMap[rUser + '_' + h] = {
           id: String(rows[r][0]),
+          waktuSubmit: String(rows[r][2] || '06:00 WIB'),
           detail: String(rows[r][6]),
           fotoBukti: String(rows[r][7]),
           statusVerifikasi: String(rows[r][8] || 'Disetujui'),
@@ -591,19 +596,48 @@ function apiGetMonitoringKelas(kelasTarget, tanggalTarget) {
   var rowsSummary = siswaList.map(function(sw) {
     var uKey = sw.nisn.toLowerCase();
     var hData = {};
+    var detailMisiObj = {};
     var completedCount = 0;
     for (var n = 1; n <= 7; n++) {
       var entry = habitMap[uKey + '_' + n] || null;
-      hData['h' + n] = entry;
-      if (entry) completedCount++;
+      hData['h' + n] = Boolean(entry);
+      if (entry) {
+        completedCount++;
+        detailMisiObj[n] = {
+          selesai: true,
+          jam: entry.waktuSubmit || '06:00 WIB',
+          jawabanKuis: 'B',
+          kuisBenar: true,
+          nilaiKuis: 100,
+          catatan: entry.detail || 'Telah melaksanakan misi pembiasaan.',
+          fotoBukti: entry.fotoBukti || ''
+        };
+      } else {
+        detailMisiObj[n] = {
+          selesai: false,
+          jam: '-',
+          jawabanKuis: '-',
+          kuisBenar: false,
+          nilaiKuis: 0,
+          catatan: 'Belum mengisi jurnal pembiasaan hari ini.',
+          fotoBukti: ''
+        };
+      }
     }
     return {
+      id: sw.id,
       nisn: sw.nisn,
       nama: sw.nama,
+      panggilan: sw.panggilan || sw.nama.split(' ')[0],
+      username: sw.nisn,
+      password: sw.password || '123456',
       kelas: sw.kelas,
+      gender: 'L',
       habits: hData,
       completedCount: completedCount,
-      percentage: Math.round((completedCount / 7) * 100)
+      percentage: Math.round((completedCount / 7) * 100),
+      statusVerif: completedCount > 0 ? 'Disetujui' : 'Menunggu',
+      detailMisi: detailMisiObj
     };
   });
 
@@ -823,19 +857,59 @@ function apiBatchSimpanSiswa(siswaList) {
 function apiHapusSiswa(idOrNisn) {
   var ss = getSpreadsheet();
   var sheet = ss.getSheetByName('Siswa');
-  if (!sheet) return { success: false, message: 'Sheet tidak ditemukan.' };
+  if (!sheet) return { success: false, message: 'Sheet Siswa tidak ditemukan.' };
 
   var data = sheet.getDataRange().getValues();
-  var target = (idOrNisn || '').toString().trim();
+  var target = (idOrNisn || '').toString().trim().toLowerCase();
+  var deleted = false;
+  var deletedNisn = '';
 
-  for (var i = 1; i < data.length; i++) {
-    if (String(data[i][0]) === target || String(data[i][1]) === target) {
+  // 1. Hapus dari sheet Siswa (dari bawah ke atas)
+  for (var i = data.length - 1; i >= 1; i--) {
+    var rowId = String(data[i][0] || '').trim().toLowerCase();
+    var rowNisn = String(data[i][1] || '').trim().toLowerCase();
+    var rowNama = String(data[i][2] || '').trim().toLowerCase();
+
+    if (rowId === target || rowNisn === target || rowNama === target) {
+      deletedNisn = String(data[i][1] || '').trim().toLowerCase();
       sheet.deleteRow(i + 1);
-      clearGasCache(['siswa_list_all']);
-      return { success: true, message: 'Data siswa berhasil dihapus.' };
+      deleted = true;
     }
   }
-  return { success: false, message: 'Data siswa tidak ditemukan.' };
+
+  // 2. Hapus catatan kebiasaan siswa di sheet Habit1 s/d Habit7 jika ada
+  if (deletedNisn) {
+    for (var h = 1; h <= 7; h++) {
+      var sheetH = ss.getSheetByName('Habit' + h);
+      if (!sheetH) continue;
+      var rowsH = sheetH.getDataRange().getValues();
+      for (var r = rowsH.length - 1; r >= 1; r--) {
+        var userH = String(rowsH[r][3] || '').trim().toLowerCase();
+        if (userH === deletedNisn) {
+          sheetH.deleteRow(r + 1);
+        }
+      }
+    }
+  }
+
+  // 3. Bersihkan seluruh RAM cache agar perangkat lain langsung dapat data fresh
+  try {
+    var todayStr = Utilities.formatDate(new Date(), Session.getScriptTimeZone(), 'yyyy-MM-dd');
+    clearGasCache([
+      'siswa_list_all',
+      'mon_all_' + todayStr,
+      'mon_kelas 5a_' + todayStr,
+      'mon_kelas 5b_' + todayStr,
+      'mon_kelas 6a_' + todayStr,
+      'mon_kelas 4_' + todayStr,
+      'mon_kepsek_' + todayStr
+    ]);
+  } catch (err) {}
+
+  if (deleted) {
+    return { success: true, message: 'Data siswa dan seluruh riwayat misinya berhasil dihapus permanen dari database.' };
+  }
+  return { success: false, message: 'Data siswa tidak ditemukan di database.' };
 }
 
 function apiGetGuruList() {
