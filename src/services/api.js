@@ -1,19 +1,18 @@
 /**
  * API Service untuk menghubungkan Frontend Vite / React ke Backend Google Apps Script
+ * Dilengkapi High-Speed Caching (SWR: Stale-While-Revalidate) & Optimistic Update
+ * agar WebApp terasa instan (0 ms), ringan, dan anti-lemot.
  */
 
 // URL Google Apps Script diambil secara aman dari Environment Variable Vite (.env)
-// Menjaga agar URL database TIDAK terlihat di menu aplikasi siswa maupun guru
 const rawEnvUrl = (typeof import.meta !== 'undefined' && import.meta.env && import.meta.env.VITE_GAS_API_URL) 
   ? import.meta.env.VITE_GAS_API_URL.trim() 
   : '';
 
-// Sanitasi otomatis: memastikan URL berakhiran /exec tunggal (mencegah typo /exec/exec)
+// Sanitasi otomatis: memastikan URL berakhiran /exec tunggal
 const ENV_GAS_URL = rawEnvUrl.replace(/(\/exec)+$/, '/exec');
-
 const STORAGE_KEY_GAS_URL = 'GAS_API_URL_7KEBIASAAN';
 
-// Default URL dari Environment Variable (.env), localStorage, atau kosong untuk mode demo/fallback
 export function getGasApiUrl() {
   return ENV_GAS_URL || localStorage.getItem(STORAGE_KEY_GAS_URL) || '';
 }
@@ -26,9 +25,34 @@ export function setGasApiUrl(url) {
   }
 }
 
+// =========================================================================
+// HIGH SPEED CACHE ENGINE (INSTANT LOAD 0 MS)
+// =========================================================================
+const inFlightRequests = new Map();
+
+export function getCachedData(action) {
+  try {
+    const raw = localStorage.getItem(`APP_CACHE_${action}`);
+    if (raw) return JSON.parse(raw);
+  } catch (e) {
+    // ignore
+  }
+  return null;
+}
+
+export function setCachedData(action, data) {
+  try {
+    if (data) {
+      localStorage.setItem(`APP_CACHE_${action}`, JSON.stringify(data));
+    }
+  } catch (e) {
+    // ignore
+  }
+}
+
 // Fallback Mock Data Default
 const MOCK_PENGATURAN = {
-  namaSekolah: 'SD Generasi Indonesia Hebat',
+  namaSekolah: 'UPTD SATDIK SDN SUMBEREJO 04',
   logoSekolah: 'https://cdn-icons-png.flaticon.com/512/2997/2997295.png',
   linkYoutube: 'https://www.youtube.com/watch?v=dQw4w9WgXcQ',
   usernameKepsek: 'kepsek',
@@ -131,28 +155,65 @@ const MOCK_MATERI_KUIS = {
 
 /**
  * Panggil API Google Apps Script melalui POST (CORS-friendly dengan text/plain)
+ * Dilengkapi Caching, Anti-Throttling, dan Timeout Guard
  */
 export async function callApi(action, payload = {}) {
   const gasUrl = getGasApiUrl();
 
-  if (gasUrl) {
-    try {
-      const response = await fetch(gasUrl, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'text/plain;charset=utf-8' // Menghindari CORS Preflight OPTIONS di GAS
-        },
-        body: JSON.stringify({ action, data: payload })
-      });
-      const res = await response.json();
-      return res;
-    } catch (err) {
-      console.warn(`[API GAS] Request '${action}' gagal, menggunakan fallback lokal:`, err);
-    }
+  // 1. Caching untuk aksi Read (getPengaturan, getMateriKuisAll)
+  const isReadAction = action === 'getPengaturan' || action === 'getMateriKuisAll';
+  const requestKey = `${action}_${JSON.stringify(payload)}`;
+
+  // Cegah duplikasi request ganda yang sama persis secara bersamaan
+  if (inFlightRequests.has(requestKey)) {
+    return inFlightRequests.get(requestKey);
   }
 
-  // Fallback simulator jika belum connect ke URL GAS atau offline
-  return handleMockApi(action, payload);
+  const execRequest = async () => {
+    if (gasUrl) {
+      try {
+        // Timeout guard 8 detik agar tidak hang jika Google Script lambat
+        const controller = new AbortController();
+        const timeoutId = setTimeout(() => controller.abort(), 8000);
+
+        const response = await fetch(gasUrl, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'text/plain;charset=utf-8'
+          },
+          body: JSON.stringify({ action, data: payload }),
+          signal: controller.signal
+        });
+        clearTimeout(timeoutId);
+
+        const res = await response.json();
+        
+        // Simpan cache jika read action berhasil
+        if (isReadAction && res) {
+          setCachedData(action, res);
+        }
+
+        return res;
+      } catch (err) {
+        console.warn(`[API GAS] Request '${action}' lambat/gagal, menggunakan data cepat:`, err);
+        // Jika read query gagal atau timeout, gunakan cache lokal
+        if (isReadAction) {
+          const cached = getCachedData(action);
+          if (cached) return cached;
+        }
+      }
+    }
+
+    // Fallback simulator jika offline
+    return handleMockApi(action, payload);
+  };
+
+  const promise = execRequest().finally(() => {
+    inFlightRequests.delete(requestKey);
+  });
+
+  inFlightRequests.set(requestKey, promise);
+  return promise;
 }
 
 function handleMockApi(action, data) {
@@ -171,11 +232,11 @@ function handleMockApi(action, data) {
   }
 
   if (action === 'getPengaturan') {
-    return MOCK_PENGATURAN;
+    return getCachedData('getPengaturan') || MOCK_PENGATURAN;
   }
 
   if (action === 'getMateriKuisAll') {
-    return MOCK_MATERI_KUIS;
+    return getCachedData('getMateriKuisAll') || MOCK_MATERI_KUIS;
   }
 
   if (action === 'simpanMateriKuis') {

@@ -4,7 +4,7 @@ import DashboardSiswa from './components/DashboardSiswa';
 import HabitWizard from './components/HabitWizard';
 import DashboardGuru from './components/DashboardGuru';
 import BottomNav from './components/BottomNav';
-import { callApi } from './services/api';
+import { callApi, getCachedData } from './services/api';
 
 export default function App() {
   const [currentUser, setCurrentUser] = useState(null);
@@ -33,7 +33,14 @@ export default function App() {
   };
 
   useEffect(() => {
-    // Muat pengaturan sekolah & materi kuis awal
+    // 1. Muat dari Cache Lokal seketika (0 ms - anti lemot)
+    const cachedPengaturan = getCachedData('getPengaturan');
+    if (cachedPengaturan) setPengaturan(cachedPengaturan);
+
+    const cachedMateri = getCachedData('getMateriKuisAll');
+    if (cachedMateri) setMateriKuisMap(cachedMateri);
+
+    // 2. Sinkronisasi latar belakang dengan Google Apps Script (tanpa mengunci UI)
     callApi('getPengaturan').then((res) => {
       if (res) setPengaturan(res);
     });
