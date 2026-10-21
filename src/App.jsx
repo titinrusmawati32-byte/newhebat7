@@ -132,7 +132,7 @@ export default function App() {
       </div>
 
       {/* Main View Router */}
-      <main className="flex-1 w-full p-3 sm:p-6 max-w-7xl mx-auto">
+      <main className={`flex-1 w-full ${currentView === 'guru' ? 'p-0 max-w-none' : 'p-3 sm:p-6 max-w-7xl mx-auto'}`}>
         {currentView === 'landing' && (
           <Login
             onLoginSuccess={handleLoginSuccess}
