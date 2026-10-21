@@ -2,11 +2,17 @@
  * API Service untuk menghubungkan Frontend Vite / React ke Backend Google Apps Script
  */
 
+// URL Google Apps Script diambil secara aman dari Environment Variable Vite (.env)
+// Menjaga agar URL database TIDAK terlihat di menu aplikasi siswa maupun guru
+const ENV_GAS_URL = (typeof import.meta !== 'undefined' && import.meta.env && import.meta.env.VITE_GAS_API_URL) 
+  ? import.meta.env.VITE_GAS_API_URL.trim() 
+  : '';
+
 const STORAGE_KEY_GAS_URL = 'GAS_API_URL_7KEBIASAAN';
 
-// Default URL dari localStorage atau kosong untuk mode demo/fallback
+// Default URL dari Environment Variable (.env), localStorage, atau kosong untuk mode demo/fallback
 export function getGasApiUrl() {
-  return localStorage.getItem(STORAGE_KEY_GAS_URL) || '';
+  return ENV_GAS_URL || localStorage.getItem(STORAGE_KEY_GAS_URL) || '';
 }
 
 export function setGasApiUrl(url) {

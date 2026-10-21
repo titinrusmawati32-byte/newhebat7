@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { callApi, getGasApiUrl, setGasApiUrl } from '../services/api';
+import { callApi } from '../services/api';
 
 export default function Login({ onLoginSuccess, showToast, pengaturan }) {
   const [role, setRole] = useState('Siswa');
@@ -8,8 +8,6 @@ export default function Login({ onLoginSuccess, showToast, pengaturan }) {
   const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
   const [errorText, setErrorText] = useState('');
-  const [showSettingsModal, setShowSettingsModal] = useState(false);
-  const [gasUrlInput, setGasUrlInput] = useState(getGasApiUrl());
 
   const handleRoleChange = (newRole) => {
     setRole(newRole);
@@ -51,25 +49,8 @@ export default function Login({ onLoginSuccess, showToast, pengaturan }) {
     }
   };
 
-  const handleSaveGasUrl = () => {
-    setGasApiUrl(gasUrlInput);
-    setShowSettingsModal(false);
-    showToast('URL Google Apps Script berhasil disimpan!', 'success');
-  };
-
   return (
     <div className="min-h-screen flex flex-col justify-between items-center p-4 sm:p-6 select-none max-w-md mx-auto">
-      {/* Top Setting Icon */}
-      <div className="w-full flex justify-end">
-        <button
-          onClick={() => setShowSettingsModal(true)}
-          title="Pengaturan Backend Google Apps Script"
-          className="p-2 text-slate-400 hover:text-slate-600 rounded-full hover:bg-white/80 transition"
-        >
-          <i className="fa-solid fa-server text-base"></i>
-        </button>
-      </div>
-
       {/* Main Login Card */}
       <div className="w-full my-auto py-2">
         {/* Branding */}
@@ -234,46 +215,6 @@ export default function Login({ onLoginSuccess, showToast, pengaturan }) {
           &copy; 2026 Kemdikbudristek - Generasi Emas Anak Indonesia Hebat
         </p>
       </div>
-
-      {/* Modal Settings Google Apps Script Endpoint */}
-      {showSettingsModal && (
-        <div className="fixed inset-0 z-50 bg-slate-950/70 backdrop-blur-sm flex items-center justify-center p-4">
-          <div className="bg-white rounded-3xl max-w-sm w-full p-6 shadow-2xl border border-slate-100">
-            <div className="flex items-center justify-between mb-3">
-              <h3 className="text-sm font-black text-slate-800">Hubungkan Google Sheets</h3>
-              <button onClick={() => setShowSettingsModal(false)} className="text-slate-400 hover:text-slate-700">
-                &times;
-              </button>
-            </div>
-            <p className="text-xs text-slate-500 mb-3 leading-relaxed">
-              Masukkan Web App URL dari deployment Google Apps Script Anda (yang berakhiran <code className="text-emerald-600">/exec</code>).
-            </p>
-            <input
-              type="url"
-              value={gasUrlInput}
-              onChange={(e) => setGasUrlInput(e.target.value)}
-              placeholder="https://script.google.com/macros/s/.../exec"
-              className="w-full p-3 bg-slate-50 border border-slate-200 rounded-xl text-xs font-mono text-slate-800 mb-4 focus:outline-none focus:ring-2 focus:ring-emerald-500"
-            />
-            <div className="flex justify-end gap-2">
-              <button
-                type="button"
-                onClick={() => setShowSettingsModal(false)}
-                className="px-4 py-2 bg-slate-100 hover:bg-slate-200 text-slate-600 rounded-xl text-xs font-bold transition"
-              >
-                Batal
-              </button>
-              <button
-                type="button"
-                onClick={handleSaveGasUrl}
-                className="px-4 py-2 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl text-xs font-bold transition"
-              >
-                Simpan URL
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
     </div>
   );
 }
