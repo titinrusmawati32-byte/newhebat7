@@ -555,7 +555,7 @@ export default function DashboardSiswa({
                                   : 'bg-slate-100 text-slate-400'
                               }`}
                             >
-                              <i className={`fa-solid ${isDone ? 'fa-check' : 'fa-circle text-[6px]'}`}></i>
+                              <i className={`fa-solid ${isDone ? (isDone.fotoBukti ? 'fa-camera' : 'fa-check') : 'fa-circle text-[6px]'}`}></i>
                               <span>{isDone ? 'Selesai' : 'Belum'}</span>
                             </span>
                             <i className="fa-solid fa-chevron-right text-blue-500 text-[10px]"></i>
@@ -592,7 +592,7 @@ export default function DashboardSiswa({
                             : 'bg-slate-100 text-slate-400'
                         }`}
                       >
-                        <i className={`fa-solid ${habitsToday && habitsToday[7] ? 'fa-check' : 'fa-circle text-[6px]'}`}></i>
+                        <i className={`fa-solid ${habitsToday && habitsToday[7] ? (habitsToday[7].fotoBukti ? 'fa-camera' : 'fa-check') : 'fa-circle text-[6px]'}`}></i>
                         <span>{habitsToday && habitsToday[7] ? 'Selesai' : 'Belum'}</span>
                       </span>
                       <i className="fa-solid fa-chevron-right text-blue-500 text-[10px]"></i>
@@ -636,8 +636,13 @@ export default function DashboardSiswa({
                             <p className="text-[10px] text-slate-400 font-medium line-clamp-1">{h.desc}</p>
                           </div>
                         </div>
-                        <span className={`text-[10px] font-bold px-2.5 py-1 rounded-full ${isDone ? 'text-emerald-700 bg-emerald-50 border border-emerald-200' : 'text-slate-400 bg-slate-100'}`}>
-                          {isDone ? 'Selesai ✔' : 'Isi Misi >'}
+                        <span className={`text-[10px] font-bold px-2.5 py-1 rounded-full flex items-center gap-1 ${isDone ? 'text-emerald-700 bg-emerald-50 border border-emerald-200' : 'text-slate-400 bg-slate-100'}`}>
+                          {isDone ? (
+                            <>
+                              <i className={`fa-solid ${isDone.fotoBukti ? 'fa-camera text-emerald-600' : 'fa-check'}`}></i>
+                              <span>Selesai</span>
+                            </>
+                          ) : 'Isi Misi >'}
                         </span>
                       </div>
                     );

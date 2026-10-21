@@ -1544,7 +1544,7 @@ export default function DashboardGuru({
                           </div>
                         </div>
 
-                        {/* Box 2: Catatan / Refleksi Siswa */}
+                        {/* Box 2: Catatan / Refleksi Siswa & Foto Bukti */}
                         <div className="p-3 rounded-xl bg-slate-50 border border-slate-200/60 space-y-1.5">
                           <div className="flex items-center justify-between">
                             <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider flex items-center gap-1">
@@ -1556,6 +1556,21 @@ export default function DashboardGuru({
                           <div className="text-[11px] font-medium text-slate-700 bg-white p-2.5 rounded-lg border border-slate-100 italic leading-relaxed">
                             "{detail.catatan}"
                           </div>
+
+                          {detail.fotoBukti && (
+                            <div className="pt-1.5">
+                              <span className="text-[10px] font-bold text-slate-500 uppercase tracking-wider flex items-center gap-1 mb-1">
+                                <i className="fa-solid fa-camera text-blue-500"></i> Foto Bukti Unggahan Siswa:
+                              </span>
+                              <div className="rounded-lg overflow-hidden border border-slate-200 bg-slate-100 max-h-36 flex items-center justify-center">
+                                <img
+                                  src={detail.fotoBukti}
+                                  alt="Bukti Siswa"
+                                  className="w-full h-36 object-cover"
+                                />
+                              </div>
+                            </div>
+                          )}
                         </div>
                       </div>
                     ) : (

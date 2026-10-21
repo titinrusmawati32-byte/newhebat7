@@ -144,11 +144,15 @@ export default function App() {
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
-  const handleCompleteHabit = (hid, namaMisi) => {
+  const handleCompleteHabit = (hid, namaMisi, extraData) => {
     setHabitsToday((prev) => {
       const updated = {
         ...prev,
-        [hid]: { detail: 'Selesai', statusVerifikasi: 'Disetujui' }
+        [hid]: {
+          detail: extraData?.detail || 'Selesai',
+          fotoBukti: extraData?.fotoBukti || '',
+          statusVerifikasi: 'Disetujui'
+        }
       };
       localStorage.setItem('HABITS_TODAY_CACHE', JSON.stringify(updated));
       return updated;
