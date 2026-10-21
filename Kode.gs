@@ -340,6 +340,51 @@ function apiGetInitialSiswaData(username, tanggal) {
 // 4. API TRANSAKSI HABIT (SIMPAN, HAPUS, & VERIFIKASI)
 // =========================================================================
 
+/**
+ * Simpan Foto Bukti Base64 dari HP/Laptop Siswa ke Folder Google Drive
+ * Mengembalikan direct image view URL (https://lh3.googleusercontent.com/d/{id})
+ */
+function saveBase64ImageToDrive(base64Data, filename) {
+  if (!base64Data || typeof base64Data !== 'string') return '';
+  if (base64Data.indexOf('data:image') !== 0) return base64Data;
+
+  try {
+    var folderName = 'Bukti Foto 7 Kebiasaan';
+    var folders = DriveApp.getFoldersByName(folderName);
+    var folder;
+    if (folders.hasNext()) {
+      folder = folders.next();
+    } else {
+      folder = DriveApp.createFolder(folderName);
+    }
+
+    var parts = base64Data.split(',');
+    var meta = parts[0];
+    var base64Content = parts[1];
+    var mimeMatch = meta.match(/data:([^;]+);/);
+    var mimeType = mimeMatch ? mimeMatch[1] : 'image/jpeg';
+
+    var decoded = Utilities.base64Decode(base64Content);
+    var blob = Utilities.newBlob(decoded, mimeType, filename);
+    var file = folder.createFile(blob);
+
+    // Set permission agar foto dapat dibuka oleh guru & siswa
+    try {
+      file.setSharing(DriveApp.Access.ANYONE_WITH_LINK, DriveApp.Permission.VIEW);
+    } catch (eShare) {
+      Logger.log('Sharing warning: ' + eShare.toString());
+    }
+
+    var fileId = file.getId();
+    // Direct view URL Google Drive
+    return 'https://lh3.googleusercontent.com/d/' + fileId;
+  } catch (err) {
+    Logger.log('Gagal menyimpan file ke Google Drive: ' + err.toString());
+    // Fallback: kembalikan data semula agar tidak hilang
+    return base64Data;
+  }
+}
+
 function apiSimpanHabit(habitNumber, payload) {
   var ss = getSpreadsheet();
   var sheetName = 'Habit' + habitNumber;
@@ -354,6 +399,19 @@ function apiSimpanHabit(habitNumber, payload) {
   var waktuStr = payload.waktuSubmit || Utilities.formatDate(now, Session.getScriptTimeZone(), 'HH:mm:ss');
   var userStr = (payload.username || '').toString().trim();
   var rowId = payload.id || ('H' + habitNumber + '-' + Date.now());
+
+  // Simpan foto bukti ke Google Drive jika berupa data base64
+  var finalFotoBukti = payload.fotoBukti || '';
+  if (finalFotoBukti && typeof finalFotoBukti === 'string' && finalFotoBukti.indexOf('data:image') === 0) {
+    try {
+      var sanitizedNama = (payload.namaSiswa || 'Siswa').replace(/[^a-zA-Z0-9]/g, '_');
+      var sanitizedKelas = (payload.kelas || 'Kelas').replace(/[^a-zA-Z0-9]/g, '_');
+      var fileName = 'Misi' + habitNumber + '_' + sanitizedKelas + '_' + sanitizedNama + '_' + tglStr + '_' + Date.now() + '.jpg';
+      finalFotoBukti = saveBase64ImageToDrive(finalFotoBukti, fileName);
+    } catch (eDrive) {
+      Logger.log('Drive save error: ' + eDrive.toString());
+    }
+  }
 
   var data = sheet.getDataRange().getValues();
   var existingRowIndex = -1;
@@ -378,7 +436,7 @@ function apiSimpanHabit(habitNumber, payload) {
     payload.namaSiswa || '',
     payload.kelas || '',
     payload.detail || '',
-    payload.fotoBukti || '',
+    finalFotoBukti,
     payload.statusVerifikasi || 'Disetujui',
     payload.catatanGuru || ''
   ];
