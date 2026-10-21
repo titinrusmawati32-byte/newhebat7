@@ -116,6 +116,8 @@ function handleApiAction(action, data) {
       return apiGetSiswaList(data.kelasFilter);
     case 'simpanSiswa':
       return apiSimpanSiswa(data.payload || data);
+    case 'batchSimpanSiswa':
+      return apiBatchSimpanSiswa(data.siswaList || data.list || []);
     case 'hapusSiswa':
       return apiHapusSiswa(data.idOrNisn);
     case 'getGuruList':
@@ -749,6 +751,73 @@ function apiSimpanSiswa(payload) {
   clearGasCache(['siswa_list_all', 'siswa_list_' + kTarget]);
 
   return { success: true, message: 'Data siswa berhasil disimpan!' };
+}
+
+function apiBatchSimpanSiswa(siswaList) {
+  if (!Array.isArray(siswaList) || siswaList.length === 0) {
+    return { success: false, message: 'Daftar data siswa kosong.' };
+  }
+
+  var ss = getSpreadsheet();
+  var sheet = ss.getSheetByName('Siswa');
+  if (!sheet) {
+    sheet = ss.insertSheet('Siswa');
+    sheet.appendRow(['id', 'nisn', 'nama', 'panggilan', 'kelas', 'tahunAjaran', 'password']);
+  }
+
+  var data = sheet.getDataRange().getValues();
+  var nisnMap = {};
+  for (var i = 1; i < data.length; i++) {
+    var n = String(data[i][1]).trim();
+    if (n) {
+      nisnMap[n] = i + 1; // 1-based row index
+    }
+  }
+
+  var newRows = [];
+  var updatedCount = 0;
+  var insertedCount = 0;
+
+  for (var j = 0; j < siswaList.length; j++) {
+    var s = siswaList[j];
+    var nisn = String(s.nisn || '').trim();
+    if (!nisn) continue;
+
+    var idVal = s.id || ('S-' + Date.now() + '-' + j);
+    var rowVals = [
+      idVal,
+      nisn,
+      s.nama || '',
+      s.panggilan || s.nama || '',
+      s.kelas || '',
+      s.tahunAjaran || '2026/2027',
+      s.password || '123456'
+    ];
+
+    if (nisnMap[nisn]) {
+      // Update existing row
+      sheet.getRange(nisnMap[nisn], 1, 1, rowVals.length).setValues([rowVals]);
+      updatedCount++;
+    } else {
+      newRows.push(rowVals);
+      nisnMap[nisn] = true;
+      insertedCount++;
+    }
+  }
+
+  if (newRows.length > 0) {
+    var startRow = sheet.getLastRow() + 1;
+    sheet.getRange(startRow, 1, newRows.length, 7).setValues(newRows);
+  }
+
+  clearGasCache(['siswa_list_all']);
+
+  return {
+    success: true,
+    message: 'Impor berhasil: ' + insertedCount + ' siswa baru ditambahkan, ' + updatedCount + ' data diperbarui.',
+    inserted: insertedCount,
+    updated: updatedCount
+  };
 }
 
 function apiHapusSiswa(idOrNisn) {

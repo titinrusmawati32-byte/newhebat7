@@ -259,6 +259,30 @@ function handleMockApi(action, data) {
     return { success: true, message: 'Kebiasaan berhasil disimpan!' };
   }
 
+  if (action === 'getSiswaList') {
+    return [
+      { id: 'S-1', nisn: '0012345678', nama: 'Ahmad Farhan Pratama', panggilan: 'Farhan', kelas: 'Kelas 5A', tahunAjaran: '2026/2027', password: 'password123', gender: 'L' },
+      { id: 'S-2', nisn: '0012345679', nama: 'Annisa Zahra Kirana', panggilan: 'Zahra', kelas: 'Kelas 5A', tahunAjaran: '2026/2027', password: 'password123', gender: 'P' },
+      { id: 'S-3', nisn: '0012345680', nama: 'Bima Sakti Wicaksono', panggilan: 'Bima', kelas: 'Kelas 5A', tahunAjaran: '2026/2027', password: 'password123', gender: 'L' },
+      { id: 'S-4', nisn: '0012345681', nama: 'Cantika Putri Lestari', panggilan: 'Cantika', kelas: 'Kelas 5A', tahunAjaran: '2026/2027', password: 'password123', gender: 'P' },
+      { id: 'S-5', nisn: '0012345682', nama: 'Dimas Arya Raditya', panggilan: 'Dimas', kelas: 'Kelas 5A', tahunAjaran: '2026/2027', password: 'password123', gender: 'L' },
+      { id: 'S-6', nisn: '0012345683', nama: 'Evelyn Nathania', panggilan: 'Evelyn', kelas: 'Kelas 5A', tahunAjaran: '2026/2027', password: 'password123', gender: 'P' }
+    ];
+  }
+
+  if (action === 'simpanSiswa') {
+    return { success: true, message: 'Data siswa berhasil disimpan!' };
+  }
+
+  if (action === 'batchSimpanSiswa') {
+    const list = data?.siswaList || [];
+    return { success: true, message: `Berhasil mengimpor ${list.length} data siswa!`, inserted: list.length, updated: 0 };
+  }
+
+  if (action === 'hapusSiswa') {
+    return { success: true, message: 'Data siswa berhasil dihapus!' };
+  }
+
   if (action === 'getMonitoringKelas') {
     return {
       rows: [

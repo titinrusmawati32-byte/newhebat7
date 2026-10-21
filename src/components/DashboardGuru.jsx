@@ -48,24 +48,48 @@ export default function DashboardGuru({
   const [showStudentDetailModal, setShowStudentDetailModal] = useState(false);
   const [detailFilter, setDetailFilter] = useState('all'); // 'all' | 'done' | 'pending'
 
+  // Student Management & Excel Import States
+  const [showImportModal, setShowImportModal] = useState(false);
+  const [importParsedStudents, setImportParsedStudents] = useState([]);
+  const [isImporting, setIsImporting] = useState(false);
+  const [showAddEditModal, setShowAddEditModal] = useState(false);
+  const [isEditingStudent, setIsEditingStudent] = useState(false);
+  const [studentFormData, setStudentFormData] = useState({
+    id: '',
+    nama: '',
+    nisn: '',
+    username: '',
+    password: '',
+    kelas: selectedKelas,
+    gender: 'L',
+    panggilan: ''
+  });
+  const [showPasswordMap, setShowPasswordMap] = useState({});
+  const [studentSearchQuery, setStudentSearchQuery] = useState('');
+  const [lightboxImage, setLightboxImage] = useState({ open: false, url: '', title: '', subtitle: '', mission: '' });
+
   // Student Monitoring Data with Rich Mission & Quiz Details
   const [monitoringData, setMonitoringData] = useState([
     {
       id: 1,
       nisn: '0012345678',
       nama: 'Ahmad Farhan Pratama',
+      panggilan: 'Farhan',
+      username: 'farhan',
+      password: 'password123',
+      kelas: 'Kelas 5A',
       gender: 'L',
       completedCount: 6,
       percentage: 86,
       habits: { h1: true, h2: true, h3: true, h4: true, h5: true, h6: true, h7: false },
       statusVerif: 'Menunggu',
       detailMisi: {
-        1: { selesai: true, jam: '05:15 WIB', jawabanKuis: 'A', kuisBenar: true, nilaiKuis: 100, catatan: 'Bangun pagi pukul 05:00, langsung merapikan sprei dan bantal sendiri.' },
-        2: { selesai: true, jam: '05:30 WIB', jawabanKuis: 'A', kuisBenar: true, nilaiKuis: 100, catatan: 'Sholat Subuh berjamaah di musholla dan membaca doa pagi.' },
-        3: { selesai: true, jam: '06:05 WIB', jawabanKuis: 'A', kuisBenar: true, nilaiKuis: 100, catatan: 'Lari pagi santai 15 menit dan peregangan di halaman rumah.' },
-        4: { selesai: true, jam: '06:35 WIB', jawabanKuis: 'A', kuisBenar: true, nilaiKuis: 100, catatan: 'Sarapan nasi goreng telur dan sayur, membaca buku IPA 20 menit.' },
-        5: { selesai: true, jam: '16:00 WIB', jawabanKuis: 'A', kuisBenar: true, nilaiKuis: 100, catatan: 'Membantu ayah mencuci sepeda dan menyiram tanaman hias.' },
-        6: { selesai: true, jam: '17:20 WIB', jawabanKuis: 'A', kuisBenar: true, nilaiKuis: 100, catatan: 'Menabung sisa uang saku Rp 5.000 ke celengan ayam dan mematikan TV.' },
+        1: { selesai: true, jam: '05:15 WIB', jawabanKuis: 'B', kuisBenar: true, nilaiKuis: 100, catatan: 'Bangun pagi pukul 05:00 WIB. Kegiatan: Merapikan tempat tidur & melipat selimut, Minum segelas air putih hangat.', fotoBukti: 'https://images.unsplash.com/photo-1543269865-cbf427effbad?auto=format&fit=crop&w=600&q=80' },
+        2: { selesai: true, jam: '05:30 WIB', jawabanKuis: 'B', kuisBenar: true, nilaiKuis: 100, catatan: 'Sholat: Subuh (04:45 WIB), Dzuhur (12:15 WIB). Ibadah lainnya: Membaca Al-Qur\'an / Kitab Suci, Berdoa bersama keluarga.', fotoBukti: 'https://images.unsplash.com/photo-1506126613408-eca07ce68773?auto=format&fit=crop&w=600&q=80' },
+        3: { selesai: true, jam: '06:05 WIB', jawabanKuis: 'B', kuisBenar: true, nilaiKuis: 100, catatan: 'Durasi: 30 Menit. Olahraga: Senam ceria / peregangan otot, Jalan sehat pagi bersama keluarga.' },
+        4: { selesai: true, jam: '06:35 WIB', jawabanKuis: 'B', kuisBenar: true, nilaiKuis: 100, catatan: 'Belum Belajar: [IPA Tata Surya] (30 Menit). Aktivitas: Membaca buku literasi, Mengerjakan tugas & PR sekolah.' },
+        5: { selesai: true, jam: '16:00 WIB', jawabanKuis: 'B', kuisBenar: true, nilaiKuis: 100, catatan: 'Waktu: Sarapan Pagi. Menu & kebiasaan sehat: Makan sayur-sayuran hijau, Makan buah segar, Minum air putih 8 gelas.' },
+        6: { selesai: true, jam: '17:20 WIB', jawabanKuis: 'B', kuisBenar: true, nilaiKuis: 100, catatan: 'Bantuan di rumah: Menyapu & mengepel lantai rumah, Mencuci piring & gelas sehabis makan.' },
         7: { selesai: false, jam: '-', jawabanKuis: '-', kuisBenar: false, nilaiKuis: 0, catatan: 'Belum mengisi jurnal tidur malam.' }
       }
     },
@@ -73,37 +97,45 @@ export default function DashboardGuru({
       id: 2,
       nisn: '0012345679',
       nama: 'Annisa Zahra Kirana',
+      panggilan: 'Zahra',
+      username: 'zahra',
+      password: 'password123',
+      kelas: 'Kelas 5A',
       gender: 'P',
       completedCount: 7,
       percentage: 100,
       habits: { h1: true, h2: true, h3: true, h4: true, h5: true, h6: true, h7: true },
       statusVerif: 'Disetujui',
       detailMisi: {
-        1: { selesai: true, jam: '05:00 WIB', jawabanKuis: 'A', kuisBenar: true, nilaiKuis: 100, catatan: 'Bangun tepat waktu, merapikan selimut dan membuka jendela kamar.' },
-        2: { selesai: true, jam: '05:25 WIB', jawabanKuis: 'A', kuisBenar: true, nilaiKuis: 100, catatan: 'Sholat Subuh tepat waktu dan tadarus Al-Quran 1 lembar.' },
-        3: { selesai: true, jam: '06:00 WIB', jawabanKuis: 'A', kuisBenar: true, nilaiKuis: 100, catatan: 'Senam SKJ ceria bersama adik di teras.' },
-        4: { selesai: true, jam: '06:30 WIB', jawabanKuis: 'A', kuisBenar: true, nilaiKuis: 100, catatan: 'Makan buah pisang dan roti gandum, mengulang hafalan kosa kata.' },
-        5: { selesai: true, jam: '15:30 WIB', jawabanKuis: 'A', kuisBenar: true, nilaiKuis: 100, catatan: 'Membantu ibu merapikan piring makan dan mencuci gelas.' },
-        6: { selesai: true, jam: '17:00 WIB', jawabanKuis: 'A', kuisBenar: true, nilaiKuis: 100, catatan: 'Menabung uang kembalian belanja Rp 4.000 dan mematikan AC.' },
-        7: { selesai: true, jam: '20:45 WIB', jawabanKuis: 'A', kuisBenar: true, nilaiKuis: 100, catatan: 'Sikat gigi, cuci muka, berdoa dan tidur pukul 20:45.' }
+        1: { selesai: true, jam: '05:00 WIB', jawabanKuis: 'B', kuisBenar: true, nilaiKuis: 100, catatan: 'Bangun pukul 05:00 WIB. Kegiatan: Merapikan tempat tidur, Membuka jendela kamar.', fotoBukti: 'https://images.unsplash.com/photo-1517486808906-6ca8b3f04846?auto=format&fit=crop&w=600&q=80' },
+        2: { selesai: true, jam: '05:25 WIB', jawabanKuis: 'B', kuisBenar: true, nilaiKuis: 100, catatan: 'Sholat: Subuh (04:45 WIB), Dzuhur (12:15 WIB), Ashar (15:30 WIB). Ibadah: Tadarus Al-Qur\'an.' },
+        3: { selesai: true, jam: '06:00 WIB', jawabanKuis: 'B', kuisBenar: true, nilaiKuis: 100, catatan: 'Durasi: 30 Menit. Olahraga: Senam SKJ ceria bersama adik di teras.' },
+        4: { selesai: true, jam: '06:30 WIB', jawabanKuis: 'B', kuisBenar: true, nilaiKuis: 100, catatan: 'Belajar: [Bahasa Indonesia] (30 Menit). Aktivitas: Membaca buku dongeng & kosa kata.' },
+        5: { selesai: true, jam: '15:30 WIB', jawabanKuis: 'B', kuisBenar: true, nilaiKuis: 100, catatan: 'Waktu: Sarapan Pagi. Menu sehat: Makan sayur bayam, telur rebus, buah pisang.' },
+        6: { selesai: true, jam: '17:00 WIB', jawabanKuis: 'B', kuisBenar: true, nilaiKuis: 100, catatan: 'Bantuan di rumah: Mencuci piring & gelas sehabis makan, Menyiram tanaman.' },
+        7: { selesai: true, jam: '20:45 WIB', jawabanKuis: 'B', kuisBenar: true, nilaiKuis: 100, catatan: 'Target tidur pukul 20:45 WIB. Persiapan: Menggosok gigi, Mematikan HP, Berdoa.' }
       }
     },
     {
       id: 3,
       nisn: '0012345680',
       nama: 'Bima Sakti Wicaksono',
+      panggilan: 'Bima',
+      username: 'bima',
+      password: 'password123',
+      kelas: 'Kelas 5A',
       gender: 'L',
       completedCount: 4,
       percentage: 57,
       habits: { h1: true, h2: true, h3: false, h4: true, h5: true, h6: false, h7: false },
       statusVerif: 'Menunggu',
       detailMisi: {
-        1: { selesai: true, jam: '05:20 WIB', jawabanKuis: 'A', kuisBenar: true, nilaiKuis: 100, catatan: 'Bangun pagi dan langsung merapikan tempat tidur.' },
-        2: { selesai: true, jam: '05:40 WIB', jawabanKuis: 'A', kuisBenar: true, nilaiKuis: 100, catatan: 'Berdoa dan beribadah sebelum berangkat sekolah.' },
+        1: { selesai: true, jam: '05:20 WIB', jawabanKuis: 'B', kuisBenar: true, nilaiKuis: 100, catatan: 'Bangun pagi dan langsung merapikan tempat tidur.' },
+        2: { selesai: true, jam: '05:40 WIB', jawabanKuis: 'B', kuisBenar: true, nilaiKuis: 100, catatan: 'Berdoa dan beribadah sebelum berangkat sekolah.' },
         3: { selesai: false, jam: '-', jawabanKuis: '-', kuisBenar: false, nilaiKuis: 0, catatan: 'Hari ini tidak sempat olahraga pagi.' },
-        4: { selesai: true, jam: '06:45 WIB', jawabanKuis: 'A', kuisBenar: true, nilaiKuis: 100, catatan: 'Sarapan bersama keluarga dan membaca rangkuman PKn.' },
-        5: { selesai: true, jam: '16:30 WIB', jawabanKuis: 'A', kuisBenar: true, nilaiKuis: 100, catatan: 'Membantu membersihkan kandang kucing peliharaan.' },
-        6: { selesai: false, jam: '-', jawabanKuis: '-', kuisBenar: false, nilaiKuis: 0, catatan: 'Belum menabung hari ini.' },
+        4: { selesai: true, jam: '06:45 WIB', jawabanKuis: 'B', kuisBenar: true, nilaiKuis: 100, catatan: 'Sarapan bersama keluarga dan membaca rangkuman PKn.' },
+        5: { selesai: true, jam: '16:30 WIB', jawabanKuis: 'B', kuisBenar: true, nilaiKuis: 100, catatan: 'Makan sayur & buah-buahan segar.' },
+        6: { selesai: false, jam: '-', jawabanKuis: '-', kuisBenar: false, nilaiKuis: 0, catatan: 'Belum membantu orang tua hari ini.' },
         7: { selesai: false, jam: '-', jawabanKuis: '-', kuisBenar: false, nilaiKuis: 0, catatan: 'Belum mengisi jam tidur malam.' }
       }
     },
@@ -111,37 +143,45 @@ export default function DashboardGuru({
       id: 4,
       nisn: '0012345681',
       nama: 'Cantika Putri Lestari',
+      panggilan: 'Cantika',
+      username: 'cantika',
+      password: 'password123',
+      kelas: 'Kelas 5A',
       gender: 'P',
       completedCount: 7,
       percentage: 100,
       habits: { h1: true, h2: true, h3: true, h4: true, h5: true, h6: true, h7: true },
       statusVerif: 'Disetujui',
       detailMisi: {
-        1: { selesai: true, jam: '04:55 WIB', jawabanKuis: 'A', kuisBenar: true, nilaiKuis: 100, catatan: 'Bangun jam 04:55, merapikan sprei dan bantal boneka.' },
-        2: { selesai: true, jam: '05:15 WIB', jawabanKuis: 'A', kuisBenar: true, nilaiKuis: 100, catatan: 'Ibadah subuh tepat waktu dan hafalan surat pendek.' },
-        3: { selesai: true, jam: '06:00 WIB', jawabanKuis: 'A', kuisBenar: true, nilaiKuis: 100, catatan: 'Lompat tali 10 menit di halaman depan.' },
-        4: { selesai: true, jam: '06:30 WIB', jawabanKuis: 'A', kuisBenar: true, nilaiKuis: 100, catatan: 'Sarapan oatmeal dan pisang, membaca buku cerita.' },
-        5: { selesai: true, jam: '16:15 WIB', jawabanKuis: 'A', kuisBenar: true, nilaiKuis: 100, catatan: 'Membantu ibu menyiapkan bumbu masak di dapur.' },
-        6: { selesai: true, jam: '17:30 WIB', jawabanKuis: 'A', kuisBenar: true, nilaiKuis: 100, catatan: 'Menyisihkan uang jajan Rp 2.500 ke kaleng tabungan.' },
-        7: { selesai: true, jam: '20:50 WIB', jawabanKuis: 'A', kuisBenar: true, nilaiKuis: 100, catatan: 'Tidur cepat pukul 20:50 setelah minum air putih.' }
+        1: { selesai: true, jam: '04:55 WIB', jawabanKuis: 'B', kuisBenar: true, nilaiKuis: 100, catatan: 'Bangun jam 04:55, merapikan sprei dan bantal boneka.' },
+        2: { selesai: true, jam: '05:15 WIB', jawabanKuis: 'B', kuisBenar: true, nilaiKuis: 100, catatan: 'Ibadah subuh tepat waktu dan hafalan surat pendek.' },
+        3: { selesai: true, jam: '06:00 WIB', jawabanKuis: 'B', kuisBenar: true, nilaiKuis: 100, catatan: 'Lompat tali 10 menit di halaman depan.' },
+        4: { selesai: true, jam: '06:30 WIB', jawabanKuis: 'B', kuisBenar: true, nilaiKuis: 100, catatan: 'Sarapan oatmeal dan pisang, membaca buku cerita.' },
+        5: { selesai: true, jam: '16:15 WIB', jawabanKuis: 'B', kuisBenar: true, nilaiKuis: 100, catatan: 'Membantu ibu menyiapkan bumbu masak di dapur.' },
+        6: { selesai: true, jam: '17:30 WIB', jawabanKuis: 'B', kuisBenar: true, nilaiKuis: 100, catatan: 'Merapikan meja makan dan mencuci sendok piring.' },
+        7: { selesai: true, jam: '20:50 WIB', jawabanKuis: 'B', kuisBenar: true, nilaiKuis: 100, catatan: 'Tidur cepat pukul 20:50 setelah minum air putih.' }
       }
     },
     {
       id: 5,
       nisn: '0012345682',
       nama: 'Dimas Arya Raditya',
+      panggilan: 'Dimas',
+      username: 'dimas',
+      password: 'password123',
+      kelas: 'Kelas 5A',
       gender: 'L',
       completedCount: 5,
       percentage: 71,
       habits: { h1: true, h2: true, h3: true, h4: true, h5: false, h6: true, h7: false },
       statusVerif: 'Menunggu',
       detailMisi: {
-        1: { selesai: true, jam: '05:10 WIB', jawabanKuis: 'A', kuisBenar: true, nilaiKuis: 100, catatan: 'Bangun pagi dan membersihkan kamar.' },
-        2: { selesai: true, jam: '05:30 WIB', jawabanKuis: 'A', kuisBenar: true, nilaiKuis: 100, catatan: 'Beribadah tepat waktu dan bersiap sekolah.' },
-        3: { selesai: true, jam: '06:10 WIB', jawabanKuis: 'A', kuisBenar: true, nilaiKuis: 100, catatan: 'Push-up 10 kali dan peregangan tubuh.' },
-        4: { selesai: true, jam: '06:40 WIB', jawabanKuis: 'A', kuisBenar: true, nilaiKuis: 100, catatan: 'Makan roti telur dan susu cokelat, belajar matematika.' },
-        5: { selesai: false, jam: '-', jawabanKuis: '-', kuisBenar: false, nilaiKuis: 0, catatan: 'Belum mengisi kegiatan membantu orang tua.' },
-        6: { selesai: true, jam: '17:00 WIB', jawabanKuis: 'A', kuisBenar: true, nilaiKuis: 100, catatan: 'Menabung Rp 5.000 ke rekening tabungan cilik.' },
+        1: { selesai: true, jam: '05:10 WIB', jawabanKuis: 'B', kuisBenar: true, nilaiKuis: 100, catatan: 'Bangun pagi dan membersihkan kamar.' },
+        2: { selesai: true, jam: '05:30 WIB', jawabanKuis: 'B', kuisBenar: true, nilaiKuis: 100, catatan: 'Beribadah tepat waktu dan bersiap sekolah.' },
+        3: { selesai: true, jam: '06:10 WIB', jawabanKuis: 'B', kuisBenar: true, nilaiKuis: 100, catatan: 'Push-up 10 kali dan peregangan tubuh.' },
+        4: { selesai: true, jam: '06:40 WIB', jawabanKuis: 'B', kuisBenar: true, nilaiKuis: 100, catatan: 'Makan roti telur dan susu cokelat, belajar matematika.' },
+        5: { selesai: false, jam: '-', jawabanKuis: '-', kuisBenar: false, nilaiKuis: 0, catatan: 'Belum mengisi kegiatan makan sehat.' },
+        6: { selesai: true, jam: '17:00 WIB', jawabanKuis: 'B', kuisBenar: true, nilaiKuis: 100, catatan: 'Menyapu halaman rumah dan membuang sampah.' },
         7: { selesai: false, jam: '-', jawabanKuis: '-', kuisBenar: false, nilaiKuis: 0, catatan: 'Belum tidur saat jurnal dibuat.' }
       }
     },
@@ -149,19 +189,23 @@ export default function DashboardGuru({
       id: 6,
       nisn: '0012345683',
       nama: 'Evelyn Nathania',
+      panggilan: 'Evelyn',
+      username: 'evelyn',
+      password: 'password123',
+      kelas: 'Kelas 5A',
       gender: 'P',
       completedCount: 6,
       percentage: 86,
       habits: { h1: true, h2: true, h3: true, h4: true, h5: true, h6: false, h7: true },
       statusVerif: 'Disetujui',
       detailMisi: {
-        1: { selesai: true, jam: '05:05 WIB', jawabanKuis: 'A', kuisBenar: true, nilaiKuis: 100, catatan: 'Bangun tidur dan langsung menata sprei ranjang.' },
-        2: { selesai: true, jam: '05:20 WIB', jawabanKuis: 'A', kuisBenar: true, nilaiKuis: 100, catatan: 'Berdoa pagi dan membaca kitab suci bersama keluarga.' },
-        3: { selesai: true, jam: '06:00 WIB', jawabanKuis: 'A', kuisBenar: true, nilaiKuis: 100, catatan: 'Jalan santai mengelilingi komplek 15 menit.' },
-        4: { selesai: true, jam: '06:30 WIB', jawabanKuis: 'A', kuisBenar: true, nilaiKuis: 100, catatan: 'Sarapan salad buah dan telur rebus, belajar bahasa inggris.' },
-        5: { selesai: true, jam: '16:00 WIB', jawabanKuis: 'A', kuisBenar: true, nilaiKuis: 100, catatan: 'Membantu melipat pakaian yang sudah kering.' },
-        6: { selesai: false, jam: '-', jawabanKuis: '-', kuisBenar: false, nilaiKuis: 0, catatan: 'Belum menabung hari ini.' },
-        7: { selesai: true, jam: '20:55 WIB', jawabanKuis: 'A', kuisBenar: true, nilaiKuis: 100, catatan: 'Tidur cepat pukul 20:55.' }
+        1: { selesai: true, jam: '05:05 WIB', jawabanKuis: 'B', kuisBenar: true, nilaiKuis: 100, catatan: 'Bangun tidur dan langsung menata sprei ranjang.' },
+        2: { selesai: true, jam: '05:20 WIB', jawabanKuis: 'B', kuisBenar: true, nilaiKuis: 100, catatan: 'Berdoa pagi dan membaca kitab suci bersama keluarga.' },
+        3: { selesai: true, jam: '06:00 WIB', jawabanKuis: 'B', kuisBenar: true, nilaiKuis: 100, catatan: 'Jalan santai mengelilingi komplek 15 menit.' },
+        4: { selesai: true, jam: '06:30 WIB', jawabanKuis: 'B', kuisBenar: true, nilaiKuis: 100, catatan: 'Sarapan salad buah dan telur rebus, belajar bahasa inggris.' },
+        5: { selesai: true, jam: '16:00 WIB', jawabanKuis: 'B', kuisBenar: true, nilaiKuis: 100, catatan: 'Membantu melipat pakaian yang sudah kering.' },
+        6: { selesai: false, jam: '-', jawabanKuis: '-', kuisBenar: false, nilaiKuis: 0, catatan: 'Belum mencatat bantuan hari ini.' },
+        7: { selesai: true, jam: '20:55 WIB', jawabanKuis: 'B', kuisBenar: true, nilaiKuis: 100, catatan: 'Tidur cepat pukul 20:55.' }
       }
     }
   ]);
@@ -250,6 +294,311 @@ export default function DashboardGuru({
     setSelectedStudent(student);
     setDetailFilter('all');
     setShowStudentDetailModal(true);
+  };
+
+  // Open Lightbox Photo Modal
+  const handleOpenPhotoLightbox = (url, title, subtitle, mission) => {
+    if (!url) return;
+    setLightboxImage({
+      open: true,
+      url,
+      title: title || 'Bukti Foto Kegiatan Siswa',
+      subtitle: subtitle || `${selectedStudent?.nama || 'Siswa'} • ${selectedKelas}`,
+      mission: mission || ''
+    });
+  };
+
+  // 1. Download Template Excel (.xlsx / .csv)
+  const handleDownloadTemplateExcel = () => {
+    if (typeof window !== 'undefined' && window.XLSX) {
+      try {
+        const wsData = [
+          ['Nama Lengkap', 'NISN', 'Username', 'Password', 'Kelas', 'Jenis Kelamin (L/P)', 'Panggilan'],
+          ['Ahmad Farhan Pratama', '0012345678', 'farhan', '123456', selectedKelas || 'Kelas 5A', 'L', 'Farhan'],
+          ['Annisa Zahra Kirana', '0012345679', 'zahra', '123456', selectedKelas || 'Kelas 5A', 'P', 'Zahra'],
+          ['Bima Sakti Wicaksono', '0012345680', 'bima', '123456', selectedKelas || 'Kelas 5A', 'L', 'Bima'],
+          ['Cantika Putri Lestari', '0012345681', 'cantika', '123456', selectedKelas || 'Kelas 5A', 'P', 'Cantika'],
+          ['Dimas Arya Raditya', '0012345682', 'dimas', '123456', selectedKelas || 'Kelas 5A', 'L', 'Dimas']
+        ];
+        const ws = window.XLSX.utils.aoa_to_sheet(wsData);
+        ws['!cols'] = [
+          { wch: 25 },
+          { wch: 15 },
+          { wch: 15 },
+          { wch: 15 },
+          { wch: 12 },
+          { wch: 20 },
+          { wch: 15 }
+        ];
+        const wb = window.XLSX.utils.book_new();
+        window.XLSX.utils.book_append_sheet(wb, ws, 'Template Siswa');
+        window.XLSX.writeFile(wb, 'Template_Impor_Siswa_7Kebiasaan.xlsx');
+        showToast('Template Excel (.xlsx) berhasil diunduh! 📥', 'success');
+        return;
+      } catch (e) {
+        console.warn('XLSX export fallback to CSV:', e);
+      }
+    }
+
+    // Fallback CSV (UTF-8 BOM untuk Excel)
+    const csvContent = '\uFEFF' + [
+      'Nama Lengkap,NISN,Username,Password,Kelas,Jenis Kelamin (L/P),Panggilan',
+      `Ahmad Farhan Pratama,0012345678,farhan,123456,${selectedKelas || 'Kelas 5A'},L,Farhan`,
+      `Annisa Zahra Kirana,0012345679,zahra,123456,${selectedKelas || 'Kelas 5A'},P,Zahra`,
+      `Bima Sakti Wicaksono,0012345680,bima,123456,${selectedKelas || 'Kelas 5A'},L,Bima`,
+      `Cantika Putri Lestari,0012345681,cantika,123456,${selectedKelas || 'Kelas 5A'},P,Cantika`,
+      `Dimas Arya Raditya,0012345682,dimas,123456,${selectedKelas || 'Kelas 5A'},L,Dimas`
+    ].join('\r\n');
+
+    const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.setAttribute('href', url);
+    link.setAttribute('download', 'Template_Impor_Siswa_7Kebiasaan.csv');
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    showToast('Template CSV (Excel) berhasil diunduh! 📥', 'success');
+  };
+
+  // Helper pembersih data baris dari Excel/CSV
+  const normalizeParsedRows = (rawRows) => {
+    return rawRows.map((row, idx) => {
+      const keys = Object.keys(row);
+      const findVal = (...targets) => {
+        for (const t of targets) {
+          const k = keys.find(key => key.toLowerCase().replace(/[^a-z0-9]/g, '').includes(t));
+          if (k && row[k] !== undefined && row[k] !== '') return String(row[k]).trim();
+        }
+        return '';
+      };
+
+      const nama = findVal('nama', 'name') || `Siswa ${idx + 1}`;
+      const nisn = findVal('nisn', 'nomorinduk', 'nis') || `0012345${100 + idx}`;
+      const username = findVal('username', 'user', 'akun') || nisn;
+      const password = findVal('password', 'sandi', 'pass') || '123456';
+      const kelas = findVal('kelas', 'class') || selectedKelas;
+      let gender = findVal('gender', 'jeniskelamin', 'jk', 'lp').toUpperCase();
+      if (!['L', 'P'].includes(gender)) gender = 'L';
+      const panggilan = findVal('panggilan', 'nick') || nama.split(' ')[0];
+
+      return {
+        id: `S-${Date.now()}-${idx}`,
+        nisn,
+        nama,
+        username,
+        password,
+        kelas,
+        gender,
+        panggilan
+      };
+    }).filter(s => s.nama.trim() !== '' && s.nisn.trim() !== '');
+  };
+
+  // 2. Upload Handler (.xlsx, .xls, .csv)
+  const handleFileUploadExcel = (e) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    const reader = new FileReader();
+
+    if (typeof window !== 'undefined' && window.XLSX && !file.name.endsWith('.csv')) {
+      reader.onload = (evt) => {
+        try {
+          const data = evt.target.result;
+          const workbook = window.XLSX.read(data, { type: 'binary' });
+          const firstSheetName = workbook.SheetNames[0];
+          const worksheet = workbook.Sheets[firstSheetName];
+          const jsonRows = window.XLSX.utils.sheet_to_json(worksheet, { defval: '' });
+
+          const parsed = normalizeParsedRows(jsonRows);
+          if (parsed.length === 0) {
+            showToast('File Excel tidak berisi data siswa yang valid.', 'error');
+            return;
+          }
+          setImportParsedStudents(parsed);
+          setShowImportModal(true);
+          showToast(`${parsed.length} data siswa berhasil dibaca dari Excel!`, 'success');
+        } catch (err) {
+          console.error(err);
+          showToast('Gagal membaca file Excel: ' + err.message, 'error');
+        }
+      };
+      reader.readAsBinaryString(file);
+    } else {
+      // CSV Reader fallback
+      reader.onload = (evt) => {
+        try {
+          const text = evt.target.result;
+          const lines = text.split(/\r?\n/).filter(line => line.trim() !== '');
+          if (lines.length < 2) {
+            showToast('File CSV tidak memiliki data.', 'error');
+            return;
+          }
+          const headers = lines[0].split(',').map(h => h.trim().toLowerCase().replace(/[^a-z0-9]/g, ''));
+          const jsonRows = [];
+          for (let i = 1; i < lines.length; i++) {
+            const cells = lines[i].split(',').map(c => c.trim().replace(/^["']|["']$/g, ''));
+            const rowObj = {};
+            headers.forEach((h, idx) => {
+              rowObj[h] = cells[idx] || '';
+            });
+            jsonRows.push(rowObj);
+          }
+          const parsed = normalizeParsedRows(jsonRows);
+          if (parsed.length === 0) {
+            showToast('Data siswa tidak ditemukan di file CSV.', 'error');
+            return;
+          }
+          setImportParsedStudents(parsed);
+          setShowImportModal(true);
+          showToast(`${parsed.length} data siswa terbaca dari CSV!`, 'success');
+        } catch (err) {
+          console.error(err);
+          showToast('Gagal memproses file: ' + err.message, 'error');
+        }
+      };
+      reader.readAsText(file);
+    }
+
+    e.target.value = '';
+  };
+
+  // 3. Konfirmasi Impor Siswa Massal ke Database
+  const handleConfirmImport = async () => {
+    if (importParsedStudents.length === 0) return;
+    setIsImporting(true);
+
+    try {
+      await callApi('batchSimpanSiswa', { siswaList: importParsedStudents });
+
+      setMonitoringData(prev => {
+        const updated = [...prev];
+        importParsedStudents.forEach(item => {
+          const existingIdx = updated.findIndex(s => s.nisn === item.nisn);
+          const studentObj = {
+            id: item.id || Date.now(),
+            nisn: item.nisn,
+            nama: item.nama,
+            panggilan: item.panggilan || item.nama.split(' ')[0],
+            username: item.username || item.nisn,
+            password: item.password || '123456',
+            kelas: item.kelas || selectedKelas,
+            gender: item.gender || 'L',
+            completedCount: 0,
+            percentage: 0,
+            habits: { h1: false, h2: false, h3: false, h4: false, h5: false, h6: false, h7: false },
+            statusVerif: 'Menunggu',
+            detailMisi: {}
+          };
+          if (existingIdx >= 0) {
+            updated[existingIdx] = { ...updated[existingIdx], ...studentObj };
+          } else {
+            updated.push(studentObj);
+          }
+        });
+        return updated;
+      });
+
+      showToast(`Berhasil mengimpor ${importParsedStudents.length} siswa ke database! 🎉`, 'success');
+      setShowImportModal(false);
+      setImportParsedStudents([]);
+    } catch (e) {
+      console.warn(e);
+      showToast('Gagal menyimpan impor: ' + e.message, 'error');
+    }
+    setIsImporting(false);
+  };
+
+  // 4. Modal Tambah / Edit Siswa Manual
+  const handleOpenAddModal = () => {
+    setIsEditingStudent(false);
+    setStudentFormData({
+      id: '',
+      nama: '',
+      nisn: '',
+      username: '',
+      password: 'password123',
+      kelas: selectedKelas,
+      gender: 'L',
+      panggilan: ''
+    });
+    setShowAddEditModal(true);
+  };
+
+  const handleOpenEditModal = (student) => {
+    setIsEditingStudent(true);
+    setStudentFormData({
+      id: student.id,
+      nama: student.nama,
+      nisn: student.nisn,
+      username: student.username || student.nisn,
+      password: student.password || 'password123',
+      kelas: student.kelas || selectedKelas,
+      gender: student.gender || 'L',
+      panggilan: student.panggilan || student.nama.split(' ')[0]
+    });
+    setShowAddEditModal(true);
+  };
+
+  const handleSaveStudentForm = async () => {
+    if (!studentFormData.nama.trim() || !studentFormData.nisn.trim()) {
+      showToast('Nama Lengkap dan NISN wajib diisi!', 'error');
+      return;
+    }
+
+    const payload = {
+      ...studentFormData,
+      id: studentFormData.id || `S-${Date.now()}`,
+      username: studentFormData.username.trim() || studentFormData.nisn.trim(),
+      password: studentFormData.password.trim() || 'password123'
+    };
+
+    try {
+      await callApi('simpanSiswa', { payload });
+      setMonitoringData(prev => {
+        if (isEditingStudent) {
+          return prev.map(s => s.id === payload.id || s.nisn === payload.nisn ? { ...s, ...payload } : s);
+        } else {
+          return [
+            ...prev,
+            {
+              ...payload,
+              completedCount: 0,
+              percentage: 0,
+              habits: { h1: false, h2: false, h3: false, h4: false, h5: false, h6: false, h7: false },
+              statusVerif: 'Menunggu',
+              detailMisi: {}
+            }
+          ];
+        }
+      });
+      showToast(`Data siswa ${payload.nama} berhasil disimpan!`, 'success');
+      setShowAddEditModal(false);
+    } catch (e) {
+      console.warn(e);
+      showToast('Gagal menyimpan siswa: ' + e.message, 'error');
+    }
+  };
+
+  const handleDeleteStudent = async (id, nama) => {
+    if (window.confirm(`Yakin ingin menghapus siswa "${nama}" dari sistem?`)) {
+      try {
+        await callApi('hapusSiswa', { idOrNisn: id });
+        setMonitoringData(prev => prev.filter(s => s.id !== id));
+        showToast(`Siswa "${nama}" berhasil dihapus.`, 'info');
+      } catch (e) {
+        console.warn(e);
+        showToast('Gagal menghapus siswa: ' + e.message, 'error');
+      }
+    }
+  };
+
+  const togglePasswordVisibility = (nisn) => {
+    setShowPasswordMap(prev => ({
+      ...prev,
+      [nisn]: !prev[nisn]
+    }));
   };
 
   return (
@@ -965,28 +1314,101 @@ export default function DashboardGuru({
           )}
 
           {/* ============================================================== */}
-          {/* VIEW: KELOLA SISWA */}
+          {/* VIEW: KELOLA SISWA (LENGKAP IMPOR EXCEL & KELOLA AKUN)         */}
           {/* ============================================================== */}
           {activeMenu === 'siswa' && (
-            <div className="space-y-6">
-              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 p-5 rounded-3xl bg-white border border-slate-200/80 shadow-xs">
+            <div className="space-y-6 animate-fadeIn">
+              {/* Header Card with Actions */}
+              <div className="p-5 sm:p-6 rounded-3xl bg-white border border-slate-200/80 shadow-xs flex flex-col md:flex-row md:items-center justify-between gap-4">
                 <div>
-                  <h2 className="text-xl font-black text-slate-900">Daftar Siswa {selectedKelas}</h2>
-                  <p className="text-xs text-slate-500 font-medium">Total 32 siswa terdaftar dalam sistem LMS.</p>
+                  <div className="flex items-center gap-2">
+                    <span className="px-2.5 py-0.5 rounded-full text-[10px] font-black uppercase tracking-wider bg-blue-100 text-blue-700">
+                      {selectedKelas}
+                    </span>
+                    <span className="text-xs text-slate-400 font-bold">• {monitoringData.length} Siswa Terdaftar</span>
+                  </div>
+                  <h2 className="text-xl sm:text-2xl font-black text-slate-900 mt-1">Kelola Data Siswa</h2>
+                  <p className="text-xs text-slate-500 font-medium">
+                    Unduh template Excel, impor data siswa massal, atau kelola akun login siswa.
+                  </p>
                 </div>
-                <div className="flex items-center gap-2">
+
+                <div className="flex flex-wrap items-center gap-2">
+                  {/* Hidden File Input for Excel/CSV */}
+                  <input
+                    type="file"
+                    id="excelUploadInput"
+                    accept=".xlsx, .xls, .csv"
+                    onChange={handleFileUploadExcel}
+                    className="hidden"
+                  />
+
+                  {/* Download Template Excel Button */}
                   <button
-                    onClick={() => showToast('Fitur impor Excel telah siap!', 'info')}
-                    className="px-3 py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-xl text-xs font-bold transition flex items-center gap-1.5"
+                    type="button"
+                    onClick={handleDownloadTemplateExcel}
+                    className="px-3.5 py-2.5 bg-emerald-50 hover:bg-emerald-100 text-emerald-700 rounded-xl text-xs font-bold transition border border-emerald-200 flex items-center gap-2 active:scale-95 shadow-xs"
+                    title="Unduh format template Excel untuk diisi"
                   >
-                    <i className="fa-solid fa-file-excel text-emerald-600"></i> Impor Siswa
+                    <i className="fa-solid fa-file-excel text-emerald-600 text-sm"></i>
+                    <span>Template Excel</span>
                   </button>
+
+                  {/* Upload / Impor Excel Button */}
+                  <label
+                    htmlFor="excelUploadInput"
+                    className="px-3.5 py-2.5 bg-amber-500 hover:bg-amber-600 text-white rounded-xl text-xs font-bold transition flex items-center gap-2 cursor-pointer active:scale-95 shadow-md shadow-amber-500/20"
+                    title="Upload file Excel yang sudah diisi"
+                  >
+                    <i className="fa-solid fa-cloud-arrow-up text-sm"></i>
+                    <span>Impor Siswa Excel</span>
+                  </label>
+
+                  {/* Tambah Siswa Manual Button */}
                   <button
-                    onClick={() => showToast('Fitur tambah siswa aktif!', 'info')}
-                    className="px-3.5 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-xl text-xs font-bold transition shadow-md shadow-blue-500/20 flex items-center gap-1.5"
+                    type="button"
+                    onClick={handleOpenAddModal}
+                    className="px-3.5 py-2.5 bg-blue-600 hover:bg-blue-700 text-white rounded-xl text-xs font-bold transition shadow-md shadow-blue-500/20 flex items-center gap-2 active:scale-95"
                   >
-                    <i className="fa-solid fa-user-plus"></i> Tambah Siswa
+                    <i className="fa-solid fa-user-plus text-sm"></i>
+                    <span>Tambah Siswa</span>
                   </button>
+                </div>
+              </div>
+
+              {/* Search & Filter Bar */}
+              <div className="p-4 rounded-2xl bg-white border border-slate-200/80 shadow-xs flex flex-col sm:flex-row items-center justify-between gap-3">
+                <div className="relative w-full sm:w-80">
+                  <i className="fa-solid fa-magnifying-glass absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400 text-xs"></i>
+                  <input
+                    type="text"
+                    value={studentSearchQuery}
+                    onChange={(e) => setStudentSearchQuery(e.target.value)}
+                    placeholder="Cari nama, NISN, atau username..."
+                    className="w-full pl-9 pr-3.5 py-2 rounded-xl border border-slate-200 text-xs font-medium focus:outline-none focus:border-blue-500 bg-slate-50/50"
+                  />
+                  {studentSearchQuery && (
+                    <button
+                      onClick={() => setStudentSearchQuery('')}
+                      className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 text-xs"
+                    >
+                      &times;
+                    </button>
+                  )}
+                </div>
+
+                <div className="flex items-center gap-2 w-full sm:w-auto justify-end text-xs font-bold text-slate-500">
+                  <span>Filter:</span>
+                  <select
+                    value={selectedKelas}
+                    onChange={(e) => setSelectedKelas(e.target.value)}
+                    className="px-3 py-1.5 rounded-xl border border-slate-200 text-xs font-bold text-slate-700 bg-white"
+                  >
+                    <option value="Kelas 5A">Kelas 5A</option>
+                    <option value="Kelas 5B">Kelas 5B</option>
+                    <option value="Kelas 6A">Kelas 6A</option>
+                    <option value="Kelas 4">Kelas 4</option>
+                  </select>
                 </div>
               </div>
 
@@ -996,65 +1418,142 @@ export default function DashboardGuru({
                   <table className="w-full text-left border-collapse">
                     <thead>
                       <tr className="bg-slate-50 border-b border-slate-200/80 text-[11px] font-bold text-slate-500 uppercase tracking-wider">
-                        <th className="py-3.5 px-4">No</th>
+                        <th className="py-3.5 px-4 text-center">No</th>
                         <th className="py-3.5 px-4">NISN</th>
-                        <th className="py-3.5 px-4">Nama Lengkap</th>
-                        <th className="py-3.5 px-4 text-center">L/P</th>
+                        <th className="py-3.5 px-4">Nama Lengkap Siswa</th>
+                        <th className="py-3.5 px-4">Akun Login (Username & Password)</th>
+                        <th className="py-3.5 px-3 text-center">L/P</th>
                         <th className="py-3.5 px-4 text-center">Misi Selesai</th>
-                        <th className="py-3.5 px-4 text-center">Status</th>
+                        <th className="py-3.5 px-3 text-center">Status</th>
                         <th className="py-3.5 px-4 text-center">Aksi</th>
                       </tr>
                     </thead>
                     <tbody className="divide-y divide-slate-100 text-xs">
-                      {monitoringData.map((s, idx) => (
-                        <tr key={s.id} className="hover:bg-slate-50/80 transition">
-                          <td className="py-3.5 px-4 font-bold text-slate-400">{idx + 1}</td>
-                          <td className="py-3.5 px-4 font-mono text-slate-600">{s.nisn}</td>
-                          <td className="py-3.5 px-4 font-bold text-slate-800">
-                            <button
-                              onClick={() => handleOpenStudentDetail(s)}
-                              className="text-left font-bold text-slate-800 hover:text-blue-600 transition flex items-center gap-2 group cursor-pointer"
-                            >
-                              <span className="w-6 h-6 rounded-full bg-blue-100 text-blue-700 font-bold flex items-center justify-center text-[10px] group-hover:bg-blue-600 group-hover:text-white transition">
-                                {s.nama.charAt(0)}
-                              </span>
-                              <span className="group-hover:underline">{s.nama}</span>
-                            </button>
-                          </td>
-                          <td className="py-3.5 px-4 text-center">
-                            <span className={`inline-block px-2 py-0.5 rounded-md font-bold text-[10px] ${s.gender === 'L' ? 'bg-blue-50 text-blue-600' : 'bg-pink-50 text-pink-600'}`}>
-                              {s.gender}
-                            </span>
-                          </td>
-                          <td className="py-3.5 px-4 text-center">
-                            <span className="font-bold text-slate-700">{s.completedCount}/7</span>
-                            <div className="w-16 h-1.5 bg-slate-200 rounded-full mx-auto mt-1 overflow-hidden">
-                              <div
-                                className="h-full bg-emerald-500 rounded-full"
-                                style={{ width: `${s.percentage}%` }}
-                              ></div>
-                            </div>
-                          </td>
-                          <td className="py-3.5 px-4 text-center">
-                            <span className={`px-2 py-0.5 rounded-full text-[10px] font-black ${
-                              s.statusVerif === 'Disetujui' ? 'bg-emerald-100 text-emerald-800' : 'bg-amber-100 text-amber-800'
-                            }`}>
-                              {s.statusVerif}
-                            </span>
-                          </td>
-                          <td className="py-3.5 px-4 text-center">
-                            <button
-                              onClick={() => handleOpenStudentDetail(s)}
-                              className="px-2.5 py-1 bg-blue-50 hover:bg-blue-100 text-blue-700 rounded-lg text-[11px] font-bold transition flex items-center gap-1 mx-auto"
-                            >
-                              <i className="fa-solid fa-eye text-[10px]"></i> Detail
-                            </button>
-                          </td>
-                        </tr>
-                      ))}
+                      {monitoringData
+                        .filter(s => {
+                          if (!studentSearchQuery) return true;
+                          const q = studentSearchQuery.toLowerCase();
+                          return (
+                            s.nama?.toLowerCase().includes(q) ||
+                            s.nisn?.toLowerCase().includes(q) ||
+                            s.username?.toLowerCase().includes(q)
+                          );
+                        })
+                        .map((s, idx) => {
+                          const showPass = showPasswordMap[s.nisn];
+                          return (
+                            <tr key={s.id || idx} className="hover:bg-slate-50/80 transition">
+                              <td className="py-3.5 px-4 font-bold text-slate-400 text-center">{idx + 1}</td>
+                              <td className="py-3.5 px-4 font-mono font-bold text-slate-700">{s.nisn}</td>
+                              <td className="py-3.5 px-4">
+                                <button
+                                  type="button"
+                                  onClick={() => handleOpenStudentDetail(s)}
+                                  className="text-left font-bold text-slate-800 hover:text-blue-600 transition flex items-center gap-2.5 group cursor-pointer"
+                                  title="Klik untuk melihat rekapitulasi jurnal & kuis"
+                                >
+                                  <span className="w-7 h-7 rounded-xl bg-blue-100 text-blue-700 font-black flex items-center justify-center text-xs group-hover:bg-blue-600 group-hover:text-white transition shadow-xs">
+                                    {s.nama?.charAt(0) || 'S'}
+                                  </span>
+                                  <div>
+                                    <span className="group-hover:underline block leading-tight">{s.nama}</span>
+                                    <span className="text-[10px] text-slate-400 font-normal">{s.kelas || selectedKelas}</span>
+                                  </div>
+                                </button>
+                              </td>
+                              <td className="py-3.5 px-4">
+                                <div className="space-y-1">
+                                  <div className="flex items-center gap-1.5 text-slate-700 font-medium text-[11px]">
+                                    <span className="text-slate-400 text-[10px]">User:</span>
+                                    <span className="font-mono font-bold text-blue-700 bg-blue-50/60 px-1.5 py-0.5 rounded">
+                                      {s.username || s.nisn}
+                                    </span>
+                                  </div>
+                                  <div className="flex items-center gap-1.5 text-slate-700 font-medium text-[11px]">
+                                    <span className="text-slate-400 text-[10px]">Pass:</span>
+                                    <span className="font-mono bg-slate-100 px-1.5 py-0.5 rounded font-bold">
+                                      {showPass ? (s.password || '123456') : '••••••'}
+                                    </span>
+                                    <button
+                                      type="button"
+                                      onClick={() => togglePasswordVisibility(s.nisn)}
+                                      className="text-slate-400 hover:text-slate-600 text-[10px] ml-0.5"
+                                      title={showPass ? 'Sembunyikan password' : 'Lihat password'}
+                                    >
+                                      <i className={`fa-solid ${showPass ? 'fa-eye-slash' : 'fa-eye'}`}></i>
+                                    </button>
+                                  </div>
+                                </div>
+                              </td>
+                              <td className="py-3.5 px-3 text-center">
+                                <span className={`inline-block px-2 py-0.5 rounded-md font-bold text-[10px] ${s.gender === 'P' ? 'bg-pink-50 text-pink-600 border border-pink-200' : 'bg-blue-50 text-blue-600 border border-blue-200'}`}>
+                                  {s.gender || 'L'}
+                                </span>
+                              </td>
+                              <td className="py-3.5 px-4 text-center">
+                                <span className="font-bold text-slate-700">{s.completedCount || 0}/7</span>
+                                <div className="w-16 h-1.5 bg-slate-200 rounded-full mx-auto mt-1 overflow-hidden">
+                                  <div
+                                    className="h-full bg-emerald-500 rounded-full"
+                                    style={{ width: `${s.percentage || 0}%` }}
+                                  ></div>
+                                </div>
+                              </td>
+                              <td className="py-3.5 px-3 text-center">
+                                <span className={`px-2 py-0.5 rounded-full text-[10px] font-black ${
+                                  s.statusVerif === 'Disetujui' ? 'bg-emerald-100 text-emerald-800' : 'bg-amber-100 text-amber-800'
+                                }`}>
+                                  {s.statusVerif || 'Menunggu'}
+                                </span>
+                              </td>
+                              <td className="py-3.5 px-4 text-center">
+                                <div className="flex items-center justify-center gap-1.5">
+                                  <button
+                                    type="button"
+                                    onClick={() => handleOpenStudentDetail(s)}
+                                    className="px-2 py-1 bg-blue-50 hover:bg-blue-100 text-blue-700 rounded-lg text-[10px] font-bold transition flex items-center gap-1"
+                                    title="Lihat Rekap Jurnal & Foto"
+                                  >
+                                    <i className="fa-solid fa-clipboard-check"></i> Rekap
+                                  </button>
+                                  <button
+                                    type="button"
+                                    onClick={() => handleOpenEditModal(s)}
+                                    className="px-2 py-1 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-lg text-[10px] font-bold transition"
+                                    title="Edit data siswa"
+                                  >
+                                    <i className="fa-solid fa-pen-to-square"></i>
+                                  </button>
+                                  <button
+                                    type="button"
+                                    onClick={() => handleDeleteStudent(s.id, s.nama)}
+                                    className="px-2 py-1 bg-rose-50 hover:bg-rose-100 text-rose-600 rounded-lg text-[10px] font-bold transition"
+                                    title="Hapus siswa"
+                                  >
+                                    <i className="fa-solid fa-trash-can"></i>
+                                  </button>
+                                </div>
+                              </td>
+                            </tr>
+                          );
+                        })}
                     </tbody>
                   </table>
                 </div>
+
+                {monitoringData.length === 0 && (
+                  <div className="py-12 text-center text-slate-400 space-y-2">
+                    <i className="fa-solid fa-user-graduate text-3xl"></i>
+                    <p className="text-xs font-bold">Belum ada siswa di kelas ini.</p>
+                    <button
+                      type="button"
+                      onClick={handleDownloadTemplateExcel}
+                      className="text-xs font-bold text-blue-600 underline"
+                    >
+                      Unduh template Excel & impor siswa sekarang
+                    </button>
+                  </div>
+                )}
               </div>
             </div>
           )}
@@ -1107,6 +1606,7 @@ export default function DashboardGuru({
                         <th className="py-3.5 px-2 text-center" title="Tidur Cepat">H7</th>
                         <th className="py-3.5 px-3 text-center">Skor (%)</th>
                         <th className="py-3.5 px-3 text-center">Verifikasi</th>
+                        <th className="py-3.5 px-3 text-center">Rincian & Foto</th>
                       </tr>
                     </thead>
                     <tbody className="divide-y divide-slate-100 text-xs">
@@ -1116,6 +1616,7 @@ export default function DashboardGuru({
                           <td className="py-3 px-3 font-bold text-slate-800">
                             {/* Clickable Student Name */}
                             <button
+                              type="button"
                               onClick={() => handleOpenStudentDetail(s)}
                               className="text-left font-bold text-slate-800 hover:text-blue-600 transition flex items-center gap-2.5 group cursor-pointer"
                               title="Klik untuk melihat hasil isian & kuis siswa"
@@ -1134,15 +1635,22 @@ export default function DashboardGuru({
                           {['h1', 'h2', 'h3', 'h4', 'h5', 'h6', 'h7'].map((hk, i) => {
                             const isDone = s.habits[hk];
                             const detail = s.detailMisi?.[i + 1];
+                            const hasPhoto = Boolean(detail?.fotoBukti);
                             return (
                               <td key={i} className="py-3 px-2 text-center">
                                 {isDone ? (
                                   <button
+                                    type="button"
                                     onClick={() => handleOpenStudentDetail(s)}
-                                    className="w-7 h-7 rounded-full bg-emerald-100 hover:bg-emerald-200 text-emerald-700 inline-flex flex-col items-center justify-center text-[10px] font-black transition cursor-pointer"
-                                    title={`Misi ${i + 1} Selesai pada: ${detail?.jam || '-'}`}
+                                    className="w-7 h-7 rounded-full bg-emerald-100 hover:bg-emerald-200 text-emerald-700 inline-flex items-center justify-center text-[10px] font-black transition cursor-pointer relative"
+                                    title={`Misi ${i + 1} Selesai: ${detail?.jam || '-'}${hasPhoto ? ' (Ada Foto Bukti)' : ''}`}
                                   >
-                                    ✓
+                                    <span>✓</span>
+                                    {hasPhoto && (
+                                      <span className="absolute -top-1 -right-1 w-3.5 h-3.5 bg-blue-600 text-white rounded-full flex items-center justify-center text-[7px] shadow-2xs" title="Ada Foto Bukti">
+                                        <i className="fa-solid fa-camera"></i>
+                                      </span>
+                                    )}
                                   </button>
                                 ) : (
                                   <span className="w-7 h-7 rounded-full bg-slate-100 text-slate-300 inline-flex items-center justify-center text-xs">
@@ -1159,6 +1667,7 @@ export default function DashboardGuru({
                           </td>
                           <td className="py-3 px-3 text-center">
                             <button
+                              type="button"
                               onClick={() => handleVerifyStudent(s.id, s.statusVerif === 'Disetujui' ? 'Menunggu' : 'Disetujui')}
                               className={`px-3 py-1 rounded-full text-[10px] font-black transition cursor-pointer ${
                                 s.statusVerif === 'Disetujui'
@@ -1167,6 +1676,20 @@ export default function DashboardGuru({
                               }`}
                             >
                               {s.statusVerif === 'Disetujui' ? 'Disetujui ✓' : 'Setujui ?'}
+                            </button>
+                          </td>
+                          <td className="py-3 px-3 text-center">
+                            <button
+                              type="button"
+                              onClick={() => handleOpenStudentDetail(s)}
+                              className="px-2.5 py-1 bg-blue-50 hover:bg-blue-100 text-blue-700 rounded-lg text-[10px] font-bold transition flex items-center gap-1.5 mx-auto active:scale-95 shadow-2xs"
+                              title="Buka Rekapitulasi Isian Misi & Foto Siswa"
+                            >
+                              <i className="fa-solid fa-clipboard-check text-[10px]"></i>
+                              <span>Rekap</span>
+                              {Object.values(s.detailMisi || {}).some(d => d?.fotoBukti) && (
+                                <i className="fa-solid fa-camera text-blue-600 text-[9px]" title="Ada foto bukti"></i>
+                              )}
                             </button>
                           </td>
                         </tr>
@@ -1557,18 +2080,43 @@ export default function DashboardGuru({
                             "{detail.catatan}"
                           </div>
 
-                          {detail.fotoBukti && (
-                            <div className="pt-1.5">
-                              <span className="text-[10px] font-bold text-slate-500 uppercase tracking-wider flex items-center gap-1 mb-1">
-                                <i className="fa-solid fa-camera text-blue-500"></i> Foto Bukti Unggahan Siswa:
-                              </span>
-                              <div className="rounded-lg overflow-hidden border border-slate-200 bg-slate-100 max-h-36 flex items-center justify-center">
+                          {/* Foto Bukti Unggahan Siswa */}
+                          {detail.fotoBukti ? (
+                            <div className="pt-2 border-t border-slate-200/60 space-y-1.5">
+                              <div className="flex items-center justify-between">
+                                <span className="text-[10px] font-bold text-slate-600 uppercase tracking-wider flex items-center gap-1">
+                                  <i className="fa-solid fa-camera text-blue-600"></i> Foto Bukti Unggahan Siswa:
+                                </span>
+                                <button
+                                  type="button"
+                                  onClick={() => handleOpenPhotoLightbox(detail.fotoBukti, `Foto Bukti Misi ${hid}: ${HABIT_TITLES[hid - 1]}`, `${selectedStudent.nama} (${selectedStudent.nisn}) • ${detail.jam}`, `Misi ${hid}`)}
+                                  className="text-[10px] font-bold text-blue-600 hover:text-blue-700 hover:underline flex items-center gap-1"
+                                >
+                                  <i className="fa-solid fa-expand text-[9px]"></i> Perbesar Foto
+                                </button>
+                              </div>
+
+                              <div
+                                onClick={() => handleOpenPhotoLightbox(detail.fotoBukti, `Foto Bukti Misi ${hid}: ${HABIT_TITLES[hid - 1]}`, `${selectedStudent.nama} (${selectedStudent.nisn}) • ${detail.jam}`, `Misi ${hid}`)}
+                                className="relative group rounded-xl overflow-hidden border border-slate-200 bg-slate-900 cursor-pointer shadow-xs max-h-44 flex items-center justify-center"
+                                title="Klik untuk memperbesar foto bukti"
+                              >
                                 <img
                                   src={detail.fotoBukti}
-                                  alt="Bukti Siswa"
-                                  className="w-full h-36 object-cover"
+                                  alt={`Bukti Misi ${hid}`}
+                                  className="w-full h-40 object-cover group-hover:scale-105 transition duration-300 opacity-95 group-hover:opacity-100"
                                 />
+                                <div className="absolute inset-0 bg-slate-900/40 opacity-0 group-hover:opacity-100 transition flex items-center justify-center gap-2 text-white">
+                                  <span className="px-3 py-1 bg-slate-900/80 rounded-lg text-[11px] font-bold flex items-center gap-1.5 backdrop-blur-xs">
+                                    <i className="fa-solid fa-magnifying-glass-plus"></i> Klik untuk Perbesar
+                                  </span>
+                                </div>
                               </div>
+                            </div>
+                          ) : (
+                            <div className="pt-2 border-t border-slate-200/60 flex items-center gap-1.5 text-[10px] text-slate-400 italic">
+                              <i className="fa-regular fa-image"></i>
+                              <span>Siswa tidak mengunggah foto bukti untuk misi ini.</span>
                             </div>
                           )}
                         </div>
@@ -1798,6 +2346,336 @@ export default function DashboardGuru({
                 </button>
               </div>
             </form>
+          </div>
+        </div>
+      )}
+
+      {/* ========================================================================= */}
+      {/* 6. MODAL PRATINJAU IMPOR DATA SISWA DARI EXCEL                            */}
+      {/* ========================================================================= */}
+      {showImportModal && (
+        <div className="fixed inset-0 z-50 bg-slate-950/80 backdrop-blur-xs flex items-center justify-center p-3 sm:p-5 overflow-y-auto">
+          <div className="bg-white rounded-3xl max-w-4xl w-full p-5 sm:p-7 shadow-2xl border border-slate-200 space-y-5 animate-in fade-in zoom-in-95 duration-200">
+            {/* Modal Header */}
+            <div className="flex items-center justify-between border-b border-slate-100 pb-4">
+              <div className="flex items-center gap-3">
+                <div className="w-12 h-12 rounded-2xl bg-emerald-100 text-emerald-700 flex items-center justify-center text-xl shadow-xs">
+                  <i className="fa-solid fa-file-excel"></i>
+                </div>
+                <div>
+                  <h3 className="text-base sm:text-lg font-black text-slate-900">
+                    Pratinjau Impor Data Siswa
+                  </h3>
+                  <p className="text-xs text-slate-500 font-medium">
+                    Periksa kembali data siswa hasil pembacaan template Excel sebelum disimpan ke sistem.
+                  </p>
+                </div>
+              </div>
+              <button
+                type="button"
+                onClick={() => setShowImportModal(false)}
+                className="w-9 h-9 rounded-full bg-slate-100 hover:bg-slate-200 text-slate-500 flex items-center justify-center text-lg font-bold transition"
+              >
+                &times;
+              </button>
+            </div>
+
+            {/* Info Badge */}
+            <div className="p-3.5 bg-emerald-50 rounded-2xl border border-emerald-200/80 flex items-center justify-between text-xs text-emerald-900">
+              <div className="flex items-center gap-2">
+                <i className="fa-solid fa-circle-check text-emerald-600 text-sm"></i>
+                <span className="font-bold">
+                  {importParsedStudents.length} calon siswa terdeteksi dan siap diimpor ke {selectedKelas}.
+                </span>
+              </div>
+              <span className="text-[10px] font-bold text-emerald-700 bg-white px-2 py-0.5 rounded-full border border-emerald-200">
+                Format Valid ✓
+              </span>
+            </div>
+
+            {/* Preview Table */}
+            <div className="max-h-72 overflow-y-auto rounded-2xl border border-slate-200 overflow-x-auto">
+              <table className="w-full text-left border-collapse text-xs">
+                <thead>
+                  <tr className="bg-slate-50 border-b border-slate-200 text-[10px] font-bold text-slate-500 uppercase tracking-wider sticky top-0">
+                    <th className="py-2.5 px-3 text-center">No</th>
+                    <th className="py-2.5 px-3">Nama Lengkap Siswa</th>
+                    <th className="py-2.5 px-3">NISN</th>
+                    <th className="py-2.5 px-3">Username</th>
+                    <th className="py-2.5 px-3">Password</th>
+                    <th className="py-2.5 px-3">Kelas</th>
+                    <th className="py-2.5 px-2 text-center">L/P</th>
+                    <th className="py-2.5 px-3 text-center">Aksi</th>
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-slate-100">
+                  {importParsedStudents.map((item, idx) => (
+                    <tr key={idx} className="hover:bg-slate-50/80 transition">
+                      <td className="py-2.5 px-3 text-center font-bold text-slate-400">{idx + 1}</td>
+                      <td className="py-2.5 px-3 font-bold text-slate-800">{item.nama}</td>
+                      <td className="py-2.5 px-3 font-mono text-slate-600">{item.nisn}</td>
+                      <td className="py-2.5 px-3 font-mono text-blue-700 font-bold">{item.username}</td>
+                      <td className="py-2.5 px-3 font-mono text-slate-600">{item.password}</td>
+                      <td className="py-2.5 px-3 text-slate-600">{item.kelas}</td>
+                      <td className="py-2.5 px-2 text-center">
+                        <span className={`px-1.5 py-0.5 rounded text-[10px] font-bold ${item.gender === 'P' ? 'bg-pink-50 text-pink-600' : 'bg-blue-50 text-blue-600'}`}>
+                          {item.gender}
+                        </span>
+                      </td>
+                      <td className="py-2.5 px-3 text-center">
+                        <button
+                          type="button"
+                          onClick={() => setImportParsedStudents(prev => prev.filter((_, i) => i !== idx))}
+                          className="w-6 h-6 rounded bg-rose-50 hover:bg-rose-100 text-rose-600 text-xs inline-flex items-center justify-center transition"
+                          title="Hapus baris ini"
+                        >
+                          <i className="fa-solid fa-trash-can text-[10px]"></i>
+                        </button>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+
+            {/* Modal Actions */}
+            <div className="flex items-center justify-between pt-3 border-t border-slate-100">
+              <span className="text-xs text-slate-400 font-medium">
+                Pastikan NISN dan nama sudah sesuai dengan buku induk siswa.
+              </span>
+              <div className="flex items-center gap-2">
+                <button
+                  type="button"
+                  onClick={() => setShowImportModal(false)}
+                  className="px-4 py-2.5 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-600 text-xs font-bold transition"
+                >
+                  Batal
+                </button>
+                <button
+                  type="button"
+                  disabled={isImporting || importParsedStudents.length === 0}
+                  onClick={handleConfirmImport}
+                  className="px-5 py-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-black shadow-lg shadow-emerald-500/25 transition active:scale-95 flex items-center gap-2 disabled:bg-slate-300"
+                >
+                  {isImporting ? (
+                    <>
+                      <i className="fa-solid fa-spinner fa-spin"></i>
+                      <span>Menyimpan ke Database...</span>
+                    </>
+                  ) : (
+                    <>
+                      <i className="fa-solid fa-check"></i>
+                      <span>Simpan & Terapkan Semua Siswa ({importParsedStudents.length})</span>
+                    </>
+                  )}
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* ========================================================================= */}
+      {/* 7. MODAL FORM TAMBAH / EDIT SISWA MANUAL                                  */}
+      {/* ========================================================================= */}
+      {showAddEditModal && (
+        <div className="fixed inset-0 z-50 bg-slate-950/80 backdrop-blur-xs flex items-center justify-center p-4 overflow-y-auto">
+          <div className="bg-white rounded-3xl max-w-md w-full p-6 sm:p-7 shadow-2xl border border-slate-200 space-y-4 animate-in fade-in zoom-in-95 duration-200">
+            <div className="flex items-center justify-between border-b border-slate-100 pb-3">
+              <div className="flex items-center gap-2.5">
+                <div className="w-10 h-10 rounded-xl bg-blue-100 text-blue-600 flex items-center justify-center text-lg">
+                  <i className={`fa-solid ${isEditingStudent ? 'fa-user-pen' : 'fa-user-plus'}`}></i>
+                </div>
+                <div>
+                  <h3 className="text-base font-black text-slate-900">
+                    {isEditingStudent ? 'Edit Data Siswa' : 'Tambah Siswa Baru'}
+                  </h3>
+                  <p className="text-[10px] text-slate-400 font-medium">Lengkapi rincian data dan akun login siswa</p>
+                </div>
+              </div>
+              <button
+                type="button"
+                onClick={() => setShowAddEditModal(false)}
+                className="w-8 h-8 rounded-full bg-slate-100 hover:bg-slate-200 text-slate-500 flex items-center justify-center font-bold"
+              >
+                &times;
+              </button>
+            </div>
+
+            <div className="space-y-3 text-xs">
+              <div>
+                <label className="block text-slate-700 font-bold mb-1">Nama Lengkap Siswa *</label>
+                <input
+                  type="text"
+                  value={studentFormData.nama}
+                  onChange={(e) => setStudentFormData({ ...studentFormData, nama: e.target.value })}
+                  placeholder="Contoh: Muhammad Rizky Pratama"
+                  className="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 focus:outline-none focus:border-blue-500 font-medium"
+                />
+              </div>
+
+              <div className="grid grid-cols-2 gap-3">
+                <div>
+                  <label className="block text-slate-700 font-bold mb-1">NISN *</label>
+                  <input
+                    type="text"
+                    value={studentFormData.nisn}
+                    onChange={(e) => setStudentFormData({ ...studentFormData, nisn: e.target.value, username: studentFormData.username || e.target.value })}
+                    placeholder="0012345678"
+                    className="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 focus:outline-none focus:border-blue-500 font-mono"
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-slate-700 font-bold mb-1">Jenis Kelamin</label>
+                  <select
+                    value={studentFormData.gender}
+                    onChange={(e) => setStudentFormData({ ...studentFormData, gender: e.target.value })}
+                    className="w-full px-3 py-2.5 rounded-xl border border-slate-200 focus:outline-none focus:border-blue-500 font-bold bg-white"
+                  >
+                    <option value="L">Laki-Laki (L)</option>
+                    <option value="P">Perempuan (P)</option>
+                  </select>
+                </div>
+              </div>
+
+              <div className="grid grid-cols-2 gap-3">
+                <div>
+                  <label className="block text-slate-700 font-bold mb-1">Username Login</label>
+                  <input
+                    type="text"
+                    value={studentFormData.username}
+                    onChange={(e) => setStudentFormData({ ...studentFormData, username: e.target.value })}
+                    placeholder="Username siswa"
+                    className="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 focus:outline-none focus:border-blue-500 font-mono"
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-slate-700 font-bold mb-1">Password</label>
+                  <input
+                    type="text"
+                    value={studentFormData.password}
+                    onChange={(e) => setStudentFormData({ ...studentFormData, password: e.target.value })}
+                    placeholder="Password akun"
+                    className="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 focus:outline-none focus:border-blue-500 font-mono"
+                  />
+                </div>
+              </div>
+
+              <div className="grid grid-cols-2 gap-3">
+                <div>
+                  <label className="block text-slate-700 font-bold mb-1">Kelas</label>
+                  <select
+                    value={studentFormData.kelas}
+                    onChange={(e) => setStudentFormData({ ...studentFormData, kelas: e.target.value })}
+                    className="w-full px-3 py-2.5 rounded-xl border border-slate-200 focus:outline-none focus:border-blue-500 font-bold bg-white"
+                  >
+                    <option value="Kelas 5A">Kelas 5A</option>
+                    <option value="Kelas 5B">Kelas 5B</option>
+                    <option value="Kelas 6A">Kelas 6A</option>
+                    <option value="Kelas 4">Kelas 4</option>
+                  </select>
+                </div>
+
+                <div>
+                  <label className="block text-slate-700 font-bold mb-1">Nama Panggilan</label>
+                  <input
+                    type="text"
+                    value={studentFormData.panggilan}
+                    onChange={(e) => setStudentFormData({ ...studentFormData, panggilan: e.target.value })}
+                    placeholder="Panggilan akrab"
+                    className="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 focus:outline-none focus:border-blue-500"
+                  />
+                </div>
+              </div>
+            </div>
+
+            <div className="flex items-center justify-end gap-2 pt-3 border-t border-slate-100">
+              <button
+                type="button"
+                onClick={() => setShowAddEditModal(false)}
+                className="px-4 py-2 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-600 text-xs font-bold transition"
+              >
+                Batal
+              </button>
+              <button
+                type="button"
+                onClick={handleSaveStudentForm}
+                className="px-5 py-2 rounded-xl bg-blue-600 hover:bg-blue-700 text-white text-xs font-black shadow-md shadow-blue-500/20 transition active:scale-95"
+              >
+                {isEditingStudent ? 'Perbarui Data Siswa' : 'Simpan Siswa Baru'}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* ========================================================================= */}
+      {/* 8. MODAL LIGHTBOX FULLSCREEN ZOOM FOTO BUKTI SISWA                        */}
+      {/* ========================================================================= */}
+      {lightboxImage.open && (
+        <div
+          className="fixed inset-0 z-50 bg-slate-950/90 backdrop-blur-md flex items-center justify-center p-3 sm:p-6 animate-fadeIn"
+          onClick={() => setLightboxImage({ open: false, url: '', title: '', subtitle: '', mission: '' })}
+        >
+          <div
+            className="bg-slate-900 border border-slate-800 rounded-3xl max-w-2xl w-full overflow-hidden shadow-2xl relative text-white space-y-3 p-4 sm:p-5"
+            onClick={(e) => e.stopPropagation()}
+          >
+            {/* Lightbox Header */}
+            <div className="flex items-center justify-between border-b border-slate-800 pb-3">
+              <div className="flex items-center gap-2.5">
+                <div className="w-9 h-9 rounded-xl bg-blue-600/30 text-blue-400 flex items-center justify-center text-sm font-bold border border-blue-500/30">
+                  <i className="fa-solid fa-camera"></i>
+                </div>
+                <div>
+                  <h4 className="text-sm font-black text-white">{lightboxImage.title}</h4>
+                  <p className="text-[11px] text-slate-400 font-medium">{lightboxImage.subtitle}</p>
+                </div>
+              </div>
+              <button
+                type="button"
+                onClick={() => setLightboxImage({ open: false, url: '', title: '', subtitle: '', mission: '' })}
+                className="w-8 h-8 rounded-full bg-slate-800 hover:bg-slate-700 text-slate-300 flex items-center justify-center font-bold transition"
+              >
+                &times;
+              </button>
+            </div>
+
+            {/* High-Res Image Container */}
+            <div className="rounded-2xl overflow-hidden bg-black flex items-center justify-center max-h-[65vh] border border-slate-800 shadow-inner">
+              <img
+                src={lightboxImage.url}
+                alt={lightboxImage.title}
+                className="w-full h-full object-contain max-h-[62vh]"
+              />
+            </div>
+
+            {/* Lightbox Footer Actions */}
+            <div className="flex items-center justify-between pt-2">
+              <span className="text-[11px] text-slate-400 font-medium">
+                Bukti asli pelaksanaan pembiasaan karakter peserta didik.
+              </span>
+              <div className="flex items-center gap-2">
+                <a
+                  href={lightboxImage.url}
+                  target="_blank"
+                  rel="noreferrer"
+                  className="px-3.5 py-1.5 rounded-xl bg-blue-600 hover:bg-blue-700 text-white text-xs font-bold transition flex items-center gap-1.5 shadow-sm"
+                >
+                  <i className="fa-solid fa-arrow-up-right-from-square text-[10px]"></i>
+                  <span>Buka Gambar Penuh</span>
+                </a>
+                <button
+                  type="button"
+                  onClick={() => setLightboxImage({ open: false, url: '', title: '', subtitle: '', mission: '' })}
+                  className="px-3.5 py-1.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 text-xs font-bold transition"
+                >
+                  Tutup
+                </button>
+              </div>
+            </div>
           </div>
         </div>
       )}
