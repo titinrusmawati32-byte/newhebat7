@@ -7,13 +7,44 @@ import BottomNav from './components/BottomNav';
 import { callApi, getCachedData } from './services/api';
 
 export default function App() {
-  const [currentUser, setCurrentUser] = useState(null);
-  const [currentView, setCurrentView] = useState('landing'); // 'landing' | 'dashboard' | 'habit' | 'guru' | 'kepsek'
-  const [activeTabSiswa, setActiveTabSiswa] = useState('beranda'); // 'beranda' | 'kelas' | 'notif' | 'profil' | 'aktivitas'
+  // Session Persistence: Mengingat login dan halaman terakhir saat browser di-refresh
+  const [currentUser, setCurrentUser] = useState(() => {
+    try {
+      const saved = localStorage.getItem('AUTH_USER_7KEBIASAAN');
+      return saved ? JSON.parse(saved) : null;
+    } catch (e) {
+      return null;
+    }
+  });
+
+  const [currentView, setCurrentView] = useState(() => {
+    try {
+      const savedUser = localStorage.getItem('AUTH_USER_7KEBIASAAN');
+      if (savedUser) {
+        const user = JSON.parse(savedUser);
+        const savedView = localStorage.getItem('AUTH_VIEW_7KEBIASAAN');
+        if (savedView && savedView !== 'landing') return savedView;
+        return user.role === 'Siswa' ? 'dashboard' : 'guru';
+      }
+    } catch (e) {}
+    return 'landing';
+  });
+
+  const [activeTabSiswa, setActiveTabSiswa] = useState(() => {
+    return localStorage.getItem('ACTIVE_TAB_SISWA') || 'beranda';
+  });
+
   const [activeHabitId, setActiveHabitId] = useState(1);
   const [pengaturan, setPengaturan] = useState(null);
   const [materiKuisMap, setMateriKuisMap] = useState({});
-  const [habitsToday, setHabitsToday] = useState({});
+  const [habitsToday, setHabitsToday] = useState(() => {
+    try {
+      const saved = localStorage.getItem('HABITS_TODAY_CACHE');
+      return saved ? JSON.parse(saved) : {};
+    } catch (e) {
+      return {};
+    }
+  });
 
   // Toast
   const [toasts, setToasts] = useState([]);
@@ -49,14 +80,40 @@ export default function App() {
     });
   }, []);
 
+  // Simpan & Sinkronkan status autentikasi ke localStorage agar refresh tidak mental ke login
+  useEffect(() => {
+    if (currentUser) {
+      localStorage.setItem('AUTH_USER_7KEBIASAAN', JSON.stringify(currentUser));
+      localStorage.setItem('AUTH_VIEW_7KEBIASAAN', currentView);
+      localStorage.setItem('ACTIVE_TAB_SISWA', activeTabSiswa);
+
+      // Revalidasi data habit siswa jika sedang login sebagai siswa
+      if (currentUser.role === 'Siswa' && currentUser.username) {
+        callApi('getInitialSiswa', { username: currentUser.username }).then((init) => {
+          if (init && init.habitsToday) {
+            setHabitsToday(init.habitsToday);
+            localStorage.setItem('HABITS_TODAY_CACHE', JSON.stringify(init.habitsToday));
+          }
+        });
+      }
+    } else {
+      localStorage.removeItem('AUTH_USER_7KEBIASAAN');
+      localStorage.removeItem('AUTH_VIEW_7KEBIASAAN');
+      localStorage.removeItem('ACTIVE_TAB_SISWA');
+      localStorage.removeItem('HABITS_TODAY_CACHE');
+    }
+  }, [currentUser, currentView, activeTabSiswa]);
+
   const handleLoginSuccess = async (user) => {
     setCurrentUser(user);
+    localStorage.setItem('AUTH_USER_7KEBIASAAN', JSON.stringify(user));
     showToast(`Selamat datang, ${user.panggilan || user.nama}!`, 'success');
 
     if (user.role === 'Siswa') {
       const init = await callApi('getInitialSiswa', { username: user.username });
       if (init && init.habitsToday) {
         setHabitsToday(init.habitsToday);
+        localStorage.setItem('HABITS_TODAY_CACHE', JSON.stringify(init.habitsToday));
       }
       setCurrentView('dashboard');
       setActiveTabSiswa('beranda');
@@ -71,6 +128,10 @@ export default function App() {
     if (window.confirm('Apakah Anda yakin ingin keluar dari akun?')) {
       setCurrentUser(null);
       setCurrentView('landing');
+      localStorage.removeItem('AUTH_USER_7KEBIASAAN');
+      localStorage.removeItem('AUTH_VIEW_7KEBIASAAN');
+      localStorage.removeItem('ACTIVE_TAB_SISWA');
+      localStorage.removeItem('HABITS_TODAY_CACHE');
       showToast('Anda telah keluar dari aplikasi.', 'info');
     }
   };
@@ -82,10 +143,14 @@ export default function App() {
   };
 
   const handleCompleteHabit = (hid, namaMisi) => {
-    setHabitsToday((prev) => ({
-      ...prev,
-      [hid]: { detail: 'Selesai', statusVerifikasi: 'Disetujui' }
-    }));
+    setHabitsToday((prev) => {
+      const updated = {
+        ...prev,
+        [hid]: { detail: 'Selesai', statusVerifikasi: 'Disetujui' }
+      };
+      localStorage.setItem('HABITS_TODAY_CACHE', JSON.stringify(updated));
+      return updated;
+    });
     setCelebration({ open: true, title: namaMisi || `Misi ${hid} Selesai` });
     setCurrentView('dashboard');
     setActiveTabSiswa('beranda');
