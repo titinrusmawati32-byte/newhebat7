@@ -10,8 +10,8 @@ const HABIT_CONFIGS = {
     quote: 'Pagi yang cerah dimulai dari tekad anak hebat. Bangun pagi melatih disiplin dan menyegarkan raga.',
     img: 'https://illustrations.popertee.com/illustration-png/boy-waking-up-morning.png',
     label1: 'Pilih Waktu Bangun Tidur',
-    desc1: 'Tentukan jam berapa kamu akan bangun hari ini.',
-    presets: ['05:30', '06:00', '06:30', '07:00'],
+    desc1: 'Tentukan jam berapa kamu bangun pagi hari ini.',
+    presets: ['05:00', '05:30', '06:00', '06:30'],
     defaultVal: '05:30'
   },
   2: {
@@ -89,7 +89,8 @@ const HABIT_CONFIGS = {
 };
 
 export default function HabitWizard({
-  habitId,
+  habitId = 1,
+  mode = 'misi', // 'misi' (khusus jurnal) | 'materi' (khusus video youtube & kuis) | 'kuis' (khusus kuis)
   materiKuis,
   currentUser,
   onComplete,
@@ -98,12 +99,18 @@ export default function HabitWizard({
   showToast
 }) {
   const config = HABIT_CONFIGS[habitId] || HABIT_CONFIGS[1];
-  const [step, setStep] = useState(1);
+
+  // Inisialisasi step berdasarkan mode:
+  // - mode 'materi': langsung ke Video (step 2)
+  // - mode 'kuis': langsung ke Kuis (step 3)
+  // - mode 'misi': form isian jurnal harian (step 1)
+  const initialStep = mode === 'materi' ? 2 : mode === 'kuis' ? 3 : 1;
+  const [step, setStep] = useState(initialStep);
   const [selectedVal, setSelectedVal] = useState(config.defaultVal);
   const [selectedAnswer, setSelectedAnswer] = useState(null);
   const [saving, setSaving] = useState(false);
 
-  // YouTube Thumbnail URL helper
+  // Helper YouTube ID
   const extractYtId = (url) => {
     if (!url) return '';
     const m = url.match(/(?:youtu\.be\/|youtube\.com\/(?:embed\/|v\/|watch\?v=|watch\?.+&v=|shorts\/))([\w-]{11})/);
@@ -117,13 +124,14 @@ export default function HabitWizard({
 
   const keyChar = (materiKuis?.kunciJawaban || 'B').toUpperCase();
   const options = [
-    { letter: 'A', text: materiKuis?.opsiA || 'Opsi A' },
-    { letter: 'B', text: materiKuis?.opsiB || 'Opsi B' },
-    { letter: 'C', text: materiKuis?.opsiC || 'Opsi C' },
-    { letter: 'D', text: materiKuis?.opsiD || 'Opsi D' },
+    { letter: 'A', text: materiKuis?.opsiA || 'Menonton TV seharian' },
+    { letter: 'B', text: materiKuis?.opsiB || 'Menjaga kesehatan tubuh & membentuk karakter hebat' },
+    { letter: 'C', text: materiKuis?.opsiC || 'Bermain game tanpa henti' },
+    { letter: 'D', text: materiKuis?.opsiD || 'Hanya agar dipuji teman' },
   ];
 
-  const handleSimpanStep1 = async () => {
+  // Khusus Mode Misi: Simpan Jurnal Kebiasaan ke Google Apps Script
+  const handleSimpanMisiJurnal = async () => {
     setSaving(true);
     const todayStr = new Date().toISOString().split('T')[0];
     const payload = {
@@ -140,13 +148,13 @@ export default function HabitWizard({
 
     try {
       await callApi('simpanHabit', { habitId, payload });
-      showToast(`${config.nama}: Catatan tersimpan!`, 'success');
+      showToast(`${config.nama}: Jurnal misi berhasil disimpan!`, 'success');
+      onComplete(habitId, config.sub);
     } catch (e) {
       console.warn(e);
+      showToast('Gagal menyimpan misi: ' + e.message, 'error');
     }
     setSaving(false);
-    setStep(2);
-    window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
   const handlePilihJawaban = (letter) => {
@@ -160,8 +168,9 @@ export default function HabitWizard({
 
   return (
     <div className="w-full max-w-md mx-auto pb-24 select-none space-y-4">
+
       {/* ===================================================================== */}
-      {/* STEP 1: PILIH AKTIVITAS / JAM                                         */}
+      {/* KHUSUS MODE MISI: FORM PENGISIAN JURNAL MISI HARIAN                   */}
       {/* ===================================================================== */}
       {step === 1 && (
         <div className="space-y-4 animate-fadeIn">
@@ -175,10 +184,13 @@ export default function HabitWizard({
               >
                 <i className="fa-solid fa-arrow-left"></i>
               </button>
-              <h3 className="text-sm font-black text-slate-800">{config.nama}</h3>
+              <div>
+                <h3 className="text-sm font-black text-slate-800">Isi Misi: {config.nama}</h3>
+                <p className="text-[10px] text-slate-400 font-medium">Catat pelaksanaan kebiasaan baik hari ini</p>
+              </div>
             </div>
-            <span className="text-[10px] font-black uppercase tracking-wider text-amber-600 bg-amber-50 px-2.5 py-1 rounded-full">
-              Step 1/3
+            <span className="text-[10px] font-black uppercase tracking-wider text-amber-600 bg-amber-50 px-2.5 py-1 rounded-full border border-amber-200">
+              Menu Misi
             </span>
           </div>
 
@@ -207,11 +219,11 @@ export default function HabitWizard({
             <div className="absolute -right-8 -top-8 w-32 h-32 bg-white/15 rounded-full blur-xl pointer-events-none"></div>
           </div>
 
-          {/* Card 1: Input / Presets */}
+          {/* Card: Input Pilihan Aktivitas / Jam */}
           <div className="bg-white rounded-3xl p-5 shadow-sm border border-slate-100 space-y-3">
             <div className="flex items-center gap-2 mb-1">
-              <span className="w-6 h-6 rounded-full bg-amber-500 text-white flex items-center justify-center text-xs font-black">
-                1
+              <span className="w-6 h-6 rounded-full bg-blue-600 text-white flex items-center justify-center text-xs font-black">
+                ✓
               </span>
               <h4 className="text-xs font-black text-slate-800">{config.label1}</h4>
             </div>
@@ -229,7 +241,7 @@ export default function HabitWizard({
                     <div className="text-amber-500 text-base mb-0.5"><i className={`fa-solid ${config.icon}`}></i></div>
                     <div className="text-2xl font-black text-slate-800 tracking-tight">{selectedVal}</div>
                     <div className="text-[10px] font-bold text-amber-600 bg-amber-50 px-2 py-0.5 rounded-md inline-block mt-0.5">
-                      {habitId === 1 ? 'AM (Pagi)' : 'PM (Malam)'}
+                      {habitId === 1 ? 'WIB (Pagi)' : 'WIB (Malam)'}
                     </div>
                   </div>
                 </div>
@@ -245,35 +257,41 @@ export default function HabitWizard({
                   onClick={() => setSelectedVal(p)}
                   className={`w-full p-3 rounded-2xl border text-xs font-bold transition flex items-center justify-between ${
                     selectedVal === p
-                      ? 'bg-amber-50 text-amber-900 border-amber-300 shadow-xs'
+                      ? 'bg-blue-50 text-blue-900 border-blue-400 shadow-xs'
                       : 'bg-white text-slate-600 border-slate-200 hover:bg-slate-50'
                   }`}
                 >
                   <span className="flex items-center gap-2">
-                    <i className={`fa-solid ${habitId === 1 || habitId === 7 ? config.icon : 'fa-circle-check'} ${selectedVal === p ? 'text-amber-500' : 'text-slate-300'}`}></i>
+                    <i className={`fa-solid ${habitId === 1 || habitId === 7 ? config.icon : 'fa-circle-check'} ${selectedVal === p ? 'text-blue-600' : 'text-slate-300'}`}></i>
                     <span>{p}</span>
                   </span>
-                  {selectedVal === p && <i className="fa-solid fa-check text-amber-600"></i>}
+                  {selectedVal === p && <i className="fa-solid fa-check text-blue-600"></i>}
                 </button>
               ))}
             </div>
           </div>
 
-          {/* CTA Next */}
+          {/* Tombol Simpan Jurnal Misi */}
           <button
             type="button"
             disabled={saving}
-            onClick={handleSimpanStep1}
-            className="w-full py-3.5 bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-600 hover:to-orange-600 text-white rounded-2xl text-xs font-black shadow-md shadow-orange-500/25 active:scale-95 transition flex items-center justify-center gap-2"
+            onClick={handleSimpanMisiJurnal}
+            className="w-full py-3.5 bg-blue-600 hover:bg-blue-700 text-white rounded-2xl text-xs font-black shadow-lg shadow-blue-600/30 active:scale-95 transition flex items-center justify-center gap-2"
           >
-            <span>{saving ? 'Menyimpan...' : 'Lanjut ke Materi'}</span>
-            <i className="fa-solid fa-arrow-right"></i>
+            {saving ? (
+              <span><i className="fa-solid fa-spinner fa-spin mr-2"></i>Menyimpan Misi...</span>
+            ) : (
+              <>
+                <i className="fa-solid fa-cloud-arrow-up"></i>
+                <span>Simpan & Selesaikan Misi Ini</span>
+              </>
+            )}
           </button>
         </div>
       )}
 
       {/* ===================================================================== */}
-      {/* STEP 2: VIDEO EDUKASI (YOUTUBE MATERI DARI GURU)                      */}
+      {/* KHUSUS MENU MATERI: VIDEO YOUTUBE & MATERI PEMBELAJARAN (STEP 2)      */}
       {/* ===================================================================== */}
       {step === 2 && (
         <div className="space-y-4 animate-fadeIn">
@@ -282,33 +300,36 @@ export default function HabitWizard({
             <div className="flex items-center gap-3">
               <button
                 type="button"
-                onClick={() => setStep(1)}
+                onClick={onBack}
                 className="w-9 h-9 rounded-full bg-slate-100 hover:bg-slate-200 flex items-center justify-center text-slate-700 transition"
               >
                 <i className="fa-solid fa-arrow-left"></i>
               </button>
-              <h3 className="text-sm font-black text-slate-800">{config.nama}</h3>
+              <div>
+                <h3 className="text-sm font-black text-slate-800">Materi Edukasi: {config.nama}</h3>
+                <p className="text-[10px] text-slate-400 font-medium">Tonton video & pelajari materi kebiasaan</p>
+              </div>
             </div>
-            <span className="text-[10px] font-black uppercase tracking-wider text-rose-600 bg-rose-50 px-2.5 py-1 rounded-full">
-              Step 2/3
+            <span className="text-[10px] font-black uppercase tracking-wider text-rose-600 bg-rose-50 px-2.5 py-1 rounded-full border border-rose-200">
+              Menu Materi
             </span>
           </div>
 
           {/* Video Materi Card */}
           <div className="bg-white rounded-3xl p-5 shadow-sm border border-slate-100 space-y-3.5">
             <div className="flex items-center gap-2.5">
-              <div className="w-8 h-8 rounded-xl bg-rose-100 text-rose-600 flex items-center justify-center text-sm font-black">
-                <i className="fa-solid fa-circle-play"></i>
+              <div className="w-9 h-9 rounded-xl bg-red-100 text-red-600 flex items-center justify-center text-base font-black">
+                <i className="fa-brands fa-youtube"></i>
               </div>
               <div>
-                <h4 className="text-xs font-black text-slate-800">Materi Edukasi Guru</h4>
-                <p className="text-[10px] text-slate-400">Tonton video edukasi kebiasaan baik di bawah ini.</p>
+                <h4 className="text-xs font-black text-slate-800">Video Panduan YouTube</h4>
+                <p className="text-[10px] text-slate-400">Klik video di bawah untuk memutar pembelajaran.</p>
               </div>
             </div>
 
-            {/* YouTube Thumbnail + Modal Trigger */}
+            {/* YouTube Thumbnail + Trigger Modal Video Player */}
             <div
-              className="relative w-full rounded-2xl overflow-hidden bg-slate-900 aspect-video group cursor-pointer shadow-sm"
+              className="relative w-full rounded-2xl overflow-hidden bg-slate-900 aspect-video group cursor-pointer shadow-md border border-slate-800"
               onClick={() => onOpenVideoModal(habitId, materiKuis)}
             >
               <img
@@ -318,27 +339,27 @@ export default function HabitWizard({
               />
               <div className="absolute inset-0 bg-gradient-to-t from-slate-950/80 via-transparent to-transparent"></div>
               <div className="absolute inset-0 flex items-center justify-center">
-                <div className="w-12 h-12 rounded-full bg-red-600 group-hover:bg-red-700 text-white flex items-center justify-center text-lg shadow-xl shadow-red-600/40 group-hover:scale-110 transition">
+                <div className="w-14 h-14 rounded-full bg-red-600 group-hover:bg-red-700 text-white flex items-center justify-center text-xl shadow-xl shadow-red-600/40 group-hover:scale-110 transition">
                   <i className="fa-solid fa-play ml-1"></i>
                 </div>
               </div>
               <div className="absolute bottom-2.5 inset-x-3 text-white">
                 <span className="text-[9px] font-black uppercase tracking-wider bg-red-600 px-2 py-0.5 rounded-md inline-block mb-1">
-                  <i className="fa-brands fa-youtube mr-1"></i>YouTube
+                  <i className="fa-brands fa-youtube mr-1"></i>Tonton Sekarang
                 </span>
                 <div className="text-xs font-bold truncate">
-                  {materiKuis?.judulMateri || `Materi Video Misi ${habitId}`}
+                  {materiKuis?.judulMateri || `Materi Video Misi ${habitId}: ${config.nama}`}
                 </div>
               </div>
             </div>
 
-            {/* Title & Desc */}
-            <div>
-              <h4 className="text-xs font-black text-slate-800 mb-1">
-                {materiKuis?.judulMateri || `Materi Misi ${habitId}`}
+            {/* Title & Description */}
+            <div className="pt-1">
+              <h4 className="text-sm font-black text-slate-800 mb-1">
+                {materiKuis?.judulMateri || `Materi Misi ${habitId}: ${config.sub}`}
               </h4>
-              <p className="text-[11px] text-slate-500 leading-relaxed">
-                {materiKuis?.deskripsiMateri || 'Tonton dan pahami penjelasan materi di atas untuk menjawab kuis singkat.'}
+              <p className="text-xs text-slate-600 leading-relaxed font-medium">
+                {materiKuis?.deskripsiMateri || 'Tonton dan pahami penjelasan materi di atas untuk mengasah wawasan dan menjawab kuis.'}
               </p>
             </div>
 
@@ -349,43 +370,25 @@ export default function HabitWizard({
               className="w-full py-2.5 bg-rose-50 hover:bg-rose-100 text-rose-700 rounded-xl text-xs font-bold border border-rose-200 transition flex items-center justify-center gap-2"
             >
               <i className="fa-brands fa-youtube text-red-600"></i>
-              <span>Tonton di YouTube</span>
+              <span>Buka di Aplikasi YouTube</span>
             </a>
           </div>
 
-          {/* Quick Quiz Shortcut Card */}
-          <div className="space-y-2">
-            <span className="text-[10px] font-black text-slate-400 uppercase tracking-wider px-1">Alternatif Materi</span>
-            <div
-              onClick={() => setStep(3)}
-              className="bg-white rounded-2xl p-3 border border-slate-100 shadow-xs hover:border-amber-300 cursor-pointer transition flex items-center justify-between"
-            >
-              <div className="flex items-center gap-3">
-                <div className="w-8 h-8 rounded-xl bg-purple-100 text-purple-600 flex items-center justify-center text-xs">
-                  <i className="fa-solid fa-circle-question"></i>
-                </div>
-                <div>
-                  <h5 className="text-xs font-bold text-slate-800">Kuis Singkat</h5>
-                  <span className="text-[10px] text-slate-400">Uji pemahaman materi ini sekarang</span>
-                </div>
-              </div>
-              <i className="fa-solid fa-chevron-right text-slate-400 text-xs"></i>
-            </div>
-          </div>
-
+          {/* Tombol Lanjut ke Kuis Pemahaman */}
           <button
             type="button"
-            onClick={() => setStep(3)}
-            className="w-full py-3.5 bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-600 hover:to-orange-600 text-white rounded-2xl text-xs font-black shadow-md shadow-orange-500/25 active:scale-95 transition flex items-center justify-center gap-2"
+            onClick={() => { setStep(3); window.scrollTo({ top: 0, behavior: 'smooth' }); }}
+            className="w-full py-3.5 bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-700 hover:to-indigo-700 text-white rounded-2xl text-xs font-black shadow-lg shadow-purple-600/25 active:scale-95 transition flex items-center justify-center gap-2"
           >
-            <span>Lanjut ke Kuis Singkat</span>
+            <i className="fa-solid fa-clipboard-check"></i>
+            <span>Lanjut Mengerjakan Kuis Materi Ini</span>
             <i className="fa-solid fa-arrow-right"></i>
           </button>
         </div>
       )}
 
       {/* ===================================================================== */}
-      {/* STEP 3: KUIS SINGKAT & FEEDBACK INSTAN                                 */}
+      {/* KHUSUS MENU KUIS: SOAL PEMAHAMAN & FEEDBACK LANGSUNG (STEP 3)         */}
       {/* ===================================================================== */}
       {step === 3 && (
         <div className="space-y-4 animate-fadeIn">
@@ -394,44 +397,48 @@ export default function HabitWizard({
             <div className="flex items-center gap-3">
               <button
                 type="button"
-                onClick={() => setStep(2)}
+                onClick={() => mode === 'kuis' ? onBack() : setStep(2)}
                 className="w-9 h-9 rounded-full bg-slate-100 hover:bg-slate-200 flex items-center justify-center text-slate-700 transition"
               >
                 <i className="fa-solid fa-arrow-left"></i>
               </button>
-              <h3 className="text-sm font-black text-slate-800">Kuis Singkat</h3>
-            </div>
-            <div className="flex items-center gap-2">
-              <span className="text-xs font-black text-slate-600">1/3</span>
-              <div className="w-16 h-2 bg-slate-100 rounded-full overflow-hidden">
-                <div className="bg-purple-600 h-full rounded-full" style={{ width: '33%' }}></div>
+              <div>
+                <h3 className="text-sm font-black text-slate-800">Kuis: {config.nama}</h3>
+                <p className="text-[10px] text-slate-400 font-medium">Uji pemahaman materi kebiasaan</p>
               </div>
             </div>
+            <span className="text-[10px] font-black uppercase tracking-wider text-purple-600 bg-purple-50 px-2.5 py-1 rounded-full border border-purple-200">
+              Menu Kuis
+            </span>
           </div>
 
           {/* Quiz Mascot Illustration */}
-          <div className="flex items-center justify-center py-2">
-            <div className="relative w-28 h-28">
+          <div className="flex items-center justify-center py-1">
+            <div className="relative w-24 h-24">
               <img
                 src={config.img}
                 alt="Quiz Mascot"
                 className="w-full h-full object-contain"
                 onError={(e) => { e.target.src = 'https://cdn-icons-png.flaticon.com/512/3048/3048122.png'; }}
               />
-              <span className="absolute top-1 right-2 w-7 h-7 bg-purple-600 text-white rounded-full flex items-center justify-center text-xs font-black shadow-sm">
+              <span className="absolute top-0 right-1 w-7 h-7 bg-purple-600 text-white rounded-full flex items-center justify-center text-xs font-black shadow-sm">
                 ?
               </span>
             </div>
           </div>
 
           {/* Question Box */}
-          <div className="bg-white rounded-3xl p-5 shadow-sm border border-slate-100 space-y-3">
+          <div className="bg-white rounded-3xl p-5 shadow-sm border border-slate-100 space-y-3.5">
+            <div className="flex items-center gap-2 text-xs font-bold text-purple-600 bg-purple-50 px-3 py-1 rounded-full inline-block">
+              <i className="fa-solid fa-circle-question"></i>
+              <span>Pertanyaan Soal:</span>
+            </div>
             <h4 className="text-xs sm:text-sm font-extrabold text-slate-800 leading-snug">
-              1. {materiKuis?.pertanyaan?.replace(/^\d+\.\s*/, '') || 'Apa manfaat utama dari misi ini?'}
+              {materiKuis?.pertanyaan?.replace(/^\d+\.\s*/, '') || `Apa manfaat utama dari kebiasaan ${config.nama}?`}
             </h4>
 
             {/* Options A, B, C, D */}
-            <div className="space-y-2">
+            <div className="space-y-2 pt-1">
               {options.map((opt) => {
                 const isSelected = selectedAnswer === opt.letter;
                 const isCorrect = opt.letter === keyChar;
@@ -453,7 +460,7 @@ export default function HabitWizard({
                     className={btnStyle}
                   >
                     <span className="flex items-center gap-3">
-                      <span className={`w-6 h-6 rounded-full flex items-center justify-center text-xs font-bold ${
+                      <span className={`w-6 h-6 rounded-full flex items-center justify-center text-xs font-bold shrink-0 ${
                         isSelected && isCorrect
                           ? 'bg-emerald-600 text-white'
                           : isSelected && !isCorrect
@@ -464,7 +471,7 @@ export default function HabitWizard({
                       </span>
                       <span>{opt.text}</span>
                     </span>
-                    <i className={`fa-solid fa-circle-check text-base ${
+                    <i className={`fa-solid fa-circle-check text-base shrink-0 ${
                       isSelected && isCorrect ? 'text-emerald-600' : isSelected && !isCorrect ? 'text-rose-500' : 'text-transparent'
                     }`}></i>
                   </button>
@@ -473,7 +480,7 @@ export default function HabitWizard({
             </div>
           </div>
 
-          {/* Feedback Card - ONLY VISIBLE ONCE ANSWERED */}
+          {/* Feedback Card */}
           {selectedAnswer && (
             <div className={`p-4 rounded-3xl border space-y-2 animate-fadeIn ${
               selectedAnswer === keyChar
@@ -487,27 +494,28 @@ export default function HabitWizard({
                   <i className={`fa-solid ${selectedAnswer === keyChar ? 'fa-check' : 'fa-info'}`}></i>
                 </div>
                 <span className="text-xs font-black">
-                  {selectedAnswer === keyChar ? 'Jawaban kamu benar! 🎉' : 'Jawaban kurang tepat!'}
+                  {selectedAnswer === keyChar ? 'Jawaban kamu benar! 🎉' : 'Jawaban belum tepat!'}
                 </span>
               </div>
               <p className="text-[11px] font-medium leading-relaxed">
                 {selectedAnswer === keyChar
-                  ? (materiKuis?.penjelasan || 'Bagus sekali! Kamu sudah memahami materi dengan sangat baik.')
-                  : 'Coba baca penjelasan materi dan pilih kembali jawaban yang paling tepat ya!'}
+                  ? (materiKuis?.penjelasan || 'Bagus sekali! Kamu sudah memahami materi pembiasaan ini dengan sangat baik.')
+                  : 'Pelajari kembali video materi untuk mendapatkan pemahaman yang lengkap ya!'}
               </p>
 
               <button
                 type="button"
-                onClick={() => onComplete(habitId, config.sub)}
-                className="w-full mt-2 py-3 bg-emerald-600 hover:bg-emerald-700 text-white rounded-2xl text-xs font-black shadow-md shadow-emerald-600/20 active:scale-95 transition flex items-center justify-center gap-2"
+                onClick={onBack}
+                className="w-full mt-2 py-3 bg-blue-600 hover:bg-blue-700 text-white rounded-2xl text-xs font-black shadow-md shadow-blue-600/20 active:scale-95 transition flex items-center justify-center gap-2"
               >
-                <span>Lanjut ke Hasil Misi</span>
-                <i className="fa-solid fa-arrow-right"></i>
+                <i className="fa-solid fa-house"></i>
+                <span>Selesai & Kembali ke Dashboard</span>
               </button>
             </div>
           )}
         </div>
       )}
+
     </div>
   );
 }

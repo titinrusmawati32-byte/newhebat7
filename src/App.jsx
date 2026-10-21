@@ -35,6 +35,7 @@ export default function App() {
   });
 
   const [activeHabitId, setActiveHabitId] = useState(1);
+  const [habitWizardMode, setHabitWizardMode] = useState('misi'); // 'misi' | 'materi' | 'kuis'
   const [pengaturan, setPengaturan] = useState(null);
   const [materiKuisMap, setMateriKuisMap] = useState({});
   const [habitsToday, setHabitsToday] = useState(() => {
@@ -136,8 +137,9 @@ export default function App() {
     }
   };
 
-  const handleOpenHabit = (hid) => {
+  const handleOpenHabit = (hid, mode = 'misi') => {
     setActiveHabitId(hid);
+    setHabitWizardMode(mode);
     setCurrentView('habit');
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
@@ -231,10 +233,11 @@ export default function App() {
         {currentView === 'habit' && (
           <HabitWizard
             habitId={activeHabitId}
+            mode={habitWizardMode}
             materiKuis={materiKuisMap[activeHabitId]}
             currentUser={currentUser}
             onComplete={handleCompleteHabit}
-            onBack={() => { setCurrentView('dashboard'); setActiveTabSiswa('beranda'); }}
+            onBack={() => { setCurrentView('dashboard'); }}
             onOpenVideoModal={handleOpenVideoModal}
             showToast={showToast}
           />

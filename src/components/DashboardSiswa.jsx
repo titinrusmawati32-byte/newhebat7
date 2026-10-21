@@ -157,22 +157,30 @@ export default function DashboardSiswa({
               <span className="text-[10px] font-bold">Misi</span>
             </button>
 
-            {/* 3. Materi */}
+            {/* 3. Materi (Khusus Video YouTube & Kuis) */}
             <button
               type="button"
-              onClick={() => onOpenHabit(1, 2)}
-              className="flex flex-col items-center justify-center text-slate-400 hover:text-white py-1 transition-all group"
-              title="Materi Edukasi"
+              onClick={() => setActiveTab('materi_list')}
+              className={`flex flex-col items-center justify-center transition-all group ${
+                activeTab === 'materi_list'
+                  ? 'w-11 h-11 sm:w-12 sm:h-12 bg-blue-600 text-white rounded-2xl shadow-lg shadow-blue-500/40 scale-105'
+                  : 'text-slate-400 hover:text-white py-1'
+              }`}
+              title="Materi Edukasi Video & Kuis"
             >
               <i className="fa-solid fa-book-open text-lg mb-1 group-hover:scale-110 transition"></i>
               <span className="text-[10px] font-bold">Materi</span>
             </button>
 
-            {/* 4. Kuis */}
+            {/* 4. Kuis (Khusus Mengerjakan Kuis) */}
             <button
               type="button"
-              onClick={() => onOpenHabit(1, 3)}
-              className="flex flex-col items-center justify-center text-slate-400 hover:text-white py-1 transition-all group"
+              onClick={() => setActiveTab('kuis_list')}
+              className={`flex flex-col items-center justify-center transition-all group ${
+                activeTab === 'kuis_list'
+                  ? 'w-11 h-11 sm:w-12 sm:h-12 bg-blue-600 text-white rounded-2xl shadow-lg shadow-blue-500/40 scale-105'
+                  : 'text-slate-400 hover:text-white py-1'
+              }`}
               title="Kuis Harian"
             >
               <i className="fa-solid fa-clipboard-check text-lg mb-1 group-hover:scale-110 transition"></i>
@@ -343,7 +351,7 @@ export default function DashboardSiswa({
 
                 {/* 2. CARD: "MISI HARI INI" (Bangun Pagi Ceria, 7/7, Progress Bar) */}
                 <div
-                  onClick={() => onOpenHabit(1)}
+                  onClick={() => onOpenHabit(1, 'misi')}
                   className="bg-white rounded-3xl p-4 shadow-sm border border-slate-100 hover:shadow-md transition cursor-pointer flex items-center justify-between gap-3 group"
                 >
                   {/* Left Text & Progress Bar */}
@@ -386,10 +394,10 @@ export default function DashboardSiswa({
 
                 {/* 3. THREE QUICK ACTION CARDS: [Materi] [Tugas] [Kuis] */}
                 <div className="grid grid-cols-3 gap-2.5 sm:gap-3">
-                  {/* Materi */}
+                  {/* Materi (Langsung ke Video YouTube & Kuis, tanpa isian misi) */}
                   <button
                     type="button"
-                    onClick={() => onOpenHabit(1, 2)}
+                    onClick={() => onOpenHabit(1, 'materi')}
                     className="bg-white hover:bg-emerald-50/50 rounded-2xl p-3 sm:p-3.5 border border-slate-100 hover:border-emerald-200 shadow-xs transition flex items-center justify-between group"
                   >
                     <div className="flex items-center gap-2">
@@ -401,10 +409,10 @@ export default function DashboardSiswa({
                     <i className="fa-solid fa-chevron-right text-emerald-500 text-xs"></i>
                   </button>
 
-                  {/* Tugas */}
+                  {/* Tugas / Misi (Khusus Mengisi Jurnal Misi) */}
                   <button
                     type="button"
-                    onClick={() => onOpenHabit(1, 1)}
+                    onClick={() => onOpenHabit(1, 'misi')}
                     className="bg-white hover:bg-blue-50/50 rounded-2xl p-3 sm:p-3.5 border border-slate-100 hover:border-blue-200 shadow-xs transition flex items-center justify-between group"
                   >
                     <div className="flex items-center gap-2">
@@ -416,10 +424,10 @@ export default function DashboardSiswa({
                     <i className="fa-solid fa-chevron-right text-blue-500 text-xs"></i>
                   </button>
 
-                  {/* Kuis */}
+                  {/* Kuis (Langsung Mengerjakan Kuis) */}
                   <button
                     type="button"
-                    onClick={() => onOpenHabit(1, 3)}
+                    onClick={() => onOpenHabit(1, 'kuis')}
                     className="bg-white hover:bg-purple-50/50 rounded-2xl p-3 sm:p-3.5 border border-slate-100 hover:border-purple-200 shadow-xs transition flex items-center justify-between group"
                   >
                     <div className="flex items-center gap-2">
@@ -434,7 +442,7 @@ export default function DashboardSiswa({
 
                 {/* 4. FEATURED HABIT BANNER (Orange "Bangun Pagi Ceria") */}
                 <div
-                  onClick={() => onOpenHabit(1)}
+                  onClick={() => onOpenHabit(1, 'misi')}
                   className="bg-gradient-to-r from-amber-500 via-orange-500 to-amber-500 rounded-3xl p-4 text-white shadow-md shadow-orange-500/20 flex items-center justify-between cursor-pointer hover:opacity-95 transition active:scale-98"
                 >
                   <div className="flex items-center gap-3">
@@ -523,7 +531,7 @@ export default function DashboardSiswa({
                       return (
                         <div
                           key={h.id}
-                          onClick={() => onOpenHabit(h.id)}
+                          onClick={() => onOpenHabit(h.id, 'misi')}
                           className="bg-white rounded-2xl p-2.5 sm:p-3 border border-slate-100 hover:border-blue-300 hover:shadow-sm cursor-pointer transition flex flex-col justify-between group"
                         >
                           {/* Visual Illustration Card */}
@@ -559,7 +567,7 @@ export default function DashboardSiswa({
 
                   {/* 7th Habit (Tidur Cepat) Spanned or Centered */}
                   <div
-                    onClick={() => onOpenHabit(7)}
+                    onClick={() => onOpenHabit(7, 'misi')}
                     className="mt-2.5 bg-white rounded-2xl p-3 border border-slate-100 hover:border-blue-300 hover:shadow-sm cursor-pointer transition flex items-center justify-between group"
                   >
                     <div className="flex items-center gap-3">
@@ -616,7 +624,7 @@ export default function DashboardSiswa({
                     return (
                       <div
                         key={h.id}
-                        onClick={() => onOpenHabit(h.id)}
+                        onClick={() => onOpenHabit(h.id, 'misi')}
                         className="bg-white rounded-2xl p-3.5 shadow-sm border border-slate-100 hover:border-blue-400 flex items-center justify-between cursor-pointer transition"
                       >
                         <div className="flex items-center gap-3">
@@ -629,11 +637,105 @@ export default function DashboardSiswa({
                           </div>
                         </div>
                         <span className={`text-[10px] font-bold px-2.5 py-1 rounded-full ${isDone ? 'text-emerald-700 bg-emerald-50 border border-emerald-200' : 'text-slate-400 bg-slate-100'}`}>
-                          {isDone ? 'Selesai ✔' : 'Buka >'}
+                          {isDone ? 'Selesai ✔' : 'Isi Misi >'}
                         </span>
                       </div>
                     );
                   })}
+                </div>
+              </div>
+            )}
+
+            {/* =================================================================== */}
+            {/* TAB MATERI EDUKASI (KHUSUS VIDEO YOUTUBE & KUIS PEMAHAMAN)           */}
+            {/* =================================================================== */}
+            {activeTab === 'materi_list' && (
+              <div className="space-y-3 animate-fadeIn">
+                <div className="flex items-center gap-3 py-2 border-b border-slate-100">
+                  <button
+                    type="button"
+                    onClick={() => setActiveTab('beranda')}
+                    className="w-9 h-9 rounded-full bg-slate-100 hover:bg-slate-200 flex items-center justify-center text-slate-700 transition"
+                  >
+                    <i className="fa-solid fa-arrow-left"></i>
+                  </button>
+                  <div>
+                    <h3 className="text-sm font-black text-slate-800">Materi Edukasi 7 Kebiasaan</h3>
+                    <p className="text-[10px] text-slate-400 font-medium">Tonton video YouTube pembelajaran & kuis pemahaman</p>
+                  </div>
+                </div>
+
+                <div className="space-y-2.5">
+                  {HABITS_LIST.map((h) => (
+                    <div
+                      key={h.id}
+                      onClick={() => onOpenHabit(h.id, 'materi')}
+                      className="bg-white rounded-2xl p-3.5 shadow-sm border border-slate-100 hover:border-red-400 flex items-center justify-between cursor-pointer transition group"
+                    >
+                      <div className="flex items-center gap-3">
+                        <div className="w-11 h-11 rounded-2xl bg-red-50 text-red-600 flex items-center justify-center text-xl shadow-xs group-hover:scale-105 transition shrink-0">
+                          <i className="fa-brands fa-youtube"></i>
+                        </div>
+                        <div className="min-w-0">
+                          <span className="text-[9px] font-black uppercase text-red-600 bg-red-50 px-2 py-0.5 rounded-md inline-block mb-0.5">
+                            Video & Kuis Misi {h.num}
+                          </span>
+                          <h4 className="text-xs font-black text-slate-800 truncate">{h.title}</h4>
+                          <p className="text-[10px] text-slate-400 font-medium line-clamp-1">{h.desc}</p>
+                        </div>
+                      </div>
+                      <div className="w-8 h-8 rounded-full bg-red-50 text-red-600 flex items-center justify-center text-xs font-bold shrink-0 shadow-xs">
+                        <i className="fa-solid fa-play"></i>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+
+            {/* =================================================================== */}
+            {/* TAB KUIS PEMAHAMAN (KHUSUS MENGERJAKAN KUIS KARAKTER)                */}
+            {/* =================================================================== */}
+            {activeTab === 'kuis_list' && (
+              <div className="space-y-3 animate-fadeIn">
+                <div className="flex items-center gap-3 py-2 border-b border-slate-100">
+                  <button
+                    type="button"
+                    onClick={() => setActiveTab('beranda')}
+                    className="w-9 h-9 rounded-full bg-slate-100 hover:bg-slate-200 flex items-center justify-center text-slate-700 transition"
+                  >
+                    <i className="fa-solid fa-arrow-left"></i>
+                  </button>
+                  <div>
+                    <h3 className="text-sm font-black text-slate-800">Kuis Pemahaman 7 Kebiasaan</h3>
+                    <p className="text-[10px] text-slate-400 font-medium">Uji pemahaman materi dan raih XP bintang emas</p>
+                  </div>
+                </div>
+
+                <div className="space-y-2.5">
+                  {HABITS_LIST.map((h) => (
+                    <div
+                      key={h.id}
+                      onClick={() => onOpenHabit(h.id, 'kuis')}
+                      className="bg-white rounded-2xl p-3.5 shadow-sm border border-slate-100 hover:border-purple-400 flex items-center justify-between cursor-pointer transition group"
+                    >
+                      <div className="flex items-center gap-3">
+                        <div className="w-11 h-11 rounded-2xl bg-purple-50 text-purple-600 flex items-center justify-center text-xl shadow-xs group-hover:scale-105 transition shrink-0">
+                          <i className="fa-solid fa-clipboard-check"></i>
+                        </div>
+                        <div className="min-w-0">
+                          <span className="text-[10px] font-black uppercase text-purple-600 bg-purple-50 px-2 py-0.5 rounded-md inline-block mb-0.5">
+                            Kuis Misi {h.num}
+                          </span>
+                          <h4 className="text-xs font-black text-slate-800 truncate">Kuis: {h.name}</h4>
+                          <p className="text-[10px] text-slate-400 font-medium line-clamp-1">Jawab pertanyaan pemahaman kebiasaan {h.name}</p>
+                        </div>
+                      </div>
+                      <div className="w-8 h-8 rounded-full bg-purple-50 text-purple-600 flex items-center justify-center text-xs font-bold shrink-0 shadow-xs">
+                        <i className="fa-solid fa-arrow-right"></i>
+                      </div>
+                    </div>
+                  ))}
                 </div>
               </div>
             )}
