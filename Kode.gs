@@ -1,10 +1,57 @@
 /**
  * JURNAL 7 KEBIASAAN ANAK INDONESIA HEBAT
- * Backend Google Apps Script (High Performance & Anti-Lemot)
+ * Backend Google Apps Script (High Performance & Cache-Accelerated)
  * File: Kode.gs
  */
 
+// =========================================================================
+// 0. CACHE ACCELERATOR (CacheService: Kecepatan Respon RAM < 50ms)
+// =========================================================================
+
+function getGasCache(key) {
+  try {
+    var cache = CacheService.getScriptCache();
+    var cached = cache.get(key);
+    if (cached) {
+      return JSON.parse(cached);
+    }
+  } catch (err) {
+    // Abaikan jika cache kosong atau parse gagal
+  }
+  return null;
+}
+
+function setGasCache(key, data, ttlSeconds) {
+  try {
+    var cache = CacheService.getScriptCache();
+    var jsonStr = JSON.stringify(data);
+    // Batas aman GAS cache adalah 100KB (102400 byte)
+    if (jsonStr.length < 98000) {
+      var ttl = ttlSeconds || 1800; // default 30 menit
+      cache.put(key, jsonStr, ttl);
+    }
+  } catch (err) {
+    // Abaikan jika melebihi kuota
+  }
+}
+
+function clearGasCache(keys) {
+  try {
+    var cache = CacheService.getScriptCache();
+    if (Array.isArray(keys)) {
+      cache.removeAll(keys);
+    } else if (typeof keys === 'string') {
+      cache.remove(keys);
+    }
+  } catch (err) {
+    // Abaikan error penghapusan
+  }
+}
+
+// =========================================================================
 // 1. ENTRY POINT WEB APP & REST API (UNTUK FRONTEND GITHUB & VITE)
+// =========================================================================
+
 function doPost(e) {
   try {
     var contents = (e && e.postData) ? e.postData.contents : '';
@@ -39,7 +86,7 @@ function doGet(e) {
       .addMetaTag('viewport', 'width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no')
       .setXFrameOptionsMode(HtmlService.XFrameOptionsMode.ALLOWALL);
   } catch (err) {
-    return ContentService.createTextOutput(JSON.stringify({ status: 'API Online', message: 'LMS 7 Kebiasaan REST API siap digunakan.' }))
+    return ContentService.createTextOutput(JSON.stringify({ status: 'API Online', message: 'LMS 7 Kebiasaan REST API siap digunakan (Cache-Enabled).' }))
       .setMimeType(ContentService.MimeType.JSON);
   }
 }
@@ -58,13 +105,13 @@ function handleApiAction(action, data) {
     case 'simpanMateriKuis':
       return apiSimpanMateriKuis(data.habitId, data.payload || data);
     case 'getInitialSiswa':
-      return apiGetInitialSiswaData(data.username);
+      return apiGetInitialSiswaData(data.username, data.tanggal);
     case 'simpanHabit':
       return apiSimpanHabit(data.habitId, data.payload || data);
     case 'getMonitoringKelas':
       return apiGetMonitoringKelas(data.kelas, data.tanggal);
     case 'verifikasiHabit':
-      return apiVerifikasiHabit(data.habitNum, data.rowId, data.status, data.catatan);
+      return apiVerifikasiHabit(data.habitNum, data.rowId, data.status, data.catatan, data.kelas, data.tanggal, data.username);
     case 'getSiswaList':
       return apiGetSiswaList(data.kelasFilter);
     case 'simpanSiswa':
@@ -94,7 +141,6 @@ function getSpreadsheet() {
   try {
     return SpreadsheetApp.getActiveSpreadsheet();
   } catch (err) {
-    // Jika script standalone, masukkan Spreadsheet ID Anda di sini jika diperlukan
     throw new Error('Spreadsheet aktif tidak ditemukan. Pastikan script ini terkait langsung dengan Google Spreadsheet.');
   }
 }
@@ -166,6 +212,9 @@ function setupDatabase() {
     }
   }
 
+  // Bersihkan semua cache agar data baru terbaca
+  clearGasCache(['pengaturan_sekolah', 'guru_list_all', 'siswa_list_all', 'materi_kuis_all']);
+
   return { success: true, message: 'Database Google Sheets berhasil disiapkan lengkap!' };
 }
 
@@ -227,17 +276,24 @@ function apiValidasiLogin(username, password) {
   return { success: false, message: 'ID (NISN / Username) atau Kata Sandi salah!' };
 }
 
-// Mengambil seluruh data awal siswa (Habit hari ini + konfigurasi sekolah) sekaligus
+// Mengambil seluruh data awal siswa (Habit hari ini + konfigurasi sekolah) sekaligus dengan RAM Cache
 function apiGetInitialSiswaData(username, tanggal) {
+  var targetUser = (username || '').toString().trim().toLowerCase();
+  var targetTanggal = tanggal || Utilities.formatDate(new Date(), Session.getScriptTimeZone(), 'yyyy-MM-dd');
+  var cacheKey = 'init_siswa_' + targetUser + '_' + targetTanggal;
+
+  // Cek RAM Cache GAS
+  var cached = getGasCache(cacheKey);
+  if (cached) {
+    return cached;
+  }
+
   var ss = getSpreadsheet();
   var result = {
     pengaturan: apiGetPengaturan(),
     habitsToday: {},
     allSubmissions: []
   };
-
-  var targetUser = (username || '').toString().trim().toLowerCase();
-  var targetTanggal = tanggal || Utilities.formatDate(new Date(), Session.getScriptTimeZone(), 'yyyy-MM-dd');
 
   for (var h = 1; h <= 7; h++) {
     result.habitsToday[h] = null;
@@ -275,6 +331,8 @@ function apiGetInitialSiswaData(username, tanggal) {
     }
   }
 
+  // Simpan di RAM Cache GAS selama 300 detik (5 menit)
+  setGasCache(cacheKey, result, 300);
   return result;
 }
 
@@ -331,6 +389,15 @@ function apiSimpanHabit(habitNumber, payload) {
     sheet.appendRow(rowValues);
   }
 
+  // Invalidate Cache Terkait (Siswa & Monitoring Guru)
+  var kTarget = (payload.kelas || '').toString().trim().toLowerCase();
+  clearGasCache([
+    'init_siswa_' + userStr.toLowerCase() + '_' + tglStr,
+    'mon_all_' + tglStr,
+    'mon_' + kTarget + '_' + tglStr,
+    'mon_kepsek_' + tglStr
+  ]);
+
   return { success: true, message: 'Misi kebiasaan berhasil disimpan!', data: { id: rowId, tanggal: tglStr } };
 }
 
@@ -352,6 +419,14 @@ function apiHapusHabit(habitNumber, id, username, tanggal) {
 
     if ((id && rId === id) || (rUser === targetUser && rTgl === tanggal)) {
       sheet.deleteRow(i + 1);
+
+      // Invalidate Cache
+      clearGasCache([
+        'init_siswa_' + targetUser + '_' + rTgl,
+        'mon_all_' + rTgl,
+        'mon_kepsek_' + rTgl
+      ]);
+
       return { success: true, message: 'Data jurnal kebiasaan berhasil dihapus.' };
     }
   }
@@ -359,7 +434,7 @@ function apiHapusHabit(habitNumber, id, username, tanggal) {
   return { success: false, message: 'Data jurnal tidak ditemukan.' };
 }
 
-function apiVerifikasiHabit(habitNumber, rowId, status, catatanGuru) {
+function apiVerifikasiHabit(habitNumber, rowId, status, catatanGuru, kelas, tanggal, username) {
   var ss = getSpreadsheet();
   var sheet = ss.getSheetByName('Habit' + habitNumber);
   if (!sheet) return { success: false, message: 'Sheet tidak ditemukan.' };
@@ -369,6 +444,22 @@ function apiVerifikasiHabit(habitNumber, rowId, status, catatanGuru) {
     if (String(data[i][0]) === String(rowId)) {
       sheet.getRange(i + 1, 9).setValue(status);
       sheet.getRange(i + 1, 10).setValue(catatanGuru || '');
+
+      var rTgl = String(data[i][1]);
+      if (data[i][1] instanceof Date) {
+        rTgl = Utilities.formatDate(data[i][1], Session.getScriptTimeZone(), 'yyyy-MM-dd');
+      }
+      var rUser = String(data[i][3] || '').trim().toLowerCase();
+      var rKelas = String(data[i][5] || '').trim().toLowerCase();
+
+      // Bersihkan cache terkait
+      clearGasCache([
+        'init_siswa_' + rUser + '_' + rTgl,
+        'mon_all_' + rTgl,
+        'mon_' + rKelas + '_' + rTgl,
+        'mon_kepsek_' + rTgl
+      ]);
+
       return { success: true, message: 'Verifikasi berhasil diperbarui.' };
     }
   }
@@ -377,13 +468,21 @@ function apiVerifikasiHabit(habitNumber, rowId, status, catatanGuru) {
 }
 
 // =========================================================================
-// 5. API MONITORING GURU & KEPALA SEKOLAH (BATCH AGGREGATION)
+// 5. API MONITORING GURU & KEPALA SEKOLAH (BATCH AGGREGATION & CACHED)
 // =========================================================================
 
 function apiGetMonitoringKelas(kelasTarget, tanggalTarget) {
-  var ss = getSpreadsheet();
   var targetTgl = tanggalTarget || Utilities.formatDate(new Date(), Session.getScriptTimeZone(), 'yyyy-MM-dd');
   var kTarget = (kelasTarget || '').toString().trim().toLowerCase();
+  var cacheKey = 'mon_' + (kTarget || 'all') + '_' + targetTgl;
+
+  // Cek RAM Cache
+  var cached = getGasCache(cacheKey);
+  if (cached) {
+    return cached;
+  }
+
+  var ss = getSpreadsheet();
 
   // 1. Ambil daftar seluruh siswa di kelas ini
   var sheetSiswa = ss.getSheetByName('Siswa');
@@ -448,17 +547,28 @@ function apiGetMonitoringKelas(kelasTarget, tanggalTarget) {
     };
   });
 
-  return {
+  var result = {
     tanggal: targetTgl,
     kelas: kelasTarget,
     totalSiswa: siswaList.length,
     rows: rowsSummary
   };
+
+  // Simpan di RAM Cache selama 180 detik (3 menit)
+  setGasCache(cacheKey, result, 180);
+  return result;
 }
 
 function apiGetMonitoringKepsek(tanggalTarget) {
-  var ss = getSpreadsheet();
   var targetTgl = tanggalTarget || Utilities.formatDate(new Date(), Session.getScriptTimeZone(), 'yyyy-MM-dd');
+  var cacheKey = 'mon_kepsek_' + targetTgl;
+
+  var cached = getGasCache(cacheKey);
+  if (cached) {
+    return cached;
+  }
+
+  var ss = getSpreadsheet();
 
   // Ambil semua siswa
   var sheetSiswa = ss.getSheetByName('Siswa');
@@ -490,26 +600,36 @@ function apiGetMonitoringKepsek(tanggalTarget) {
     }
   }
 
-  return {
+  var result = {
     tanggal: targetTgl,
     totalSiswa: totalSiswa,
     kelasList: Object.keys(kelasSet),
     kelasDetail: kelasSet,
     habitCounts: habitCounts
   };
+
+  setGasCache(cacheKey, result, 180);
+  return result;
 }
 
 // =========================================================================
-// 6. API MANAJEMEN SISWA & GURU (CRUD LENGKAP)
+// 6. API MANAJEMEN SISWA & GURU (CRUD LENGKAP & CACHED)
 // =========================================================================
 
 function apiGetSiswaList(kelasFilter) {
+  var filter = (kelasFilter || '').toString().trim().toLowerCase();
+  var cacheKey = 'siswa_list_' + (filter || 'all');
+
+  var cached = getGasCache(cacheKey);
+  if (cached) {
+    return cached;
+  }
+
   var ss = getSpreadsheet();
   var sheet = ss.getSheetByName('Siswa');
   if (!sheet) return [];
   var rows = sheet.getDataRange().getValues();
   var list = [];
-  var filter = (kelasFilter || '').toString().trim().toLowerCase();
 
   for (var i = 1; i < rows.length; i++) {
     var sKelas = String(rows[i][4] || '').trim();
@@ -525,6 +645,8 @@ function apiGetSiswaList(kelasFilter) {
       });
     }
   }
+
+  setGasCache(cacheKey, list, 3600); // 1 jam
   return list;
 }
 
@@ -564,6 +686,10 @@ function apiSimpanSiswa(payload) {
     sheet.appendRow(rowVals);
   }
 
+  // Hapus cache siswa
+  var kTarget = (payload.kelas || '').toString().trim().toLowerCase();
+  clearGasCache(['siswa_list_all', 'siswa_list_' + kTarget]);
+
   return { success: true, message: 'Data siswa berhasil disimpan!' };
 }
 
@@ -578,6 +704,7 @@ function apiHapusSiswa(idOrNisn) {
   for (var i = 1; i < data.length; i++) {
     if (String(data[i][0]) === target || String(data[i][1]) === target) {
       sheet.deleteRow(i + 1);
+      clearGasCache(['siswa_list_all']);
       return { success: true, message: 'Data siswa berhasil dihapus.' };
     }
   }
@@ -585,6 +712,12 @@ function apiHapusSiswa(idOrNisn) {
 }
 
 function apiGetGuruList() {
+  var cacheKey = 'guru_list_all';
+  var cached = getGasCache(cacheKey);
+  if (cached) {
+    return cached;
+  }
+
   var ss = getSpreadsheet();
   var sheet = ss.getSheetByName('Guru');
   if (!sheet) return [];
@@ -601,6 +734,8 @@ function apiGetGuruList() {
       status: String(rows[i][5] || 'Aktif')
     });
   }
+
+  setGasCache(cacheKey, list, 3600); // 1 jam
   return list;
 }
 
@@ -639,6 +774,7 @@ function apiSimpanGuru(payload) {
     sheet.appendRow(rowVals);
   }
 
+  clearGasCache(['guru_list_all']);
   return { success: true, message: 'Data guru berhasil disimpan!' };
 }
 
@@ -656,6 +792,7 @@ function apiHapusGuru(idOrUsername) {
         return { success: false, message: 'Akun Kepala Sekolah utama tidak boleh dihapus.' };
       }
       sheet.deleteRow(i + 1);
+      clearGasCache(['guru_list_all']);
       return { success: true, message: 'Data guru berhasil dihapus.' };
     }
   }
@@ -663,10 +800,16 @@ function apiHapusGuru(idOrUsername) {
 }
 
 // =========================================================================
-// 7. API PENGATURAN SEKOLAH
+// 7. API PENGATURAN SEKOLAH (CACHED)
 // =========================================================================
 
 function apiGetPengaturan() {
+  var cacheKey = 'pengaturan_sekolah';
+  var cached = getGasCache(cacheKey);
+  if (cached) {
+    return cached;
+  }
+
   var ss = getSpreadsheet();
   var sheet = ss.getSheetByName('Pengaturan');
   var config = {
@@ -677,13 +820,19 @@ function apiGetPengaturan() {
     passwordKepsek: '123456'
   };
 
-  if (!sheet) return config;
+  if (!sheet) {
+    setGasCache(cacheKey, config, 21600); // 6 jam
+    return config;
+  }
+
   var rows = sheet.getDataRange().getValues();
   for (var i = 1; i < rows.length; i++) {
     var k = String(rows[i][0] || '').trim();
     var v = String(rows[i][1] || '').trim();
     if (k) config[k] = v;
   }
+
+  setGasCache(cacheKey, config, 21600); // Cache 6 jam
   return config;
 }
 
@@ -712,14 +861,21 @@ function apiSimpanPengaturan(payload) {
     }
   }
 
+  clearGasCache(['pengaturan_sekolah']);
   return { success: true, message: 'Pengaturan sekolah berhasil diperbarui!' };
 }
 
 // =========================================================================
-// 8. API MATERI & KUIS MISI (DIKELOLA OLEH GURU)
+// 8. API MATERI & KUIS MISI (DIKELOLA OLEH GURU & CACHED)
 // =========================================================================
 
 function apiGetMateriKuisAll() {
+  var cacheKey = 'materi_kuis_all';
+  var cached = getGasCache(cacheKey);
+  if (cached) {
+    return cached;
+  }
+
   var ss = getSpreadsheet();
   var sheet = ss.getSheetByName('MateriKuis');
   var map = {};
@@ -741,7 +897,10 @@ function apiGetMateriKuisAll() {
     };
   }
 
-  if (!sheet) return map;
+  if (!sheet) {
+    setGasCache(cacheKey, map, 21600);
+    return map;
+  }
 
   var rows = sheet.getDataRange().getValues();
   for (var i = 1; i < rows.length; i++) {
@@ -763,6 +922,7 @@ function apiGetMateriKuisAll() {
     }
   }
 
+  setGasCache(cacheKey, map, 21600); // 6 jam
   return map;
 }
 
@@ -805,5 +965,6 @@ function apiSimpanMateriKuis(habitId, payload) {
     sheet.appendRow(rowVals);
   }
 
+  clearGasCache(['materi_kuis_all']);
   return { success: true, message: 'Materi & Kuis Misi ' + hid + ' berhasil disimpan oleh Guru!' };
 }
