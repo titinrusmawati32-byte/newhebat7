@@ -4,9 +4,12 @@
 
 // URL Google Apps Script diambil secara aman dari Environment Variable Vite (.env)
 // Menjaga agar URL database TIDAK terlihat di menu aplikasi siswa maupun guru
-const ENV_GAS_URL = (typeof import.meta !== 'undefined' && import.meta.env && import.meta.env.VITE_GAS_API_URL) 
+const rawEnvUrl = (typeof import.meta !== 'undefined' && import.meta.env && import.meta.env.VITE_GAS_API_URL) 
   ? import.meta.env.VITE_GAS_API_URL.trim() 
   : '';
+
+// Sanitasi otomatis: memastikan URL berakhiran /exec tunggal (mencegah typo /exec/exec)
+const ENV_GAS_URL = rawEnvUrl.replace(/(\/exec)+$/, '/exec');
 
 const STORAGE_KEY_GAS_URL = 'GAS_API_URL_7KEBIASAAN';
 
